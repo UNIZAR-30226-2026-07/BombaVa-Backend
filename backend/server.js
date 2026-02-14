@@ -3,7 +3,9 @@ import dotenv from 'dotenv';
 //Aqui se importa las turas que haremos en el futuro
 
 
+
 dotenv.config();
+const app = express(); // Inicia la aplicación Express
 const PORT = process.env.PORT || 3000;
 
 //app.use es para decir que rutas y elemntos del backend se pueden usar
