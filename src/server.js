@@ -8,6 +8,7 @@ const app = require('./app');
 const { Server } = require('socket.io');
 const { connectDB } = require('./config/db');
 const { syncModels } = require('./shared/models/index');
+const runSeeder = require('./shared/models/seed');
 
 
 const PORT = process.env.PORT || 3000;
@@ -33,6 +34,11 @@ io.on('connection', (socket) => {
 const startServer = async () => {
     await connectDB();
     await syncModels();
+
+    // para testing (mock datas)
+    if (process.env.NODE_ENV === 'development') {
+        await runSeeder();
+    }
 
     server.listen(PORT, () => {
         console.log('---------------------------------------------');
