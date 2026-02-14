@@ -7,6 +7,7 @@ const http = require('http');
 const app = require('./app');
 const { Server } = require('socket.io');
 const { connectDB } = require('./config/db');
+const { syncModels } = require('./shared/models/index');
 
 
 const PORT = process.env.PORT || 3000;
@@ -31,6 +32,7 @@ io.on('connection', (socket) => {
  */
 const startServer = async () => {
     await connectDB();
+    await syncModels();
 
     server.listen(PORT, () => {
         console.log('---------------------------------------------');
