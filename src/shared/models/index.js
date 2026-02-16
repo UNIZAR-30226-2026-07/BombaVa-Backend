@@ -1,16 +1,15 @@
 /**
  * Registro central de modelos y asociaciones entre ellos
  */
-const { sequelize } = require('../../config/db');
-
-const User = require('../../modules/auth/models/User');
-const ShipTemplate = require('../../modules/inventory/models/ShipTemplate');
-const UserShip = require('../../modules/inventory/models/UserShip');
-const FleetDeck = require('../../modules/inventory/models/FleetDeck');
-const Match = require('../../modules/game/models/Match');
-const MatchPlayer = require('../../modules/game/models/MatchPlayer');
-const ShipInstance = require('../../modules/engine/models/ShipInstance');
-const Projectile = require('../../modules/engine/models/Projectile');
+import { sequelize } from '../../config/db.js';
+import User from '../../modules/auth/models/User.js';
+import ShipTemplate from '../../modules/inventory/models/ShipTemplate.js';
+import UserShip from '../../modules/inventory/models/UserShip.js';
+import FleetDeck from '../../modules/inventory/models/FleetDeck.js';
+import Match from '../../modules/game/models/Match.js';
+import MatchPlayer from '../../modules/game/models/MatchPlayer.js';
+import ShipInstance from '../../modules/engine/models/ShipInstance.js';
+import Projectile from '../../modules/engine/models/Projectile.js';
 
 // Relaciones de Usuario & Inventario
 User.hasMany(UserShip, { foreignKey: 'user_id' });
@@ -53,8 +52,15 @@ const syncModels = async () => {
     }
 };
 
-module.exports = {
-    sequelize, syncModels,
-    User, ShipTemplate, UserShip, FleetDeck,
-    Match, MatchPlayer, ShipInstance, Projectile
+export {
+    sequelize,
+    syncModels,
+    User,
+    ShipTemplate,
+    UserShip,
+    FleetDeck,
+    Match,
+    MatchPlayer,
+    ShipInstance,
+    Projectile
 };

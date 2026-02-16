@@ -1,6 +1,6 @@
 
 
-const { User } = require('../models/User')
+import User from '../models/User.js';
 
 class UserDao {
     
@@ -40,4 +40,4 @@ class UserDao {
     }
 }
 
-module.exports = new UserDao();
+export default new UserDao();
