@@ -2,8 +2,8 @@
  * Projectile Model
  * Entidades no-instantaneas presentes en el tablero
  */
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../../config/db');
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../../../config/db.js';
 
 const Projectile = sequelize.define('Projectile', {
     id: {
@@ -40,4 +40,4 @@ const Projectile = sequelize.define('Projectile', {
     underscored: true
 });
 
-module.exports = Projectile;
+export default Projectile;

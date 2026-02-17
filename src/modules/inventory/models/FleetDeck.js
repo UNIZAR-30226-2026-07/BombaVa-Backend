@@ -2,8 +2,8 @@
  * FleetDeck Model
  * Almacena la configuración del mazo de la flota del usuario
  */
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../../config/db');
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../../../config/db.js';
 
 const FleetDeck = sequelize.define('FleetDeck', {
     id: {
@@ -28,4 +28,4 @@ const FleetDeck = sequelize.define('FleetDeck', {
     underscored: true
 });
 
-module.exports = FleetDeck;
+export default FleetDeck;

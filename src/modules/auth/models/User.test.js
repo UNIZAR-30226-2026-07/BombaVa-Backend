@@ -1,8 +1,9 @@
-const User = require('./User');
+
+import build from './User.js';
 
 describe('User Model Unit Tests', () => {
     it('Debe fallar si el email no tiene formato correcto', async () => {
-        const user = User.build({
+        const user = new build({
             username: 'test',
             email: 'esto-no-es-un-email',
             password_hash: '123'
@@ -18,7 +19,7 @@ describe('User Model Unit Tests', () => {
     });
 
     it('Debe asignar el ELO por defecto de 1200', () => {
-        const user = User.build({ username: 'raul', email: 'r@u.es' });
+        const user = new build({ username: 'raul', email: 'r@u.es' });
         expect(user.elo_rating).toBe(1200);
     });
 });

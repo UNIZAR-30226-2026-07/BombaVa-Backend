@@ -2,8 +2,8 @@
  * Match Model
  * Controla el estado global de una sesión de juego
  */
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../../config/db');
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../../../config/db.js';
 
 const Match = sequelize.define('Match', {
     id: {
@@ -35,4 +35,4 @@ const Match = sequelize.define('Match', {
     underscored: true
 });
 
-module.exports = Match;
+export default Match;

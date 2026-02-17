@@ -2,8 +2,8 @@
  * UserShip Model
  * Representa un barco concreto en la colección de un usuario
  */
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../../config/db');
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../../../config/db.js';
 
 const UserShip = sequelize.define('UserShip', {
     id: {
@@ -24,4 +24,4 @@ const UserShip = sequelize.define('UserShip', {
     underscored: true
 });
 
-module.exports = UserShip;
+export default UserShip;

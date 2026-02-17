@@ -2,8 +2,8 @@
  * ShipInstance Model
  * Representa un barco fisico sobre la matriz en una partida activa
  */
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../../config/db');
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../../../config/db.js';
 
 const ShipInstance = sequelize.define('ShipInstance', {
     id: {
@@ -40,4 +40,4 @@ const ShipInstance = sequelize.define('ShipInstance', {
     underscored: true
 });
 
-module.exports = ShipInstance;
+export default ShipInstance;

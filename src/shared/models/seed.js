@@ -2,7 +2,7 @@
  * Database Seeder
  * Poblar la base de datos con valores (testing)
  */
-const { sequelize, User, ShipTemplate, UserShip, FleetDeck } = require('./index');
+import { sequelize, User, ShipTemplate, UserShip, FleetDeck } from './index.js';
 
 const runSeeder = async () => {
     try {
@@ -74,4 +74,4 @@ const runSeeder = async () => {
     }
 };
 
-module.exports = runSeeder;
+export default runSeeder;
