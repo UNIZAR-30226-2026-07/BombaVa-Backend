@@ -1,25 +1,31 @@
-/**
- * MatchPlayer Model
- * Atributos dinamicos del jugador durante la batalla
- */
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../../config/db.js';
 
 const MatchPlayer = sequelize.define('MatchPlayer', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
+    },
     fuelReserve: {
         type: DataTypes.INTEGER,
-        defaultValue: 100
+        defaultValue: 100,
+        allowNull: false,
+        validate: { min: 0 }
     },
     ammoCurrent: {
         type: DataTypes.INTEGER,
-        defaultValue: 10
+        defaultValue: 10,
+        allowNull: false,
+        validate: { min: 0 }
     },
     side: {
         type: DataTypes.ENUM('NORTH', 'SOUTH'),
         allowNull: false
     },
     deckSnapshot: {
-        type: DataTypes.JSONB
+        type: DataTypes.JSONB,
+        allowNull: true
     }
 }, {
     tableName: 'match_players',

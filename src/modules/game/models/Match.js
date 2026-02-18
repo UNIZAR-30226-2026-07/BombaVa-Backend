@@ -1,7 +1,3 @@
-/**
- * Match Model
- * Controla el estado global de una sesión de juego
- */
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../../config/db.js';
 
@@ -13,22 +9,25 @@ const Match = sequelize.define('Match', {
     },
     status: {
         type: DataTypes.ENUM('WAITING', 'PLAYING', 'FINISHED'),
-        defaultValue: 'WAITING'
+        defaultValue: 'WAITING',
+        allowNull: false
     },
     turnNumber: {
         type: DataTypes.INTEGER,
-        defaultValue: 1
+        defaultValue: 1,
+        allowNull: false,
+        validate: { min: 1 }
     },
     turnExpiresAt: {
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
+        allowNull: true
     },
     mapTerrain: {
         type: DataTypes.JSONB,
-        allowNull: false
-    },
-    startedAt: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+        allowNull: false,
+        validate: {
+            notEmpty: true
+        }
     }
 }, {
     tableName: 'matches',
