@@ -6,9 +6,12 @@ const router = Router();
 
 /**
  * Petición POST a /api/auth/register
+ * Validaciones exhaustivas de entrada
  */
-router.post('/register', registerUser);
-//TODO: Comentar mejor esto
-
+router.post('/register', [
+    body('username').notEmpty().withMessage('El nombre de usuario es obligatorio'),
+    body('email').isEmail().withMessage('Debe ser un email válido'),
+    body('contrasena').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres')
+], registerUser);
 
 export default router;

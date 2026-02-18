@@ -1,24 +1,22 @@
 /**
- * Configuración de la Aplicación Express
+ * Express Application Configuration
  */
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 import authRoutes from './modules/auth/routes/authRoutes.js';
+import { errorHandler } from './shared/middlewares/errorMiddleware.js';
 
 const app = express();
 
-// middlewares
 app.use(cors());
 app.use(express.json());
 
-//Rutas
 app.use('/api/auth', authRoutes);
 
-
-
-// ruta de prueba inicial
 app.get('/', (req, res) => {
     res.json({ message: "TEST-API de BombaVa" });
 });
+
+app.use(errorHandler);
 
 export default app;
