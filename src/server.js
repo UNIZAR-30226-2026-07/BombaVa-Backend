@@ -2,17 +2,17 @@
  * Main Entry Point
  * Inicializa Base de Datos, Servidor HTTP y WebSockets.
  */
-require('dotenv').config();
-const http = require('http');
-const app = require('./app');
-const { Server } = require('socket.io');
-const { connectDB } = require('./config/db');
-const { syncModels } = require('./shared/models/index');
-const runSeeder = require('./shared/models/seed');
+import dotenv from 'dotenv';
+import { createServer } from 'http';
+import app from './app.js';
+import { Server } from 'socket.io';
+import { connectDB } from './config/db.js';
+import { syncModels } from './shared/models/index.js';
+import runSeeder from './shared/models/seed.js';
 
 
 const PORT = process.env.PORT || 3000;
-const server = http.createServer(app);
+const server = createServer(app);
 
 const io = new Server(server, {
     cors: {

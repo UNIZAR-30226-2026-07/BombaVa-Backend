@@ -2,7 +2,7 @@
  * User Persistence Integration Test
  * Objetivo: Validar la comunicacion real con PostgreSQL.
  */
-const { User, sequelize } = require('../../src/shared/models/index');
+import { User, sequelize } from '../../src/shared/models/index.js';
 
 describe('User Persistence (Integration)', () => {
 

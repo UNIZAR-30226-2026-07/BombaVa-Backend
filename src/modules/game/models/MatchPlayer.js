@@ -2,8 +2,8 @@
  * MatchPlayer Model
  * Atributos dinamicos del jugador durante la batalla
  */
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../../config/db');
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../../../config/db.js';
 
 const MatchPlayer = sequelize.define('MatchPlayer', {
     fuelReserve: {
@@ -26,4 +26,4 @@ const MatchPlayer = sequelize.define('MatchPlayer', {
     underscored: true
 });
 
-module.exports = MatchPlayer;
+export default MatchPlayer;

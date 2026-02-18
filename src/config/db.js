@@ -2,10 +2,10 @@
  * Database Connection Configuration
  * Inicializa la instancia para PostgreSQL.
  */
-const { Sequelize } = require('sequelize');
-require('dotenv').config();
+import Sequelize from 'sequelize';
+import 'dotenv/config'
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
+export const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     logging: false,
     define: {
@@ -17,7 +17,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
 /**
  * Prueba la conexión con la base de datos
  */
-const connectDB = async () => {
+export const connectDB = async () => {
     try {
         await sequelize.authenticate();
         console.log('Conexión a PostgreSQL establecida correctamente.');
@@ -26,5 +26,3 @@ const connectDB = async () => {
         process.exit(1);
     }
 };
-
-module.exports = { sequelize, connectDB };

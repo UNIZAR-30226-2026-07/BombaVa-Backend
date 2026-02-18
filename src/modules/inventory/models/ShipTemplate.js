@@ -2,8 +2,8 @@
  * ShipTemplate Model
  * Define las estadísticas base y dimensiones de cada tipo de barco
  */
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../../config/db');
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../../../config/db.js';
 
 const ShipTemplate = sequelize.define('ShipTemplate', {
     slug: {
@@ -39,4 +39,4 @@ const ShipTemplate = sequelize.define('ShipTemplate', {
     underscored: true
 });
 
-module.exports = ShipTemplate;
+export default ShipTemplate;
