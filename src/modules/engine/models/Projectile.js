@@ -1,7 +1,3 @@
-/**
- * Projectile Model
- * Entidades no-instantaneas presentes en el tablero
- */
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../../config/db.js';
 
@@ -13,27 +9,40 @@ const Projectile = sequelize.define('Projectile', {
     },
     type: {
         type: DataTypes.ENUM('TORPEDO', 'MINE'),
-        allowNull: false
+        allowNull: false,
+        validate: {
+            isIn: {
+                args: [['TORPEDO', 'MINE']],
+                msg: "El tipo de proyectil debe ser TORPEDO o MINE"
+            }
+        }
     },
     x: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        validate: { min: 0, max: 14 } // OJO: Tablero 15x15
     },
     y: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        validate: { min: 0, max: 14 } // OJO: Tablero 15x15
     },
     vectorX: {
         type: DataTypes.INTEGER,
-        defaultValue: 0
+        allowNull: false,
+        defaultValue: 0,
+        validate: { min: -1, max: 1 }
     },
     vectorY: {
         type: DataTypes.INTEGER,
-        defaultValue: 0
+        allowNull: false,
+        defaultValue: 0,
+        validate: { min: -1, max: 1 }
     },
     lifeDistance: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        validate: { min: 0 }
     }
 }, {
     tableName: 'projectiles',

@@ -1,4 +1,4 @@
-import { sequelize, ShipTemplate, User, UserShip } from '../../src/shared/models/index.js';
+import { sequelize, ShipTemplate, User, UserShip } from '../../../src/shared/models/index.js';
 
 describe('Inventory Persistence (Integration)', () => {
 

@@ -1,4 +1,4 @@
-import { Match, sequelize, ShipInstance, ShipTemplate, User, UserShip } from '../../src/shared/models/index.js';
+import { Match, sequelize, ShipInstance, ShipTemplate, User, UserShip } from '../../../src/shared/models/index.js';
 
 describe('Ship Instance Persistence (Integration)', () => {
 

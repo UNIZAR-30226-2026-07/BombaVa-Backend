@@ -1,4 +1,4 @@
-import { Match, MatchPlayer, sequelize, User } from '../../src/shared/models/index.js';
+import { Match, MatchPlayer, sequelize, User } from '../../../src/shared/models/index.js';
 
 describe('Game Flow Persistence (Integration)', () => {
     beforeAll(async () => {
