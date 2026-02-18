@@ -1,3 +1,6 @@
+/**
+ * FleetDeck Model
+ */
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../../config/db.js';
 
@@ -11,7 +14,7 @@ const FleetDeck = sequelize.define('FleetDeck', {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-            notEmpty: { msg: "El nombre del mazo no puede estar vacío" },
+            notEmpty: true,
             len: [3, 30]
         }
     },
@@ -20,7 +23,7 @@ const FleetDeck = sequelize.define('FleetDeck', {
         allowNull: false,
         defaultValue: [],
         validate: {
-            isValidArray(value) {
+            isArray(value) {
                 if (!Array.isArray(value)) {
                     throw new Error('shipIds debe ser un array de UUIDs');
                 }

@@ -1,6 +1,5 @@
 /**
  * UserShip Model
- * Representa un barco concreto en la colección de un usuario
  */
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../../config/db.js';
@@ -13,10 +12,15 @@ const UserShip = sequelize.define('UserShip', {
     },
     level: {
         type: DataTypes.INTEGER,
-        defaultValue: 1
+        allowNull: false,
+        defaultValue: 1,
+        validate: {
+            min: 1
+        }
     },
     customStats: {
         type: DataTypes.JSONB,
+        allowNull: false,
         defaultValue: {}
     }
 }, {
