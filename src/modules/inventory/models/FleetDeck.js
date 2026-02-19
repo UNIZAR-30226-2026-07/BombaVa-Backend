@@ -1,6 +1,5 @@
 /**
  * FleetDeck Model
- * Almacena la configuración del mazo de la flota del usuario
  */
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../../config/db.js';
@@ -13,14 +12,27 @@ const FleetDeck = sequelize.define('FleetDeck', {
     },
     deckName: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notEmpty: true,
+            len: [3, 30]
+        }
     },
     shipIds: {
         type: DataTypes.JSONB,
-        allowNull: false
+        allowNull: false,
+        defaultValue: [],
+        validate: {
+            isArray(value) {
+                if (!Array.isArray(value)) {
+                    throw new Error('shipIds debe ser un array de UUIDs');
+                }
+            }
+        }
     },
     isActive: {
         type: DataTypes.BOOLEAN,
+        allowNull: false,
         defaultValue: false
     }
 }, {

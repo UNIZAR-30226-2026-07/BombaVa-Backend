@@ -1,7 +1,3 @@
-/**
- * ShipInstance Model
- * Representa un barco fisico sobre la matriz en una partida activa
- */
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../../config/db.js';
 
@@ -13,26 +9,37 @@ const ShipInstance = sequelize.define('ShipInstance', {
     },
     x: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        validate: { min: 0, max: 14 } // OJO: Tablero 15x15
     },
     y: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        validate: { min: 0, max: 14 } // OJO: Tablero 15x15
     },
     orientation: {
         type: DataTypes.ENUM('N', 'S', 'E', 'W'),
-        allowNull: false
+        allowNull: false,
+        validate: {
+            isIn: {
+                args: [['N', 'S', 'E', 'W']],
+                msg: "La orientación debe ser N, S, E o W"
+            }
+        }
     },
     currentHp: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        validate: { min: 0 }
     },
     hitCells: {
         type: DataTypes.JSONB,
+        allowNull: false,
         defaultValue: []
     },
     isSunk: {
         type: DataTypes.BOOLEAN,
+        allowNull: false,
         defaultValue: false
     }
 }, {
