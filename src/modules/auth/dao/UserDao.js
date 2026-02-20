@@ -29,6 +29,21 @@ class UserDao {
             throw error;
         }
     }
+
+    /**
+     * Método que devuelve una clase User por su correo
+     * @param {string} email Correo de un usuario que se quiere buscar
+     * @returns Devuleve la información de un usuario si existe, o null si no existe
+     */
+    async findByMail(email){
+        try {
+            return await User.findOne({
+                where: {email : email}
+            });
+        } catch (error){
+            throw error;
+        }
+    }
 }
 
 export default new UserDao();
