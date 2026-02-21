@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 import { Match, sequelize } from '../../../shared/models/index.js';
 import { getMatchStatus } from './matchController.js';
 
-describe('MatchController Unit Tests (Status & History)', () => {
+describe('MatchController Unit Tests', () => {
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
@@ -12,7 +12,7 @@ describe('MatchController Unit Tests (Status & History)', () => {
         await sequelize.close();
     });
 
-    it('Debe validar que el controlador de estado responde correctamente', async () => {
+    it('Debe devolver el estado de la partida si el ID es correcto', async () => {
         const m = await Match.create({ status: 'WAITING', mapTerrain: { size: 15 } });
 
         const req = { params: { matchId: m.id } };
