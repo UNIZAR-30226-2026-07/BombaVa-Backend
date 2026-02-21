@@ -1,18 +1,16 @@
-import { FleetDeck, Match, MatchPlayer } from '../../../shared/models/index.js';
+import { FleetDeck, Match, MatchPlayer, ShipInstance } from '../../../shared/models/index.js';
 
 /**
- * Recupera el estado completo de una partida para sincronización del cliente
- * @param {object} req - Petición con matchId
- * @param {object} res - Respuesta con datos de partida y jugadores
- * @param {function} next - Middleware de error
+ * Recupera el estado de una partida incluyendo sus jugadores
+ * @param {object} req - Objeto de petición de Express
+ * @param {object} res - Objeto de respuesta de Express
+ * @param {function} next - Función para manejo de errores
  */
 export const getMatchStatus = async (req, res, next) => {
     try {
         const { matchId } = req.params;
         const partida = await Match.findByPk(matchId, {
-            include: [
-                { model: MatchPlayer }
-            ]
+            include: [{ model: MatchPlayer }]
         });
 
         if (!partida) {
@@ -26,52 +24,61 @@ export const getMatchStatus = async (req, res, next) => {
 };
 
 /**
- * Gestiona la petición de pausa de una partida
- * @param {object} req - Petición con matchId
- * @param {object} res - Confirmación de la petición
- * @param {function} next - Middleware de error
+ * Registra una solicitud de pausa para la partida actual
+ * @param {object} req - Objeto de petición de Express
+ * @param {object} res - Objeto de respuesta de Express
+ * @param {function} next - Función para manejo de errores
  */
 export const requestPause = async (req, res, next) => {
     try {
         const { matchId } = req.params;
-        res.json({ message: 'Petición de pausa recibida, esperando al oponente', matchId });
+        res.json({ message: 'Petición de pausa procesada', matchId });
     } catch (error) {
         next(error);
     }
 };
 
 /**
- * Lógica interna para crear la partida en base de datos tras el matchmaking
- * @param {Array} usuarios - Lista de dos objetos usuario {id, socketId}
- * @returns {Promise<Object>} Instancia de la partida creada
+ * Inicializa la estructura de la partida en la base de datos y crea las instancias de barcos
+ * @param {Array} usuarios - Lista de usuarios participantes {id, socketId}
+ * @returns {Promise<Object>} La instancia de la partida creada
  */
 export const initializeMatchPersistence = async (usuarios) => {
-    const mapaInicial = {
-        size: 15,
-        obstacles: []
-    };
-
-    const nuevaPartida = await Match.create({
+    const partida = await Match.create({
         status: 'PLAYING',
-        mapTerrain: mapaInicial,
+        mapTerrain: { size: 15, obstacles: [] },
         turnNumber: 1
     });
 
     for (let i = 0; i < usuarios.length; i++) {
         const usuario = usuarios[i];
-        const mazoActivo = await FleetDeck.findOne({
+        const mazo = await FleetDeck.findOne({
             where: { userId: usuario.id, isActive: true }
         });
 
         const bando = (i === 0) ? 'NORTH' : 'SOUTH';
 
         await MatchPlayer.create({
-            matchId: nuevaPartida.id,
+            matchId: partida.id,
             userId: usuario.id,
             side: bando,
-            deckSnapshot: mazoActivo ? mazoActivo.shipIds : []
+            deckSnapshot: mazo ? mazo.shipIds : []
         });
+
+        if (mazo && mazo.shipIds) {
+            for (const config of mazo.shipIds) {
+                await ShipInstance.create({
+                    matchId: partida.id,
+                    playerId: usuario.id,
+                    userShipId: config.userShipId,
+                    x: config.position.x,
+                    y: (bando === 'NORTH') ? config.position.y : (14 - config.position.y),
+                    orientation: (bando === 'NORTH') ? config.orientation : 'S',
+                    currentHp: 10 // FIXME: Valor temporal hasta tener lógica de plantillas
+                });
+            }
+        }
     }
 
-    return nuevaPartida;
+    return partida;
 };
