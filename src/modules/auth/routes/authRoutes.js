@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { protect } from '../../../shared/middlewares/authMiddleware.js';
-import { getProfile, loginUser, registerUser } from '../controllers/authController.js';
+import { loginUser, registerUser } from '../controllers/authController.js';
+import { getLeaderboard, getProfile } from '../controllers/userController.js';
 
 const router = Router();
 
 /**
- * Registro de un nuevo usuario
+ * Rutas públicas de autenticación
  */
 router.post('/register', [
     body('username').notEmpty().withMessage('El nombre de usuario es obligatorio'),
@@ -23,8 +24,9 @@ router.post('/login', [
 ], loginUser);
 
 /**
- * Consulta de perfil propio (Protegida)
+ * Rutas protegidas de usuario y comunidad
  */
 router.get('/me', protect, getProfile);
+router.get('/ranking', protect, getLeaderboard);
 
 export default router;
