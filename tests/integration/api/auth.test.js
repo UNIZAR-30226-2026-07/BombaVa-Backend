@@ -15,13 +15,11 @@ describe('Auth API Functional Tests (Integration)', () => {
     });
 
     describe('POST /api/auth/register', () => {
-
-        it('Debe fallar si faltan campos obligatorios (Validación)', async () => {
+        it('Debe fallar si faltan campos obligatorios', async () => {
             const response = await request(app)
                 .post('/api/auth/register')
                 .send({ username: 'solo_nombre' });
 
-            // El servidor actual debería devolver 400 si implementamos validadores
             expect(response.status).toBe(400);
             expect(response.body).toHaveProperty('errors');
         });
@@ -44,7 +42,7 @@ describe('Auth API Functional Tests (Integration)', () => {
         it('Debe impedir el registro con un email que ya existe', async () => {
             const userData = {
                 username: 'otro_user',
-                email: 'ex@test.com', // Email ya usado arriba
+                email: 'ex@test.com',
                 contrasena: 'Pass1234'
             };
 
@@ -52,8 +50,39 @@ describe('Auth API Functional Tests (Integration)', () => {
                 .post('/api/auth/register')
                 .send(userData);
 
-            // Sequelize o el Controlador deben lanzar error
             expect(response.status).toBe(400);
+        });
+    });
+
+    describe('POST /api/auth/login', () => {
+        it('Debe fallar con credenciales incorrectas', async () => {
+            const loginData = {
+                email: 'ex@test.com',
+                contrasena: 'Incorrecta123'
+            };
+
+            const response = await request(app)
+                .post('/api/auth/login')
+                .send(loginData);
+
+            expect(response.status).toBe(401);
+            expect(response.body.message).toBe('Credenciales inválidas');
+        });
+
+        it('Debe iniciar sesión correctamente y devolver datos del usuario y token', async () => {
+            const loginData = {
+                email: 'ex@test.com',
+                contrasena: 'Pass1234'
+            };
+
+            const response = await request(app)
+                .post('/api/auth/login')
+                .send(loginData);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty('token');
+            expect(response.body.username).toBe('tester_exhaustivo');
+            expect(response.body).toHaveProperty('elo');
         });
     });
 });
