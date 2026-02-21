@@ -1,15 +1,14 @@
 import { Router } from 'express';
 import { param } from 'express-validator';
 import { protect } from '../../../shared/middlewares/authMiddleware.js';
-import { getMatchStatus, requestPause } from '../controllers/matchController.js';
+import { getMatchHistory, getMatchStatus, requestPause } from '../controllers/matchController.js';
 import { endTurn } from '../controllers/turnController.js';
 
 const router = Router();
 
-/**
- * Rutas protegidas para la interacción con partidas en curso
- */
 router.use(protect);
+
+router.get('/history', getMatchHistory);
 
 router.get('/:matchId', [
     param('matchId').isUUID().withMessage('Identificador de partida inválido')
