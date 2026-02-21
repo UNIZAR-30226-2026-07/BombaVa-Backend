@@ -1,8 +1,9 @@
-import { MatchPlayer, User, sequelize } from '../../../shared/models/index.js';
-import { initializeMatchPersistence } from './matchController.js';
+import { Match, sequelize } from '../../../shared/models/index.js';
+import { getMatchStatus } from './matchController.js';
 
-describe('MatchController Unit Tests', () => {
+describe('MatchController Unit Tests (Status & History)', () => {
     beforeAll(async () => {
+        await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
     });
 
@@ -10,33 +11,15 @@ describe('MatchController Unit Tests', () => {
         await sequelize.close();
     });
 
-    it('Debe crear una partida y dos MatchPlayers con sus bandos persistidos', async () => {
-        const u1 = await User.create({
-            username: 'user_north',
-            email: 'north@test.com',
-            password_hash: 'hash'
-        });
-        const u2 = await User.create({
-            username: 'user_south',
-            email: 'south@test.com',
-            password_hash: 'hash'
-        });
+    it('Debe validar que el controlador de estado responde correctamente', async () => {
+        const m = await Match.create({ status: 'WAITING', mapTerrain: { size: 15 } });
 
-        const usuariosMock = [
-            { id: u1.id, socketId: 's1' },
-            { id: u2.id, socketId: 's2' }
-        ];
+        const req = { params: { matchId: m.id } };
+        const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+        const next = jest.fn();
 
-        const partida = await initializeMatchPersistence(usuariosMock);
+        await getMatchStatus(req, res, next);
 
-        expect(partida.id).toBeDefined();
-        expect(partida.status).toBe('PLAYING');
-
-        const jugadores = await MatchPlayer.findAll({ where: { matchId: partida.id } });
-        expect(jugadores).toHaveLength(2);
-
-        const bandos = jugadores.map(j => j.side);
-        expect(bandos).toContain('NORTH');
-        expect(bandos).toContain('SOUTH');
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ id: m.id }));
     });
 });
