@@ -1,10 +1,10 @@
 import { FleetDeck, Match, MatchPlayer, ShipInstance } from '../../../shared/models/index.js';
 
 /**
- * Recupera el estado de una partida incluyendo sus jugadores
- * @param {object} req - Objeto de petición de Express
- * @param {object} res - Objeto de respuesta de Express
- * @param {function} next - Función para manejo de errores
+ * Recupera el estado completo de una partida
+ * @param {object} req - Petición con matchId
+ * @param {object} res - Datos de la partida
+ * @param {function} next - Middleware de error
  */
 export const getMatchStatus = async (req, res, next) => {
     try {
@@ -24,10 +24,10 @@ export const getMatchStatus = async (req, res, next) => {
 };
 
 /**
- * Registra una solicitud de pausa para la partida actual
- * @param {object} req - Objeto de petición de Express
- * @param {object} res - Objeto de respuesta de Express
- * @param {function} next - Función para manejo de errores
+ * Gestiona peticiones de pausa
+ * @param {object} req - Petición
+ * @param {object} res - Confirmación
+ * @param {function} next - Middleware de error
  */
 export const requestPause = async (req, res, next) => {
     try {
@@ -39,9 +39,30 @@ export const requestPause = async (req, res, next) => {
 };
 
 /**
- * Inicializa la estructura de la partida en la base de datos y crea las instancias de barcos
- * @param {Array} usuarios - Lista de usuarios participantes {id, socketId}
- * @returns {Promise<Object>} La instancia de la partida creada
+ * Recupera el historial de partidas de un usuario
+ * @param {object} req - Petición
+ * @param {object} res - Lista de partidas
+ * @param {function} next - Middleware de error
+ */
+export const getMatchHistory = async (req, res, next) => {
+    try {
+        const partidas = await Match.findAll({
+            include: [{
+                model: MatchPlayer,
+                where: { userId: req.user.id }
+            }],
+            order: [['created_at', 'DESC']]
+        });
+        res.json(partidas);
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * Inicializa la persistencia de una partida nueva
+ * @param {Array} usuarios - Usuarios participantes
+ * @returns {Promise<Object>} Partida creada
  */
 export const initializeMatchPersistence = async (usuarios) => {
     const partida = await Match.create({
@@ -62,6 +83,8 @@ export const initializeMatchPersistence = async (usuarios) => {
             matchId: partida.id,
             userId: usuario.id,
             side: bando,
+            fuelReserve: 10,
+            ammoCurrent: 5,
             deckSnapshot: mazo ? mazo.shipIds : []
         });
 
@@ -74,7 +97,7 @@ export const initializeMatchPersistence = async (usuarios) => {
                     x: config.position.x,
                     y: (bando === 'NORTH') ? config.position.y : (14 - config.position.y),
                     orientation: (bando === 'NORTH') ? config.orientation : 'S',
-                    currentHp: 10 // FIXME: Valor temporal hasta tener lógica de plantillas
+                    currentHp: 10
                 });
             }
         }
