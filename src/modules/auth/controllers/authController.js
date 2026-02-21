@@ -2,7 +2,6 @@ import bcrypt from 'bcrypt';
 import { validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import UserDao from '../dao/UserDao.js';
-import User from '../models/User.js';
 
 /**
  * Función que genera el token de sesión para un usuario
@@ -79,23 +78,6 @@ export const loginUser = async (req, res, next) => {
     } else {
       res.status(401).json({ message: 'Credenciales inválidas' });
     }
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * Recupera los datos del perfil del usuario autenticado
- * @param {object} req - Petición con usuario inyectado por middleware
- * @param {object} res - Respuesta con datos de perfil
- * @param {function} next - Middleware de error
- */
-export const getProfile = async (req, res, next) => {
-  try {
-    const usuario = await User.findByPk(req.user.id, {
-      attributes: ['id', 'username', 'email', 'elo_rating', 'created_at']
-    });
-    res.json(usuario);
   } catch (error) {
     next(error);
   }
