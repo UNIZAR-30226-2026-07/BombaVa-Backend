@@ -2,12 +2,13 @@ import bcrypt from 'bcrypt';
 import { validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import UserDao from '../dao/UserDao.js';
+import User from '../models/User.js';
 
 /**
  * Función que genera el token de sesión para un usuario
  * @param {string} nombreUsuario 
  * @param {string} email 
- * @returns Devuelve el token de sesión para el usuario
+ * @returns {string} Token de sesión
  */
 export const generateToken = (nombreUsuario, email) => {
   const payload = { nombreUsuario, email };
@@ -17,9 +18,9 @@ export const generateToken = (nombreUsuario, email) => {
 };
 
 /**
- * Registra un nuevo usuario, cifra su contraseña y genera un token de acceso
- * @param {Object} req - Petición con username, email y contrasena
- * @param {Object} res - Respuesta con el token generado
+ * Registra un nuevo usuario y devuelve un token de acceso
+ * @param {Object} req - Petición con datos de registro
+ * @param {Object} res - Respuesta con el token
  * @param {Function} next - Middleware de error
  */
 export const registerUser = async (req, res, next) => {
@@ -50,10 +51,10 @@ export const registerUser = async (req, res, next) => {
 }
 
 /**
- * Controlador que autentica a un usuario y devuelve un token
- * @param {object} req - Objeto de petición de Express
- * @param {object} res - Objeto de respuesta de Express
- * @param {function} next - Función para pasar al siguiente middleware
+ * Autentica a un usuario y devuelve sus datos junto al token
+ * @param {object} req - Petición de login
+ * @param {object} res - Respuesta con datos y token
+ * @param {function} next - Middleware de error
  */
 export const loginUser = async (req, res, next) => {
   const errors = validationResult(req);
@@ -78,6 +79,23 @@ export const loginUser = async (req, res, next) => {
     } else {
       res.status(401).json({ message: 'Credenciales inválidas' });
     }
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Recupera los datos del perfil del usuario autenticado
+ * @param {object} req - Petición con usuario inyectado por middleware
+ * @param {object} res - Respuesta con datos de perfil
+ * @param {function} next - Middleware de error
+ */
+export const getProfile = async (req, res, next) => {
+  try {
+    const usuario = await User.findByPk(req.user.id, {
+      attributes: ['id', 'username', 'email', 'elo_rating', 'created_at']
+    });
+    res.json(usuario);
   } catch (error) {
     next(error);
   }
