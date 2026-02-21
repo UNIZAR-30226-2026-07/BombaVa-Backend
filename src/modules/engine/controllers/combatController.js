@@ -3,7 +3,10 @@ import { Match, MatchPlayer, sequelize, ShipInstance } from '../../../shared/mod
 import { checkWinCondition } from '../../game/controllers/matchStatusController.js';
 
 /**
- * Disparo de cañón con verificación de victoria automática
+ * Procesa el disparo de cañón, calcula daños y verifica condiciones de victoria
+ * @param {object} req - Petición con matchId, shipId y target {x, y}
+ * @param {object} res - Respuesta con impacto, vida restante y munición
+ * @param {function} next - Middleware de error
  */
 export const fireCannon = async (req, res, next) => {
     const errores = validationResult(req);
@@ -20,7 +23,7 @@ export const fireCannon = async (req, res, next) => {
 
         if (!barco || barco.lastAttackTurn === partida.turnNumber) {
             await transaccion.rollback();
-            return res.status(403).json({ message: 'Acción no permitida' });
+            return res.status(403).json({ message: 'Acción no permitida o el barco ya ha atacado' });
         }
 
         const objetivo = await ShipInstance.findOne({
@@ -42,7 +45,12 @@ export const fireCannon = async (req, res, next) => {
         await barco.save({ transaction: transaccion });
 
         await transaccion.commit();
-        res.json({ hit: !!objetivo, matchFinished: victoriaDetectada });
+        res.json({
+            hit: !!objetivo,
+            matchFinished: victoriaDetectada,
+            targetHp: objetivo ? objetivo.currentHp : null,
+            ammoCurrent: jugador.ammoCurrent
+        });
     } catch (error) {
         if (transaccion) await transaccion.rollback();
         next(error);

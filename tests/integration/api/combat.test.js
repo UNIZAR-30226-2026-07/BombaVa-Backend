@@ -40,7 +40,7 @@ describe('Combat API Integration Tests', () => {
         await sequelize.close();
     });
 
-    it('Debe impactar al objetivo con el cañón y reducir su HP', async () => {
+    it('Debe impactar al objetivo con el cañón y reducir su HP a 0', async () => {
         const res = await request(app)
             .post(`/api/engine/${matchId}/attack/cannon`)
             .set('Authorization', `Bearer ${token}`)
