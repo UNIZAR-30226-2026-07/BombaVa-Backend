@@ -2,8 +2,8 @@ import { validationResult } from 'express-validator';
 import { Match, MatchPlayer, sequelize, ShipInstance } from '../../../shared/models/index.js';
 
 /**
- * Ejecuta un ataque de cañón instantáneo sobre una coordenada
- * @param {object} req - Petición con matchId, shipId y target {x, y}
+ * Procesa un ataque de cañón con resolución de daño inmediata
+ * @param {object} req - Petición con coordenadas del objetivo
  * @param {object} res - Resultado del impacto
  * @param {function} next - Middleware de error
  */
@@ -20,20 +20,20 @@ export const fireCannon = async (req, res, next) => {
         const barco = await ShipInstance.findByPk(shipId, { transaction: transaccion });
         const jugador = await MatchPlayer.findOne({ where: { matchId, userId: req.user.id }, transaction: transaccion });
 
-        if (barco.lastAttackTurn === partida.turnNumber) {
+        if (!barco || barco.lastAttackTurn === partida.turnNumber) {
             await transaccion.rollback();
-            return res.status(403).json({ message: 'Este barco ya ha atacado en este turno' });
+            return res.status(403).json({ message: 'Acción no permitida o barco ya ha atacado' });
         }
 
         if (jugador.ammoCurrent < 2) {
             await transaccion.rollback();
-            return res.status(403).json({ message: 'Munición insuficiente (Requiere 2 AP)' });
+            return res.status(403).json({ message: 'Munición insuficiente' });
         }
 
         const distancia = Math.sqrt(Math.pow(target.x - barco.x, 2) + Math.pow(target.y - barco.y, 2));
         if (distancia > 4) {
             await transaccion.rollback();
-            return res.status(400).json({ message: 'Objetivo fuera de rango (Máximo 4 casillas)' });
+            return res.status(400).json({ message: 'Fuera de rango' });
         }
 
         const objetivo = await ShipInstance.findOne({
@@ -58,7 +58,7 @@ export const fireCannon = async (req, res, next) => {
         await transaccion.commit();
         res.json({ hit: impacto, ammoCurrent: jugador.ammoCurrent, targetHp: objetivo ? objetivo.currentHp : null });
     } catch (error) {
-        await transaccion.rollback();
+        if (transaccion) await transaccion.rollback();
         next(error);
     }
 };
