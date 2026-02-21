@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { Match, sequelize } from '../../../shared/models/index.js';
 import { getMatchStatus } from './matchController.js';
 
@@ -15,7 +16,10 @@ describe('MatchController Unit Tests (Status & History)', () => {
         const m = await Match.create({ status: 'WAITING', mapTerrain: { size: 15 } });
 
         const req = { params: { matchId: m.id } };
-        const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+        const res = {
+            json: jest.fn(),
+            status: jest.fn().mockReturnThis()
+        };
         const next = jest.fn();
 
         await getMatchStatus(req, res, next);
