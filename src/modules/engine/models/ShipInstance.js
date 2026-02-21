@@ -56,6 +56,12 @@ const ShipInstance = sequelize.define('ShipInstance', {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
+    },
+    lastAttackTurn: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+        field: 'last_attack_turn'
     }
 }, {
     tableName: 'ship_instances',
