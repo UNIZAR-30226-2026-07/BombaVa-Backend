@@ -39,6 +39,61 @@ class InventoryDao {
         ship.customStats = { ...ship.customStats, ...stats };
         return await ship.save();
     }
+
+    /**
+     * Obtiene todos los mazos de un usuario
+     * @param {string} userId 
+     * @returns {Promise<Array>}
+     */
+    async findUserDecks(userId) {
+        return await FleetDeck.findAll({
+            where: { user_id: userId }
+        });
+    }
+
+    /**
+     * Crea un nuevo mazo de flota
+     * @param {Object} deckData 
+     * @returns {Promise<Object>}
+     */
+    async createDeck(deckData) {
+        return await FleetDeck.create(deckData);
+    }
+
+    /**
+     * Activa un mazo y desactiva el resto para un usuario específico
+     * @param {string} deckId 
+     * @param {string} userId 
+     * @returns {Promise<Object|null>}
+     */
+    async activateDeck(deckId, userId) {
+        const t = await sequelize.transaction();
+        try {
+            await FleetDeck.update(
+                { isActive: false },
+                { where: { user_id: userId }, transaction: t }
+            );
+
+            const deck = await FleetDeck.findOne({
+                where: { id: deckId, user_id: userId },
+                transaction: t
+            });
+
+            if (!deck) {
+                await t.rollback();
+                return null;
+            }
+
+            deck.isActive = true;
+            await deck.save({ transaction: t });
+
+            await t.commit();
+            return deck;
+        } catch (error) {
+            await t.rollback();
+            throw error;
+        }
+    }
 }
 
 export default new InventoryDao();
