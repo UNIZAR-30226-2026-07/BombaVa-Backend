@@ -1,6 +1,3 @@
-/**
- * FleetDeck Model
- */
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../../config/db.js';
 
@@ -9,6 +6,11 @@ const FleetDeck = sequelize.define('FleetDeck', {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
+    },
+    userId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        field: 'user_id'
     },
     deckName: {
         type: DataTypes.STRING,
@@ -24,9 +26,7 @@ const FleetDeck = sequelize.define('FleetDeck', {
         defaultValue: [],
         validate: {
             isArray(value) {
-                if (!Array.isArray(value)) {
-                    throw new Error('shipIds debe ser un array de UUIDs');
-                }
+                if (!Array.isArray(value)) throw new Error('shipIds debe ser un array de UUIDs');
             }
         }
     },

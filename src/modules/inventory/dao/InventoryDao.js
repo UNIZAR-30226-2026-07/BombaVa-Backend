@@ -1,39 +1,38 @@
+import { sequelize } from '../../../config/db.js';
+import FleetDeck from '../models/FleetDeck.js';
 import ShipTemplate from '../models/ShipTemplate.js';
 import UserShip from '../models/UserShip.js';
 
-/**
- * Acceso a datos para el inventario de barcos
- */
 class InventoryDao {
     /**
-     * Obtiene todos los barcos de un usuario con sus plantillas
-     * @param {string} userId 
+     * Busca todos los barcos asociados a un usuario incluyendo su plantilla base
+     * @param {string} userId - UUID del usuario
      * @returns {Promise<Array>} Lista de barcos
      */
     async findUserShips(userId) {
         return await UserShip.findAll({
-            where: { user_id: userId },
+            where: { userId },
             include: [{ model: ShipTemplate }]
         });
     }
 
     /**
-     * Obtiene un barco específico de un usuario
-     * @param {string} shipId 
-     * @param {string} userId 
+     * Busca un barco específico validando la propiedad del usuario
+     * @param {string} shipId - UUID del barco
+     * @param {string} userId - UUID del usuario
      * @returns {Promise<Object|null>}
      */
     async findByIdAndUser(shipId, userId) {
         return await UserShip.findOne({
-            where: { id: shipId, user_id: userId }
+            where: { id: shipId, userId }
         });
     }
 
     /**
-     * Actualiza las estadísticas y equipamiento de un barco
-     * @param {Object} ship 
-     * @param {Object} stats 
-     * @returns {Promise<Object>}
+     * Actualiza las estadísticas personalizadas de un barco
+     * @param {Object} ship - Instancia del modelo UserShip
+     * @param {Object} stats - Nuevas estadísticas a mezclar
+     * @returns {Promise<Object>} Barco actualizado
      */
     async updateShipStats(ship, stats) {
         ship.customStats = { ...ship.customStats, ...stats };
@@ -41,56 +40,59 @@ class InventoryDao {
     }
 
     /**
-     * Obtiene todos los mazos de un usuario
-     * @param {string} userId 
-     * @returns {Promise<Array>}
+     * Obtiene todos los mazos configurados por un usuario
+     * @param {string} userId - UUID del usuario
+     * @returns {Promise<Array>} Lista de mazos
      */
     async findUserDecks(userId) {
         return await FleetDeck.findAll({
-            where: { user_id: userId }
+            where: { userId }
         });
     }
 
     /**
-     * Crea un nuevo mazo de flota
-     * @param {Object} deckData 
-     * @returns {Promise<Object>}
+     * Crea un nuevo mazo en la base de datos
+     * @param {Object} deckData - Datos del mazo
+     * @returns {Promise<Object>} Mazo creado
      */
     async createDeck(deckData) {
         return await FleetDeck.create(deckData);
     }
 
     /**
-     * Activa un mazo y desactiva el resto para un usuario específico
-     * @param {string} deckId 
-     * @param {string} userId 
-     * @returns {Promise<Object|null>}
+     * Activa un mazo específico y desactiva cualquier otro mazo del usuario
+     * @param {string} deckId - UUID del mazo a activar
+     * @param {string} userId - UUID del usuario propietario
+     * @returns {Promise<Object|null>} El mazo activado o null si no existe
      */
     async activateDeck(deckId, userId) {
-        const t = await sequelize.transaction();
+        const transaccion = await sequelize.transaction();
         try {
-            await FleetDeck.update(
-                { isActive: false },
-                { where: { user_id: userId }, transaction: t }
-            );
-
-            const deck = await FleetDeck.findOne({
-                where: { id: deckId, user_id: userId },
-                transaction: t
+            const mazoAActivar = await FleetDeck.findOne({
+                where: { id: deckId, userId: userId },
+                transaction: transaccion
             });
 
-            if (!deck) {
-                await t.rollback();
+            if (!mazoAActivar) {
+                await transaccion.rollback();
                 return null;
             }
 
-            deck.isActive = true;
-            await deck.save({ transaction: t });
+            await FleetDeck.update(
+                { isActive: false },
+                {
+                    where: { userId: userId },
+                    transaction: transaccion
+                }
+            );
 
-            await t.commit();
-            return deck;
+            mazoAActivar.isActive = true;
+            await mazoAActivar.save({ transaction: transaccion });
+
+            await transaccion.commit();
+            return mazoAActivar;
         } catch (error) {
-            await t.rollback();
+            if (transaccion) await transaccion.rollback();
             throw error;
         }
     }

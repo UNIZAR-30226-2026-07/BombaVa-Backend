@@ -7,6 +7,16 @@ const MatchPlayer = sequelize.define('MatchPlayer', {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
+    matchId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        field: 'match_id'
+    },
+    userId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        field: 'user_id'
+    },
     fuelReserve: {
         type: DataTypes.INTEGER,
         defaultValue: 100,

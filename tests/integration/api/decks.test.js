@@ -63,11 +63,25 @@ describe('Fleet Decks API Functional Tests (Integration)', () => {
     });
 
     it('Debe activar un mazo y desactivar los demás', async () => {
-        const deck1Res = await request(app).post('/api/inventory/decks').set('Authorization', `Bearer ${token}`)
-            .send({ deckName: 'D1', shipIds: [{ userShipId: userShipId, position: { x: 1, y: 1 }, orientation: 'N' }] });
+        const deck1Res = await request(app)
+            .post('/api/inventory/decks')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                deckName: 'Mazo Alpha',
+                shipIds: [{ userShipId: userShipId, position: { x: 1, y: 1 }, orientation: 'N' }]
+            });
 
-        const deck2Res = await request(app).post('/api/inventory/decks').set('Authorization', `Bearer ${token}`)
-            .send({ deckName: 'D2', shipIds: [{ userShipId: userShipId, position: { x: 2, y: 1 }, orientation: 'N' }] });
+        expect(deck1Res.status).toBe(201);
+
+        const deck2Res = await request(app)
+            .post('/api/inventory/decks')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                deckName: 'Mazo Beta',
+                shipIds: [{ userShipId: userShipId, position: { x: 2, y: 1 }, orientation: 'N' }]
+            });
+
+        expect(deck2Res.status).toBe(201);
 
         const activateRes = await request(app)
             .patch(`/api/inventory/decks/${deck2Res.body.id}/activate`)

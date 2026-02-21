@@ -29,8 +29,8 @@ describe('Inventory Persistence (Integration)', () => {
         });
 
         const userShip = await UserShip.create({
-            user_id: user.id,
-            template_slug: template.slug,
+            userId: user.id,
+            templateSlug: template.slug,
             level: 1,
             customStats: { motor: 'v12' }
         });

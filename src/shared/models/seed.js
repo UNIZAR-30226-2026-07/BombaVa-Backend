@@ -2,7 +2,7 @@
  * Database Seeder
  * Poblar la base de datos con valores (testing)
  */
-import { sequelize, User, ShipTemplate, UserShip, FleetDeck } from './index.js';
+import { FleetDeck, ShipTemplate, User, UserShip } from './index.js';
 
 const runSeeder = async () => {
     try {
@@ -40,30 +40,21 @@ const runSeeder = async () => {
         const raul = await User.create({
             username: 'raul_lead',
             email: 'raul@unizar.es',
-            password_hash: 'admin123', // en el futuro se encriptara (seguramente Bcrypt)
-            elo_rating: 1500
-        }).catch(() => null);
-
-        const diego = await User.create({
-            username: 'diego_dev',
-            email: 'diego@unizar.es',
-            password_hash: 'admin123',
-            elo_rating: 1400
+            password_hash: 'admin123'
         }).catch(() => null);
 
         if (raul && templates.length > 0) {
-            // crear deck
             const userShip = await UserShip.create({
-                user_id: raul.id,
-                template_slug: 'lancha',
+                userId: raul.id,
+                templateSlug: 'lancha',
                 level: 1,
                 customStats: { engine: 'V8' }
             });
 
             await FleetDeck.create({
-                user_id: raul.id,
+                userId: raul.id,
                 deckName: 'Mazo Inicial',
-                shipIds: [userShip.id],
+                shipIds: [{ userShipId: userShip.id, position: { x: 0, y: 0 }, orientation: 'N' }],
                 isActive: true
             });
         }
