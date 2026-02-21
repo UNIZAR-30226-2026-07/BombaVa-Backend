@@ -21,7 +21,7 @@ UserShip.belongsTo(ShipTemplate, { foreignKey: 'templateSlug' });
 User.hasMany(FleetDeck, { foreignKey: 'userId' });
 FleetDeck.belongsTo(User, { foreignKey: 'userId' });
 
-// --- 2. Relaciones de Partida (Junction Table) ---
+// --- 2. Relaciones de Partida (Tabla de Unión y Accesos Directos) ---
 User.belongsToMany(Match, {
     through: MatchPlayer,
     foreignKey: 'userId',
@@ -32,6 +32,12 @@ Match.belongsToMany(User, {
     foreignKey: 'matchId',
     otherKey: 'userId'
 });
+
+// Definiciones explícitas para permitir inclusiones (Eager Loading)
+Match.hasMany(MatchPlayer, { foreignKey: 'matchId' });
+MatchPlayer.belongsTo(Match, { foreignKey: 'matchId' });
+User.hasMany(MatchPlayer, { foreignKey: 'userId' });
+MatchPlayer.belongsTo(User, { foreignKey: 'userId' });
 
 // Relación de turno
 Match.belongsTo(User, { as: 'CurrentTurnPlayer', foreignKey: 'currentTurnPlayerId' });
