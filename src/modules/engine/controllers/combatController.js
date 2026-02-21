@@ -3,7 +3,7 @@ import { Match, MatchPlayer, sequelize, ShipInstance } from '../../../shared/mod
 import { checkWinCondition } from '../../game/controllers/matchStatusController.js';
 
 /**
- * Procesa el disparo de cañón, calcula daños y verifica condiciones de victoria
+ * Procesa el disparo de cañón, calcula daños, valida rango y verifica condiciones de victoria
  * @param {object} req - Petición con matchId, shipId y target {x, y}
  * @param {object} res - Respuesta con impacto, vida restante y munición
  * @param {function} next - Middleware de error
@@ -24,6 +24,17 @@ export const fireCannon = async (req, res, next) => {
         if (!barco || barco.lastAttackTurn === partida.turnNumber) {
             await transaccion.rollback();
             return res.status(403).json({ message: 'Acción no permitida o el barco ya ha atacado' });
+        }
+
+        if (jugador.ammoCurrent < 2) {
+            await transaccion.rollback();
+            return res.status(403).json({ message: 'Munición insuficiente (Requiere 2 AP)' });
+        }
+
+        const distancia = Math.sqrt(Math.pow(target.x - barco.x, 2) + Math.pow(target.y - barco.y, 2));
+        if (distancia > 4) {
+            await transaccion.rollback();
+            return res.status(400).json({ message: 'Objetivo fuera de rango (Máximo 4 casillas)' });
         }
 
         const objetivo = await ShipInstance.findOne({
