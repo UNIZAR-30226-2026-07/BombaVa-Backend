@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { loginUser, registerUser } from '../controllers/authController.js';
+import { protect } from '../../../shared/middlewares/authMiddleware.js';
+import { getProfile, loginUser, registerUser } from '../controllers/authController.js';
 
 const router = Router();
 
 /**
- * Petición POST a /api/auth/register
  * Registro de un nuevo usuario
  */
 router.post('/register', [
@@ -15,12 +15,16 @@ router.post('/register', [
 ], registerUser);
 
 /**
- * Petición POST a /api/auth/login
- * Inicio de sesión de un usuario existente
+ * Inicio de sesión
  */
 router.post('/login', [
     body('email').isEmail().withMessage('Debe ser un email válido'),
     body('contrasena').notEmpty().withMessage('La contraseña es obligatoria')
 ], loginUser);
+
+/**
+ * Consulta de perfil propio (Protegida)
+ */
+router.get('/me', protect, getProfile);
 
 export default router;
