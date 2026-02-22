@@ -1,5 +1,5 @@
 /**
- * Test de Integración: Setup de Partida (Refactorizado con Factoría)
+ * Test de Integración: Setup de Partida
  * Valida que la orquestación inicial de barcos y bandos sea correcta.
  */
 import { sequelize } from '../../../config/db.js';

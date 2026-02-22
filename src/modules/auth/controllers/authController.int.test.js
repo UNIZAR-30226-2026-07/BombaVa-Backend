@@ -1,6 +1,5 @@
 /**
- * Test de Integración: API de Autenticación (Refactorizado con Factoría)
- * Valida los flujos de acceso utilizando el contexto de datos centralizado.
+ * Test de Integración: API de Autenticación
  */
 import request from 'supertest';
 import app from '../../../app.js';
@@ -39,7 +38,7 @@ describe('AuthController API Integration (Refactored)', () => {
             .post('/api/auth/login')
             .send({
                 email: 'auth@test.va',
-                contrasena: 'test_hash'
+                contrasena: 'test_password'
             });
 
         expect(res.status).toBe(200);

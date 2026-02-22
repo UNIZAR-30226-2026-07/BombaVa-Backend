@@ -2,6 +2,7 @@
  * Factoría de Datos para Tests de Integración
  * Centraliza la creación de entidades para mantener los tests limpios y desacoplados.
  */
+import { cifrarContrasena } from '../../modules/auth/services/authService.js';
 import { FleetDeck, Match, MatchPlayer, ShipInstance, ShipTemplate, User, UserShip } from './index.js';
 
 /**
@@ -26,14 +27,18 @@ export const createTemplate = async (slug = 'lancha', overrides = {}) => {
 };
 
 /**
- * Crea un entorno completo de usuario con barco y mazo activo
+ * Crea un entorno completo de usuario con contraseña cifrada real
+ * @param {string} username 
+ * @param {string} email 
  */
 export const createFullUserContext = async (username, email) => {
+    const password_hash = await cifrarContrasena('test_password');
+
     const [user] = await User.findOrCreate({
         where: { email },
         defaults: {
             username,
-            password_hash: 'test_hash'
+            password_hash
         }
     });
 
@@ -89,7 +94,7 @@ export const createMatchWithInstance = async (username, email, pos = { x: 5, y: 
 };
 
 /**
- * Crea una partida completa con dos jugadores enfrentados y barcos instanciados
+ * Crea una partida completa con dos jugadores enfrentados
  */
 export const createCompleteMatch = async (p1Data, p2Data) => {
     const host = await createFullUserContext(p1Data.username, p1Data.email);
