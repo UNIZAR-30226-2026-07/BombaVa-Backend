@@ -1,40 +1,30 @@
 /**
- * Test de Integración: Persistencia de Instancias de Barco
- * Valida la creación física de barcos en el tablero de una partida.
+ * Test de Integración: Modelo ShipInstance
  */
 import { sequelize } from '../../../config/db.js';
-import { Match, ShipInstance, ShipTemplate, User, UserShip } from '../../../shared/models/index.js';
+import { createMatchWithInstance } from '../../../shared/models/testFactory.js';
+import ShipInstance from './ShipInstance.js';
 
-describe('ShipInstance Persistence Integration (Colocated)', () => {
+describe('ShipInstance Persistence Integration (Refactored)', () => {
+    let setup;
+
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
 
-        // Setup necesario para la integridad referencial
-        await ShipTemplate.create({ slug: 'lancha', name: 'Lancha', width: 1, height: 1, baseMaxHp: 10, supplyCost: 5 });
+        setup = await createMatchWithInstance('captain_dao', 'c@dao.va', { x: 10, y: 10 });
     });
 
     afterAll(async () => {
         await sequelize.close();
     });
 
-    it('Debe crear una instancia de barco vinculada a usuario, partida y mazo', async () => {
-        const user = await User.create({ username: 'capitan', email: 'cap@test.com', password_hash: '1' });
-        const match = await Match.create({ status: 'PLAYING', mapTerrain: { size: 15 } });
-        const uShip = await UserShip.create({ userId: user.id, templateSlug: 'lancha' });
+    it('Debe recuperar la instancia de barco con sus coordenadas y orientación correctas', async () => {
+        const ship = await ShipInstance.findByPk(setup.instance.id);
 
-        const ship = await ShipInstance.create({
-            matchId: match.id,
-            playerId: user.id,
-            userShipId: uShip.id,
-            x: 7, y: 7,
-            orientation: 'E',
-            currentHp: 10
-        });
-
-        expect(ship.id).toBeDefined();
-        const saved = await ShipInstance.findByPk(ship.id);
-        expect(saved.orientation).toBe('E');
-        expect(saved.playerId).toBe(user.id);
+        expect(ship.x).toBe(10);
+        expect(ship.y).toBe(10);
+        expect(ship.orientation).toBe('N');
+        expect(ship.playerId).toBe(setup.user.id);
     });
 });

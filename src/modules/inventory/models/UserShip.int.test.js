@@ -1,30 +1,30 @@
 /**
- * Test de Integración: Persistencia de Barcos de Usuario
- * Valida que los barcos se guarden asociados a una plantilla (Template).
+ * Test de Integración: Modelo UserShip
  */
 import { sequelize } from '../../../config/db.js';
-import ShipTemplate from './ShipTemplate.js';
+import { createFullUserContext } from '../../../shared/models/testFactory.js';
 import UserShip from './UserShip.js';
 
-describe('UserShip Model Integration (Colocated)', () => {
+describe('UserShip Model Integration (Refactored)', () => {
+    let setup;
+
     beforeAll(async () => {
+        await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
-        await ShipTemplate.create({ slug: 'fragata', name: 'Fragata', baseMaxHp: 30, supplyCost: 10 });
+
+        setup = await createFullUserContext('collector', 'col@test.va');
     });
 
     afterAll(async () => {
         await sequelize.close();
     });
 
-    it('Debe persistir un barco vinculándolo al slug de una plantilla existente', async () => {
-        const ship = await UserShip.create({
-            userId: '550e8400-e29b-41d4-a716-446655440001',
-            templateSlug: 'fragata',
-            level: 5,
-            customStats: { motor: 'nuclear' }
+    it('Debe verificar que el barco de usuario está correctamente vinculado a su plantilla', async () => {
+        const ship = await UserShip.findByPk(setup.uShip.id, {
+            include: ['ShipTemplate']
         });
 
-        expect(ship.id).toBeDefined();
-        expect(ship.templateSlug).toBe('fragata');
+        expect(ship.templateSlug).toBe('lancha');
+        expect(ship.ShipTemplate.baseMaxHp).toBeDefined();
     });
 });

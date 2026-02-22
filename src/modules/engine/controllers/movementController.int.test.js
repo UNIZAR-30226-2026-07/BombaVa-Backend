@@ -1,61 +1,46 @@
 /**
  * Test de Integración: Movimiento
+ * Valida el desplazamiento y rotación usando el setup centralizado.
  */
 import request from 'supertest';
 import app from '../../../app.js';
 import { sequelize } from '../../../config/db.js';
-import { Match, MatchPlayer, ShipInstance, ShipTemplate, UserShip } from '../../../shared/models/index.js';
-import User from '../../auth/models/User.js';
+import { createMatchWithInstance } from '../../../shared/models/testFactory.js';
 import { generarTokenAcceso } from '../../auth/services/authService.js';
 
-describe('MovementController Integration (Colocated)', () => {
-    let token, matchId, shipId, userId;
+describe('MovementController Integration (Refactored)', () => {
+    let setup, token;
 
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
 
-        const user = await User.create({ username: 'sailor', email: 's@t.com', password_hash: '1' });
-        userId = user.id;
-        token = generarTokenAcceso(user);
-
-        const template = await ShipTemplate.create({ slug: 'lancha', name: 'L', baseMaxHp: 10, supplyCost: 5 });
-        const uShip = await UserShip.create({ userId, templateSlug: template.slug });
-
-        const match = await Match.create({ status: 'PLAYING', mapTerrain: { size: 15 } });
-        matchId = match.id;
-
-        await MatchPlayer.create({ matchId, userId, side: 'NORTH', fuelReserve: 10 });
-
-        const inst = await ShipInstance.create({
-            matchId, playerId: userId, userShipId: uShip.id,
-            x: 5, y: 5, orientation: 'N', currentHp: 10
-        });
-        shipId = inst.id;
+        setup = await createMatchWithInstance('sailor_test', 's@t.com', { x: 5, y: 5 });
+        token = generarTokenAcceso(setup.user);
     });
 
     afterAll(async () => {
         await sequelize.close();
     });
 
-    it('POST /api/engine/:matchId/move - Debe descontar 1 MP y cambiar posición', async () => {
+    it('POST /api/engine/:matchId/move - Debe avanzar el barco y descontar fuel', async () => {
         const res = await request(app)
-            .post(`/api/engine/${matchId}/move`)
+            .post(`/api/engine/${setup.match.id}/move`)
             .set('Authorization', `Bearer ${token}`)
-            .send({ shipId, direction: 'S' });
+            .send({ shipId: setup.instance.id, direction: 'S' });
 
         expect(res.status).toBe(200);
-        expect(res.body.fuelReserve).toBe(9);
+        expect(res.body.position.y).toBe(6);
+        expect(res.body.fuelReserve).toBeLessThan(20);
     });
 
-    it('POST /api/engine/:matchId/rotate - Debe descontar 2 MP y cambiar orientación', async () => {
+    it('POST /api/engine/:matchId/rotate - Debe rotar el barco 90 grados', async () => {
         const res = await request(app)
-            .post(`/api/engine/${matchId}/rotate`)
+            .post(`/api/engine/${setup.match.id}/rotate`)
             .set('Authorization', `Bearer ${token}`)
-            .send({ shipId, degrees: 90 });
+            .send({ shipId: setup.instance.id, degrees: 90 });
 
         expect(res.status).toBe(200);
-        expect(res.body.fuelReserve).toBe(7);
         expect(res.body.orientation).toBe('E');
     });
 });

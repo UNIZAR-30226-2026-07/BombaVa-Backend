@@ -1,31 +1,42 @@
 /**
- * Test de Integración: Persistencia de Flujo de Juego
+ * Test de Integración: Modelo Match
  * Valida la creación de la partida y sus jugadores relacionados.
  */
 import { sequelize } from '../../../config/db.js';
-import { Match, MatchPlayer, User } from '../../../shared/models/index.js';
+import { Match, MatchPlayer } from '../../../shared/models/index.js';
+import { createCompleteMatch } from '../../../shared/models/testFactory.js';
 
-describe('Match Model Persistence (Colocated)', () => {
+describe('Match Model Persistence (Refactored)', () => {
+    let setup;
+
     beforeAll(async () => {
+        await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
+
+        setup = await createCompleteMatch(
+            { username: 'match_h', email: 'h@m.va' },
+            { username: 'match_g', email: 'g@m.va' }
+        );
     });
 
     afterAll(async () => {
         await sequelize.close();
     });
 
-    it('Debe persistir una partida vinculando a dos usuarios correctamente', async () => {
-        const u1 = await User.create({ username: 'flow1', email: 'f1@t.com', password_hash: '1' });
-        const u2 = await User.create({ username: 'flow2', email: 'f2@t.com', password_hash: '1' });
+    it('Debe recuperar la partida vinculada a dos MatchPlayers reales', async () => {
+        const matchInDb = await Match.findByPk(setup.match.id, {
+            include: [MatchPlayer]
+        });
 
-        const m = await Match.create({ status: 'PLAYING', mapTerrain: { size: 15 } });
+        expect(matchInDb.MatchPlayers).toHaveLength(2);
+        expect(matchInDb.status).toBe('PLAYING');
+    });
 
-        await MatchPlayer.create({ matchId: m.id, userId: u1.id, side: 'NORTH' });
-        await MatchPlayer.create({ matchId: m.id, userId: u2.id, side: 'SOUTH' });
+    it('Debe verificar que los bandos NORTH y SOUTH están asignados', async () => {
+        const players = await MatchPlayer.findAll({ where: { matchId: setup.match.id } });
+        const sides = players.map(p => p.side);
 
-        const players = await MatchPlayer.findAll({ where: { matchId: m.id } });
-        expect(players).toHaveLength(2);
-        expect(players.map(p => p.side)).toContain('NORTH');
-        expect(players.map(p => p.side)).toContain('SOUTH');
+        expect(sides).toContain('NORTH');
+        expect(sides).toContain('SOUTH');
     });
 });

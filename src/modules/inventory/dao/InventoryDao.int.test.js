@@ -1,33 +1,40 @@
 /**
  * Test de Integración: DAO de Inventario
- * Valida la lógica transaccional de activación de mazos.
+ * Valida la lógica de negocio de activación de mazos con la factoría.
  */
 import { sequelize } from '../../../config/db.js';
+import { createFullUserContext } from '../../../shared/models/testFactory.js';
 import FleetDeck from '../models/FleetDeck.js';
 import InventoryDao from './InventoryDao.js';
 
-describe('InventoryDao Integration (Colocated)', () => {
-    const userId = '550e8400-e29b-41d4-a716-446655440000';
+describe('InventoryDao Integration (Refactored)', () => {
+    let setup;
 
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
+
+        setup = await createFullUserContext('dao_tester', 'dao@test.com');
     });
 
     afterAll(async () => {
         await sequelize.close();
     });
 
-    it('activateDeck - Debe activar uno y desactivar los demás del usuario', async () => {
-        const d1 = await FleetDeck.create({ userId, deckName: 'Mazo 1', shipIds: [], isActive: true });
-        const d2 = await FleetDeck.create({ userId, deckName: 'Mazo 2', shipIds: [], isActive: false });
+    it('activateDeck - Debe gestionar correctamente la exclusividad del mazo activo', async () => {
+        const secondDeck = await FleetDeck.create({
+            userId: setup.user.id,
+            deckName: 'Mazo Secundario',
+            shipIds: [],
+            isActive: false
+        });
 
-        await InventoryDao.activateDeck(d2.id, userId);
+        await InventoryDao.activateDeck(secondDeck.id, setup.user.id);
 
-        const checkD1 = await FleetDeck.findByPk(d1.id);
-        const checkD2 = await FleetDeck.findByPk(d2.id);
+        const checkFirst = await FleetDeck.findByPk(setup.deck.id);
+        const checkSecond = await FleetDeck.findByPk(secondDeck.id);
 
-        expect(checkD1.isActive).toBe(false);
-        expect(checkD2.isActive).toBe(true);
+        expect(checkFirst.isActive).toBe(false);
+        expect(checkSecond.isActive).toBe(true);
     });
 });

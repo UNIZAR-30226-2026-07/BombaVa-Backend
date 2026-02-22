@@ -1,15 +1,13 @@
 /**
  * Servicio de Lobbies
- * Gestiona las salas de espera en memoria y orquesta el inicio de partidas en la DB.
+ * Gestiona las salas de espera y orquesta el inicio de partidas llamando al MatchService.
  */
-import { initializeMatchPersistence } from '../../modules/game/controllers/matchSetupController.js';
+import * as matchService from '../../modules/game/services/matchService.js';
 
 const lobbiesActivos = new Map();
 
 /**
- * Crea un identificador de sala único y registra al primer jugador
- * @param {string} userId - ID del usuario host
- * @param {string} socketId - ID del socket del host
+ * Crea un lobby y registra al host
  */
 export const crearLobby = (userId, socketId) => {
     const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -18,32 +16,23 @@ export const crearLobby = (userId, socketId) => {
 };
 
 /**
- * Añade un segundo jugador a la sala si hay espacio
- * @param {string} codigo - Código de la sala
- * @param {string} userId - ID del usuario invitado
- * @param {string} socketId - ID del socket del invitado
+ * Une a un invitado al lobby
  */
 export const intentarUnirseALobby = (codigo, userId, socketId) => {
     const lobby = lobbiesActivos.get(codigo);
 
-    if (!lobby) {
-        throw new Error('Lobby no encontrado');
-    }
-    if (lobby.length >= 2) {
-        throw new Error('Lobby lleno');
-    }
+    if (!lobby) throw new Error('Lobby no encontrado');
+    if (lobby.length >= 2) throw new Error('Lobby lleno');
 
     lobby.push({ id: userId, socketId });
     return lobby;
 };
 
 /**
- * Finaliza el lobby y persiste la partida en la base de datos
- * @param {string} codigo - Código de la sala
- * @param {Array} lobby - Lista de jugadores en la sala
+ * Finaliza el lobby y arranca la partida en la DB vía MatchService
  */
 export const ejecutarInicioPartida = async (codigo, lobby) => {
-    const partida = await initializeMatchPersistence(lobby);
+    const partida = await matchService.iniciarPartidaOrquestada(lobby);
     lobbiesActivos.delete(codigo);
     return partida;
 };

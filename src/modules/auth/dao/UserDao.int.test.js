@@ -1,35 +1,34 @@
 /**
  * Test de Integración: DAO de Usuarios
- * Valida que las consultas de Sequelize funcionen contra la base de datos real.
+ * Valida la persistencia y búsqueda de perfiles usando la factoría.
  */
 import { sequelize } from '../../../config/db.js';
+import { createFullUserContext } from '../../../shared/models/testFactory.js';
 import UserDao from './UserDao.js';
 
-describe('UserDao Integration (Colocated)', () => {
+describe('UserDao Integration (Refactored)', () => {
+    let setup;
+
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
+
+        setup = await createFullUserContext('search_user', 'search@test.com');
     });
 
     afterAll(async () => {
         await sequelize.close();
     });
 
-    it('createUser y findByMail - Debe persistir y recuperar por email', async () => {
-        await UserDao.createUser({
-            username: 'dao_user',
-            email: 'dao@test.com',
-            password_hash: 'hash'
-        });
-
-        const user = await UserDao.findByMail('dao@test.com');
+    it('findByMail - Debe encontrar al usuario creado por la factoría', async () => {
+        const user = await UserDao.findByMail('search@test.com');
         expect(user).not.toBeNull();
-        expect(user.username).toBe('dao_user');
+        expect(user.username).toBe('search_user');
     });
 
-    it('findByName - Debe recuperar por nombre de usuario', async () => {
-        const user = await UserDao.findByName('dao_user');
+    it('findById - Debe encontrar al usuario por su UUID', async () => {
+        const user = await UserDao.findById(setup.user.id);
         expect(user).not.toBeNull();
-        expect(user.email).toBe('dao@test.com');
+        expect(user.id).toBe(setup.user.id);
     });
 });
