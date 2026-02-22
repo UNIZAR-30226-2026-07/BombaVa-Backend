@@ -37,3 +37,22 @@ describe('ShipTemplate Model Unit Tests', () => {
         }
     });
 });
+
+describe('ShipTemplate Unit Validations', () => {
+    it('Debe fallar si el ancho (width) es menor a 1', async () => {
+        const template = ShipTemplate.build({
+            slug: 'error',
+            name: 'Error',
+            width: 0,
+            baseMaxHp: 10,
+            supplyCost: 5
+        });
+
+        try {
+            await template.validate();
+        } catch (err) {
+            const hasWidthError = err.errors.some(e => e.path === 'width');
+            expect(hasWidthError).toBe(true);
+        }
+    });
+});

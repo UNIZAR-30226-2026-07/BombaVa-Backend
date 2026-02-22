@@ -1,3 +1,8 @@
+/**
+ * DAO de Inventario
+ * Acceso directo a base de datos para barcos, mazos y plantillas.
+ */
+
 import { sequelize } from '../../../config/db.js';
 import FleetDeck from '../models/FleetDeck.js';
 import ShipTemplate from '../models/ShipTemplate.js';

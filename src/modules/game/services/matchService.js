@@ -1,42 +1,51 @@
+/**
+ * Servicio de Gestión de Partidas
+ * Maneja la recuperación de estados, historial y lógica de recursos.
+ */
 import { Match, MatchPlayer, Projectile, ShipInstance, ShipTemplate, UserShip } from '../../../shared/models/index.js';
 
-/**
- * Recupera el estado completo de una partida para la API
- */
 export const obtenerEstadoCompletoPartida = async (matchId) => {
     return await Match.findByPk(matchId, {
         include: [{ model: MatchPlayer }, { model: ShipInstance }, { model: Projectile }]
     });
 };
 
-/**
- * Recupera el historial de un usuario
- */
 export const obtenerHistorialUsuario = async (userId) => {
     return await Match.findAll({
-        include: [{ model: MatchPlayer, where: { userId: userId } }],
+        include: [{ model: MatchPlayer, where: { userId } }],
         order: [['created_at', 'DESC']]
     });
 };
 
+/**
+ * Traduce coordenadas relativas a absolutas según el bando
+ */
 export const traducirPosicionTablero = (pos, bando) => {
     return bando === 'NORTH' ? pos : { x: pos.x, y: 14 - pos.y };
 };
 
-export const instanciarFlotaEnPartida = async (matchId, playerId, bando, shipConfigs) => {
-    for (const config of shipConfigs) {
-        const userShip = await UserShip.findByPk(config.userShipId, { include: [{ model: ShipTemplate }] });
-        const hpActual = userShip?.ShipTemplate?.baseMaxHp || 10;
-        const posAbs = traducirPosicionTablero(config.position, bando);
-
-        await ShipInstance.create({
-            matchId, playerId, userShipId: config.userShipId,
-            x: posAbs.x, y: posAbs.y, currentHp: hpActual,
-            orientation: bando === 'NORTH' ? config.orientation : 'S'
-        });
-    }
+export const calcularRegeneracionTurno = (recursosActuales) => {
+    return {
+        fuel: Math.min(30, recursosActuales.fuel + 10),
+        ammo: 5
+    };
 };
 
-export const calcularRegeneracionTurno = (actual) => {
-    return { fuel: Math.min(30, actual.fuel + 10), ammo: 5 };
+export const instanciarBarcosEnPartida = async (matchId, playerId, bando, configuracionMazo, transaccion) => {
+    for (const shipCfg of configuracionMazo) {
+        const userShip = await UserShip.findByPk(shipCfg.userShipId, {
+            include: [ShipTemplate],
+            transaction: transaccion
+        });
+
+        const posAbs = traducirPosicionTablero(shipCfg.position, bando);
+        const orientation = (bando === 'NORTH') ? shipCfg.orientation : 'S';
+
+        await ShipInstance.create({
+            matchId, playerId, userShipId: userShip.id,
+            x: posAbs.x, y: posAbs.y, orientation,
+            currentHp: userShip.ShipTemplate.baseMaxHp,
+            isSunk: false
+        }, { transaction: transaccion });
+    }
 };

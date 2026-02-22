@@ -1,37 +1,54 @@
+/**
+ * Controlador de Turnos
+ * Gestiona la transición de poder entre jugadores y la regeneración de recursos.
+ */
 import { Match, MatchPlayer, sequelize } from '../../../shared/models/index.js';
 import * as matchService from '../services/matchService.js';
 
 /**
- * Endpoint para finalizar el turno
+ * Finaliza el turno actual y cede el control al oponente
  */
 export const endTurn = async (req, res, next) => {
+    const { matchId } = req.params;
     const transaccion = await sequelize.transaction();
-    try {
-        const { matchId } = req.params;
-        const partida = await Match.findByPk(matchId, { include: [{ model: MatchPlayer }], transaction: transaccion });
 
-        if (!partida || partida.status !== 'PLAYING' || (partida.currentTurnPlayerId && partida.currentTurnPlayerId !== req.user.id)) {
+    try {
+        const partida = await Match.findByPk(matchId, {
+            include: [MatchPlayer],
+            transaction: transaccion
+        });
+
+        if (!partida || partida.currentTurnPlayerId !== req.user.id) {
             await transaccion.rollback();
-            return res.status(403).json({ message: 'No es tu turno o partida no activa' });
+            return res.status(403).json({ message: 'No es tu turno' });
         }
 
         const oponente = partida.MatchPlayers.find(p => p.userId !== req.user.id);
-        if (!oponente) {
-            await transaccion.rollback();
-            return res.status(400).json({ message: 'Error de integridad' });
-        }
 
-        const nuevosRecursos = matchService.calcularRegeneracionRecursos({ fuel: oponente.fuelReserve });
+        const nuevosRecursos = matchService.calcularRegeneracionTurno({
+            fuel: oponente.fuelReserve,
+            ammo: oponente.ammoCurrent
+        });
+
         oponente.fuelReserve = nuevosRecursos.fuel;
         oponente.ammoCurrent = nuevosRecursos.ammo;
 
-        partida.turnNumber += 1;
         partida.currentTurnPlayerId = oponente.userId;
+        partida.turnNumber += 1;
 
-        await Promise.all([partida.save({ transaction: transaccion }), oponente.save({ transaction: transaccion })]);
+        await Promise.all([
+            partida.save({ transaction: transaccion }),
+            oponente.save({ transaction: transaccion })
+        ]);
+
         await transaccion.commit();
 
-        res.json({ message: 'Turno finalizado', nextPlayerId: partida.currentTurnPlayerId, turnNumber: partida.turnNumber });
+        res.json({
+            message: 'Turno finalizado',
+            nextPlayerId: partida.currentTurnPlayerId,
+            turnNumber: partida.turnNumber,
+            nextPlayerResources: nuevosRecursos
+        });
     } catch (error) {
         if (transaccion) await transaccion.rollback();
         next(error);

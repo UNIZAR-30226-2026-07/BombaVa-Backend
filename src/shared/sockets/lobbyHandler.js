@@ -1,3 +1,4 @@
+import { initializeMatchPersistence } from '../../modules/game/controllers/matchSetupController.js';
 import * as lobbyService from '../services/lobbyService.js';
 
 /**
@@ -21,7 +22,7 @@ export const registerLobbyHandlers = (io, socket) => {
             socket.join(codigo);
 
             if (lobby.length === 2) {
-                const partida = await lobbyService.ejecutarInicioPartida(codigo, lobby);
+                const partida = await initializeMatchPersistence(lobby);
                 io.to(codigo).emit('match:ready', { matchId: partida.id, status: partida.status });
             }
         } catch (error) {

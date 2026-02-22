@@ -1,25 +1,26 @@
-import { validationResult } from 'express-validator';
-import { MatchPlayer, sequelize, ShipInstance } from '../../../shared/models/index.js';
+/**
+ * Controlador de Movimiento
+ * Gestiona el desplazamiento y la orientación de los barcos.
+ */
+import { MatchPlayer, ShipInstance, sequelize } from '../../../shared/models/index.js';
 import * as engineService from '../services/engineService.js';
 
 /**
- * Endpoint de la API para mover un barco
+ * Traslada el barco una casilla en la dirección indicada
  */
 export const moveShip = async (req, res, next) => {
-    const errores = validationResult(req);
-    if (!errores.isEmpty()) return res.status(400).json({ errors: errores.array() });
-
     const transaccion = await sequelize.transaction();
     try {
         const { matchId } = req.params;
         const { shipId, direction } = req.body;
+        const costes = engineService.obtenerCostesMovimiento();
 
         const barco = await ShipInstance.findByPk(shipId, { transaction: transaccion });
         const jugador = await MatchPlayer.findOne({ where: { matchId, userId: req.user.id }, transaction: transaccion });
 
-        if (!barco || !jugador) {
+        if (!barco || !jugador || jugador.fuelReserve < costes.TRASLACION) {
             await transaccion.rollback();
-            return res.status(404).json({ message: 'No encontrado' });
+            return res.status(403).json({ message: 'Recursos insuficientes' });
         }
 
         const nuevaPos = engineService.calcularTraslacion({ x: barco.x, y: barco.y }, direction);
@@ -29,14 +30,9 @@ export const moveShip = async (req, res, next) => {
             return res.status(400).json({ message: 'Fuera de límites' });
         }
 
-        if (jugador.fuelReserve < 1) {
-            await transaccion.rollback();
-            return res.status(403).json({ message: 'Sin combustible' });
-        }
-
         barco.x = nuevaPos.x;
         barco.y = nuevaPos.y;
-        jugador.fuelReserve -= 1;
+        jugador.fuelReserve -= costes.TRASLACION;
 
         await barco.save({ transaction: transaccion });
         await jugador.save({ transaction: transaccion });
@@ -50,27 +46,25 @@ export const moveShip = async (req, res, next) => {
 };
 
 /**
- * Endpoint de la API para rotar un barco
+ * Rota el barco 90 grados a izquierda o derecha
  */
 export const rotateShip = async (req, res, next) => {
-    const errores = validationResult(req);
-    if (!errores.isEmpty()) return res.status(400).json({ errors: errores.array() });
-
     const transaccion = await sequelize.transaction();
     try {
         const { matchId } = req.params;
         const { shipId, degrees } = req.body;
+        const costes = engineService.obtenerCostesMovimiento();
 
         const barco = await ShipInstance.findByPk(shipId, { transaction: transaccion });
         const jugador = await MatchPlayer.findOne({ where: { matchId, userId: req.user.id }, transaction: transaccion });
 
-        if (jugador.fuelReserve < 2) {
+        if (!barco || !jugador || jugador.fuelReserve < costes.ROTACION) {
             await transaccion.rollback();
-            return res.status(403).json({ message: 'Sin combustible' });
+            return res.status(403).json({ message: 'Recursos insuficientes' });
         }
 
         barco.orientation = engineService.calcularRotacion(barco.orientation, degrees);
-        jugador.fuelReserve -= 2;
+        jugador.fuelReserve -= costes.ROTACION;
 
         await barco.save({ transaction: transaccion });
         await jugador.save({ transaction: transaccion });

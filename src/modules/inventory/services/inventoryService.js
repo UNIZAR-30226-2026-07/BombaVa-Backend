@@ -1,21 +1,33 @@
 /**
- * Lógica de negocio para la gestión de inventario y puerto
+ * Servicio de Inventario y Puerto
+ * Contiene la lógica de validación de formaciones y equipamiento.
  */
+import InventoryDao from '../dao/InventoryDao.js';
 
 /**
- * Valida si la formación de barcos entra dentro del mini-tablero de despliegue
- * @param {Array} shipIds - Configuración de barcos y posiciones
- * @param {object} dimensiones - Dimensiones del tablero (V1: 15x5)
- * @returns {boolean}
+ * Valida que los barcos estén dentro del área de despliegue (15x5)
+ * @param {Array} formation - Array de barcos con sus posiciones
  */
-export const validarDimensionesMazo = (shipIds, dimensiones = { x: 15, y: 5 }) => {
-    return shipIds.every(conf =>
-        conf.position.x >= 0 && conf.position.x < dimensiones.x &&
-        conf.position.y >= 0 && conf.position.y < dimensiones.y
+export const validarLimitesPuerto = (formation) => {
+    const MAX_X = 14;
+    const MAX_Y = 4; // V1: Tablero de despliegue es 15x5 (0-4)
+
+    return formation.every(ship =>
+        ship.position.x >= 0 && ship.position.x <= MAX_X &&
+        ship.position.y >= 0 && ship.position.y <= MAX_Y
     );
 };
 
-export const equiparArmaEnBarco = async (barco, weaponSlug) => {
-    // TODO: añadir lógica de compatibilidad de armas
-    return await InventoryDao.updateShipStats(barco, { equippedWeapon: weaponSlug });
+/**
+ * Actualiza el equipamiento de un barco
+ * @param {Object} ship - Instancia de UserShip
+ * @param {string} weaponSlug - Identificador del arma
+ */
+export const equiparArma = async (ship, weaponSlug) => {
+    const statsActuales = ship.customStats || {};
+    return await InventoryDao.updateShipStats(ship, {
+        ...statsActuales,
+        equippedWeapon: weaponSlug
+    });
+    // TODO: añadir logica de armas
 };

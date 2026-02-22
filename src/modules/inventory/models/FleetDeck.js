@@ -1,3 +1,6 @@
+/**
+ * Modelo de Mazo de Flota (FleetDeck)
+ */
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../../config/db.js';
 
@@ -16,7 +19,6 @@ const FleetDeck = sequelize.define('FleetDeck', {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-            notEmpty: true,
             len: [3, 30]
         }
     },
@@ -25,8 +27,15 @@ const FleetDeck = sequelize.define('FleetDeck', {
         allowNull: false,
         defaultValue: [],
         validate: {
-            isArray(value) {
-                if (!Array.isArray(value)) throw new Error('shipIds debe ser un array de UUIDs');
+            isValidFormation(value) {
+                if (!Array.isArray(value)) {
+                    throw new Error('shipIds debe ser un array de UUIDs');
+                }
+                value.forEach(ship => {
+                    if (!ship.userShipId || !ship.position || !ship.orientation) {
+                        throw new Error('Cada barco debe tener ID, posición y orientación');
+                    }
+                });
             }
         }
     },
