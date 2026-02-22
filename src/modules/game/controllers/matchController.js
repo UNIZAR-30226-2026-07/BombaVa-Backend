@@ -1,16 +1,14 @@
 import { Match, MatchPlayer, Projectile, ShipInstance } from '../../../shared/models/index.js';
 
 /**
- * Recupera el estado de la partida filtrando la información sensible según el jugador
- * @param {object} req - Petición con matchId
- * @param {object} res - Respuesta con estado filtrado (Niebla de Guerra)
- * @param {function} next - Middleware de error
+ * Recupera el estado de la partida filtrando la información sensible
+ * @param {object} req - Objeto de petición de Express
+ * @param {object} res - Objeto de respuesta de Express
+ * @param {function} next - Función para manejo de errores
  */
 export const getMatchStatus = async (req, res, next) => {
     try {
         const { matchId } = req.params;
-        const userId = req.user.id;
-
         const partida = await Match.findByPk(matchId, {
             include: [
                 { model: MatchPlayer },
@@ -19,7 +17,9 @@ export const getMatchStatus = async (req, res, next) => {
             ]
         });
 
-        if (!partida) return res.status(404).json({ message: 'Partida no encontrada' });
+        if (!partida) {
+            return res.status(404).json({ message: 'Partida no encontrada' });
+        }
 
         res.json(partida);
     } catch (error) {
@@ -28,10 +28,10 @@ export const getMatchStatus = async (req, res, next) => {
 };
 
 /**
- * Registra una solicitud de pausa consensuada
- * @param {object} req - Petición con matchId y accept
- * @param {object} res - Confirmación del estado de pausa
- * @param {function} next - Middleware de error
+ * Gestiona la petición de pausa que debe ser aceptada por el oponente
+ * @param {object} req - Objeto de petición de Express
+ * @param {object} res - Objeto de respuesta de Express
+ * @param {function} next - Función para manejo de errores
  */
 export const requestPause = async (req, res, next) => {
     try {
@@ -47,17 +47,17 @@ export const requestPause = async (req, res, next) => {
             return res.json({ message: 'Pausa aceptada.', status: partida.status });
         }
 
-        res.json({ message: 'Solicitud de pausa enviada al oponente', matchId });
+        res.json({ message: 'Solicitud de pausa enviada', matchId });
     } catch (error) {
         next(error);
     }
 };
 
 /**
- * Obtiene el historial de partidas del usuario autenticado
- * @param {object} req - Petición Express
- * @param {object} res - Historial ordenado por fecha
- * @param {function} next - Middleware de error
+ * Recupera el historial de partidas del usuario autenticado
+ * @param {object} req - Objeto de petición de Express
+ * @param {object} res - Objeto de respuesta de Express
+ * @param {function} next - Función para manejo de errores
  */
 export const getMatchHistory = async (req, res, next) => {
     try {
