@@ -11,10 +11,8 @@ const PORT = process.env.PORT || 3000;
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
-const lobbiesActivos = new Map();
-
 io.on('connection', (socket) => {
-    registerLobbyHandlers(io, socket, lobbiesActivos);
+    registerLobbyHandlers(io, socket);
     registerGameHandlers(io, socket);
 
     socket.on('disconnect', () => {
