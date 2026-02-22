@@ -3,7 +3,7 @@ import InventoryDao from '../dao/InventoryDao.js';
 import * as inventoryService from '../services/inventoryService.js';
 
 /**
- * Listado de barcos (Capa de API)
+ * Listado de barcos
  */
 export const getMyShips = async (req, res, next) => {
     try {
@@ -15,7 +15,7 @@ export const getMyShips = async (req, res, next) => {
 };
 
 /**
- * Equipamiento de armas (Capa de API)
+ * Equipamiento de armas
  */
 export const equipWeapon = async (req, res, next) => {
     const errors = validationResult(req);

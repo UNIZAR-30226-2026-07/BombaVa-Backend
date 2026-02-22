@@ -1,7 +1,7 @@
 import * as lobbyService from '../services/lobbyService.js';
 
 /**
- * Manejador de eventos de socket para la fase de lobby (Capa de API)
+ * Manejador de eventos de socket para la fase de lobby
  * @param {object} io 
  * @param {object} socket 
  */

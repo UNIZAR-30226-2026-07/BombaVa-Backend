@@ -4,7 +4,7 @@ import { checkWinCondition } from '../../game/controllers/matchStatusController.
 import * as combatService from '../services/combatService.js';
 
 /**
- * Endpoint para disparar el cañón (Capa de API)
+ * Endpoint para disparar el cañón
  */
 export const fireCannon = async (req, res, next) => {
     const errores = validationResult(req);
