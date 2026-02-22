@@ -1,10 +1,13 @@
 /**
  * Servicio de Lógica del Motor (EngineService)
- * Contiene los cálculos de traslación, rotación y validación de límites.
+ * Gestiona movimientos, rotaciones y validaciones de límites de tablero.
  */
+import { GAME_RULES } from '../../../config/gameRules.js';
 
 /**
- * Calcula la nueva posición basada en una dirección
+ * Calcula la traslación de coordenadas
+ * @param {Object} pos - {x, y}
+ * @param {string} dir - N, S, E, W
  */
 export const calcularTraslacion = (pos, dir) => {
     let { x, y } = pos;
@@ -16,14 +19,17 @@ export const calcularTraslacion = (pos, dir) => {
 };
 
 /**
- * Valida si las coordenadas están dentro del tablero (Exportación requerida por tests)
+ * Valida si una posición está dentro del mapa
  */
 export const validarLimitesMapa = (x, y) => {
-    return x >= 0 && x <= 14 && y >= 0 && y <= 14;
+    const limit = GAME_RULES.MAP.SIZE - 1;
+    return x >= 0 && x <= limit && y >= 0 && y <= limit;
 };
 
 /**
- * Calcula la nueva orientación tras una rotación de 90 grados
+ * Calcula la nueva orientación
+ * @param {string} actual - N, S, E, W
+ * @param {number} grados - 90, -90
  */
 export const calcularRotacion = (actual, grados) => {
     const orden = ['N', 'E', 'S', 'W'];
@@ -34,11 +40,11 @@ export const calcularRotacion = (actual, grados) => {
 };
 
 /**
- * Devuelve los costes de recursos según la V1
+ * Devuelve los costes estandarizados
  */
 export const obtenerCostesMovimiento = () => {
     return {
-        TRASLACION: 1,
-        ROTACION: 2
+        TRASLACION: GAME_RULES.RESOURCES.COST_MOVE,
+        ROTACION: GAME_RULES.RESOURCES.COST_ROTATE
     };
 };

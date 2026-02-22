@@ -1,25 +1,25 @@
 /**
  * Controlador de Proyectiles
- * Gestiona el lanzamiento de torpedos y la colocación de minas.
+ * Gestiona el lanzamiento de torpedos y minas delegando en los servicios de combate.
  */
 import { Match, MatchPlayer, Projectile, sequelize, ShipInstance } from '../../../shared/models/index.js';
 import * as combatService from '../services/combatService.js';
 
 /**
- * Lanza un torpedo desde la proa del barco
+ * Crea un proyectil móvil (Torpedo) en el tablero
  */
 export const launchTorpedo = async (req, res, next) => {
     const transaccion = await sequelize.transaction();
     try {
         const { matchId } = req.params;
         const { shipId } = req.body;
-        const COST_AMMO = 3;
+        const costes = combatService.obtenerCostesCombate();
 
         const partida = await Match.findByPk(matchId, { transaction: transaccion });
         const barco = await ShipInstance.findByPk(shipId, { transaction: transaccion });
         const jugador = await MatchPlayer.findOne({ where: { matchId, userId: req.user.id }, transaction: transaccion });
 
-        if (!barco || !partida || !jugador || jugador.ammoCurrent < COST_AMMO) {
+        if (!barco || !partida || !jugador || jugador.ammoCurrent < costes.TORPEDO) {
             await transaccion.rollback();
             return res.status(403).json({ message: 'No permitido o munición insuficiente' });
         }
@@ -37,7 +37,7 @@ export const launchTorpedo = async (req, res, next) => {
             lifeDistance: 6
         }, { transaction: transaccion });
 
-        jugador.ammoCurrent -= COST_AMMO;
+        jugador.ammoCurrent -= costes.TORPEDO;
         barco.lastAttackTurn = partida.turnNumber;
 
         await Promise.all([jugador.save({ transaction: transaccion }), barco.save({ transaction: transaccion })]);
@@ -51,20 +51,20 @@ export const launchTorpedo = async (req, res, next) => {
 };
 
 /**
- * Coloca una mina en una casilla adyacente
+ * Crea un proyectil estático (Mina) en el tablero
  */
 export const dropMine = async (req, res, next) => {
     const transaccion = await sequelize.transaction();
     try {
         const { matchId } = req.params;
         const { shipId, target } = req.body;
-        const COST_AMMO = 2;
+        const costes = combatService.obtenerCostesCombate();
 
         const partida = await Match.findByPk(matchId, { transaction: transaccion });
         const barco = await ShipInstance.findByPk(shipId, { transaction: transaccion });
         const jugador = await MatchPlayer.findOne({ where: { matchId, userId: req.user.id }, transaction: transaccion });
 
-        if (!barco || !jugador || !partida || jugador.ammoCurrent < COST_AMMO) {
+        if (!barco || !jugador || !partida || jugador.ammoCurrent < costes.MINE) {
             await transaccion.rollback();
             return res.status(403).json({ message: 'No permitido o munición insuficiente' });
         }
@@ -83,7 +83,7 @@ export const dropMine = async (req, res, next) => {
             lifeDistance: 10
         }, { transaction: transaccion });
 
-        jugador.ammoCurrent -= COST_AMMO;
+        jugador.ammoCurrent -= costes.MINE;
         barco.lastAttackTurn = partida.turnNumber;
 
         await Promise.all([jugador.save({ transaction: transaccion }), barco.save({ transaction: transaccion })]);

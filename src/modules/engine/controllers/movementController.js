@@ -1,12 +1,12 @@
 /**
  * Controlador de Movimiento
- * Gestiona el desplazamiento y la orientación de los barcos.
+ * Orquesta las peticiones de traslación y rotación.
  */
 import { MatchPlayer, ShipInstance, sequelize } from '../../../shared/models/index.js';
 import * as engineService from '../services/engineService.js';
 
 /**
- * Traslada el barco una casilla en la dirección indicada
+ * Ejecuta el movimiento de un barco validando recursos
  */
 export const moveShip = async (req, res, next) => {
     const transaccion = await sequelize.transaction();
@@ -20,14 +20,14 @@ export const moveShip = async (req, res, next) => {
 
         if (!barco || !jugador || jugador.fuelReserve < costes.TRASLACION) {
             await transaccion.rollback();
-            return res.status(403).json({ message: 'Recursos insuficientes' });
+            return res.status(403).json({ message: 'Recursos insuficientes o barco no encontrado' });
         }
 
         const nuevaPos = engineService.calcularTraslacion({ x: barco.x, y: barco.y }, direction);
 
         if (!engineService.validarLimitesMapa(nuevaPos.x, nuevaPos.y)) {
             await transaccion.rollback();
-            return res.status(400).json({ message: 'Fuera de límites' });
+            return res.status(400).json({ message: 'Movimiento fuera de límites' });
         }
 
         barco.x = nuevaPos.x;
@@ -46,7 +46,7 @@ export const moveShip = async (req, res, next) => {
 };
 
 /**
- * Rota el barco 90 grados a izquierda o derecha
+ * Ejecuta la rotación de un barco
  */
 export const rotateShip = async (req, res, next) => {
     const transaccion = await sequelize.transaction();
@@ -60,7 +60,7 @@ export const rotateShip = async (req, res, next) => {
 
         if (!barco || !jugador || jugador.fuelReserve < costes.ROTACION) {
             await transaccion.rollback();
-            return res.status(403).json({ message: 'Recursos insuficientes' });
+            return res.status(403).json({ message: 'Combustible insuficiente' });
         }
 
         barco.orientation = engineService.calcularRotacion(barco.orientation, degrees);
