@@ -9,7 +9,11 @@ import jwt from 'jsonwebtoken';
 import User from '../../modules/auth/models/User.js';
 
 export const socketProtect = async (socket, next) => {
-    const token = socket.handshake.auth?.token;
+    let token = socket.handshake.auth?.token;
+
+    if (!token && socket.handshake.headers?.authorization) {
+        token = socket.handshake.headers.authorization.split(' ')[1]; 
+    }
 
     if (!token) {
         return next(new Error('No autorizado, falta token'));
