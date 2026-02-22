@@ -1,12 +1,13 @@
 /**
  * Controlador de Combate
- * Gestiona los ataques directos de cañón.
+ * Orquesta las peticiones de ataque delegando la lógica en el combatService.
  */
 import { validationResult } from 'express-validator';
 import { Match, MatchPlayer, ShipInstance, sequelize } from '../../../shared/models/index.js';
+import * as combatService from '../services/combatService.js';
 
 /**
- * Ejecuta un ataque de cañón consumiendo 2 AP
+ * Ejecuta un disparo de cañón
  */
 export const fireCannon = async (req, res, next) => {
     const errors = validationResult(req);
@@ -16,7 +17,7 @@ export const fireCannon = async (req, res, next) => {
     try {
         const { matchId } = req.params;
         const { shipId, target } = req.body;
-        const COST_AP = 2;
+        const costes = combatService.obtenerCostesCombate();
 
         const partida = await Match.findByPk(matchId, { transaction: transaccion });
         const barco = await ShipInstance.findByPk(shipId, { transaction: transaccion });
@@ -24,12 +25,17 @@ export const fireCannon = async (req, res, next) => {
 
         if (!barco || !partida || !jugador) {
             await transaccion.rollback();
-            return res.status(403).json({ message: 'Ataque no disponible o recursos insuficientes' });
+            return res.status(404).json({ message: 'Entidades no encontradas' });
         }
 
-        if (barco.lastAttackTurn === partida.turnNumber || jugador.ammoCurrent < COST_AP) {
+        if (barco.lastAttackTurn === partida.turnNumber || jugador.ammoCurrent < costes.CANNON) {
             await transaccion.rollback();
-            return res.status(403).json({ message: 'Ataque no disponible o recursos insuficientes' });
+            return res.status(403).json({ message: 'Ataque no disponible o munición insuficiente' });
+        }
+
+        if (!combatService.validarRangoAtaque({ x: barco.x, y: barco.y }, target, 4)) {
+            await transaccion.rollback();
+            return res.status(400).json({ message: 'Fuera de rango' });
         }
 
         const objetivo = await ShipInstance.findOne({
@@ -39,13 +45,11 @@ export const fireCannon = async (req, res, next) => {
 
         let targetHp = null;
         if (objetivo) {
-            objetivo.currentHp = Math.max(0, objetivo.currentHp - 10);
-            if (objetivo.currentHp === 0) objetivo.isSunk = true;
-            await objetivo.save({ transaction: transaccion });
+            await combatService.aplicarDañoImpacto(objetivo, 'CANNON', transaccion);
             targetHp = objetivo.currentHp;
         }
 
-        jugador.ammoCurrent -= COST_AP;
+        jugador.ammoCurrent -= costes.CANNON;
         barco.lastAttackTurn = partida.turnNumber;
 
         await Promise.all([barco.save({ transaction: transaccion }), jugador.save({ transaction: transaccion })]);

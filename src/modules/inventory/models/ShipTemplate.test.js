@@ -1,5 +1,5 @@
 /**
- * Test Unitario: Validación de Plantilla (V1)
+ * Test Unitario: Validación de Plantilla
  */
 import ShipTemplate from './ShipTemplate.js';
 
