@@ -1,12 +1,13 @@
 /**
  * Controlador de Proyectiles
- * Gestiona el lanzamiento de torpedos y minas delegando en los servicios de combate.
+ * Gestiona el lanzamiento de torpedos y minas.
  */
+import { GAME_RULES } from '../../../config/gameRules.js';
 import { Match, MatchPlayer, Projectile, sequelize, ShipInstance } from '../../../shared/models/index.js';
 import * as combatService from '../services/combatService.js';
 
 /**
- * Crea un proyectil móvil (Torpedo) en el tablero
+ * Crea un proyectil móvil (Torpedo)
  */
 export const launchTorpedo = async (req, res, next) => {
     const transaccion = await sequelize.transaction();
@@ -21,7 +22,7 @@ export const launchTorpedo = async (req, res, next) => {
 
         if (!barco || !partida || !jugador || jugador.ammoCurrent < costes.TORPEDO) {
             await transaccion.rollback();
-            return res.status(403).json({ message: 'No permitido o munición insuficiente' });
+            return res.status(403).json({ message: 'No permitido' });
         }
 
         const vector = combatService.calcularVectorProyectil(barco.orientation);
@@ -34,7 +35,7 @@ export const launchTorpedo = async (req, res, next) => {
             y: barco.y + vector.vy,
             vectorX: vector.vx,
             vectorY: vector.vy,
-            lifeDistance: 6
+            lifeDistance: GAME_RULES.COMBAT.TORPEDO_LIFE
         }, { transaction: transaccion });
 
         jugador.ammoCurrent -= costes.TORPEDO;
@@ -51,7 +52,7 @@ export const launchTorpedo = async (req, res, next) => {
 };
 
 /**
- * Crea un proyectil estático (Mina) en el tablero
+ * Crea un proyectil estático (Mina)
  */
 export const dropMine = async (req, res, next) => {
     const transaccion = await sequelize.transaction();
@@ -66,12 +67,12 @@ export const dropMine = async (req, res, next) => {
 
         if (!barco || !jugador || !partida || jugador.ammoCurrent < costes.MINE) {
             await transaccion.rollback();
-            return res.status(403).json({ message: 'No permitido o munición insuficiente' });
+            return res.status(403).json({ message: 'No permitido' });
         }
 
         if (!combatService.validarAdyacencia({ x: barco.x, y: barco.y }, target)) {
             await transaccion.rollback();
-            return res.status(400).json({ message: 'Posición no adyacente' });
+            return res.status(400).json({ message: 'No adyacente' });
         }
 
         await Projectile.create({
@@ -80,7 +81,7 @@ export const dropMine = async (req, res, next) => {
             type: 'MINE',
             x: target.x,
             y: target.y,
-            lifeDistance: 10
+            lifeDistance: GAME_RULES.COMBAT.MINE_LIFE
         }, { transaction: transaccion });
 
         jugador.ammoCurrent -= costes.MINE;

@@ -1,22 +1,31 @@
-import { Match } from '../../../shared/models/index.js';
+/**
+ * Controlador de Estado de Partida
+ * Gestiona la finalización de sesiones y condiciones de victoria.
+ */
+import { Match, MatchPlayer } from '../../../shared/models/index.js';
 import * as statusService from '../services/matchStatusService.js';
 
 /**
  * Endpoint para rendición voluntaria
- * @param {object} req 
- * @param {object} res 
- * @param {function} next 
+ * Actualiza el ELO del oponente como ganador.
  */
 export const surrenderMatch = async (req, res, next) => {
     try {
         const { matchId } = req.params;
-        const partida = await Match.findByPk(matchId);
+        const partida = await Match.findByPk(matchId, { include: [MatchPlayer] });
 
         if (!partida || partida.status === 'FINISHED') {
             return res.status(400).json({ message: 'Operación no válida' });
         }
 
-        await statusService.finalizarPartida(matchId);
+        const ganador = partida.MatchPlayers.find(p => p.userId !== req.user.id);
+
+        if (ganador) {
+            await statusService.registrarVictoria(matchId, ganador.userId);
+        } else {
+            await statusService.finalizarPartida(matchId);
+        }
+
         res.json({ message: 'Rendición procesada', status: 'FINISHED' });
     } catch (error) {
         next(error);
@@ -24,10 +33,7 @@ export const surrenderMatch = async (req, res, next) => {
 };
 
 /**
- * Utilidad de API para verificar victoria tras un daño (Usada por otros controladores)
- * @param {string} matchId 
- * @param {string} playerId 
- * @returns {Promise<boolean>}
+ * Utilidad para verificar victoria tras un impacto
  */
 export const checkWinCondition = async (matchId, playerId) => {
     const haPerdido = await statusService.verificarDerrotaJugador(matchId, playerId);

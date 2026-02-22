@@ -1,40 +1,40 @@
 /**
- * Test Unitario: Servicio de Usuario
- * Prueba la lógica de negocio aislando la base de datos con Mocks.
+ * Test Unitario: Servicio de Usuario (Lógica de ELO y Perfil)
  */
 import { jest } from '@jest/globals';
 
 jest.unstable_mockModule('../models/User.js', () => ({
     default: {
-        findByPk: jest.fn(),
-        findAll: jest.fn()
+        findByPk: jest.fn()
     }
 }));
 
-const { obtenerPerfilPrivado, obtenerClasificacionGlobal } = await import('./userService.js');
+const { procesarResultadoElo, actualizarPerfil } = await import('./userService.js');
 const User = (await import('../models/User.js')).default;
 
-describe('UserService Unit Tests (Logic only)', () => {
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
+describe('UserService Logic Tests', () => {
+    afterEach(() => jest.clearAllMocks());
 
-    it('obtenerPerfilPrivado - Debe llamar al modelo con el ID correcto', async () => {
-        User.findByPk.mockResolvedValue({ id: '1', username: 'test' });
+    it('procesarResultadoElo - Debe aumentar el ELO del ganador y bajar el del perdedor', async () => {
+        const winner = { id: 'w1', elo_rating: 1200, update: jest.fn() };
+        const loser = { id: 'l1', elo_rating: 1200, update: jest.fn() };
 
-        await obtenerPerfilPrivado('1');
+        User.findByPk.mockImplementation((id) => id === 'w1' ? winner : loser);
 
-        expect(User.findByPk).toHaveBeenCalledWith('1', expect.any(Object));
-    });
+        await procesarResultadoElo('w1', 'l1');
 
-    it('obtenerClasificacionGlobal - Debe solicitar ordenación por ELO descendente', async () => {
-        User.findAll.mockResolvedValue([]);
-
-        await obtenerClasificacionGlobal(10);
-
-        expect(User.findAll).toHaveBeenCalledWith(expect.objectContaining({
-            order: [['elo_rating', 'DESC']],
-            limit: 10
+        expect(winner.update).toHaveBeenCalledWith(expect.objectContaining({
+            elo_rating: expect.any(Number)
         }));
+        expect(winner.update.mock.calls[0][0].elo_rating).toBe(1216);
+        expect(loser.update.mock.calls[0][0].elo_rating).toBe(1184);
+    });
+
+    it('actualizarPerfil - Debe llamar al método update del modelo', async () => {
+        const user = { id: 'u1', update: jest.fn() };
+        User.findByPk.mockResolvedValue(user);
+
+        await actualizarPerfil('u1', { username: 'nuevo' });
+        expect(user.update).toHaveBeenCalledWith({ username: 'nuevo' });
     });
 });
