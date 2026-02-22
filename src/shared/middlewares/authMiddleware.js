@@ -1,12 +1,13 @@
-import jwt from 'jsonwebtoken';
-import User from '../../modules/auth/models/User.js';
-
 /**
- * Middleware que protege rutas verificando el token JWT
- * @param {object} req - Objeto de petición
- * @param {object} res - Objeto de respuesta
- * @param {function} next - Siguiente función
+ * Middleware que protege rutas verificando el token JWT.
+ * 
+ * @param {Object} req - Objeto de petición Express.
+ * @param {Object} res - Objeto de respuesta Express.
+ * @param {Function} next - Función de paso al siguiente middleware.
  */
+import jwt from 'jsonwebtoken';
+import { User } from '../../modules/auth/index.js';
+
 export const protect = async (req, res, next) => {
     let token;
 
@@ -24,14 +25,13 @@ export const protect = async (req, res, next) => {
                 return res.status(401).json({ message: 'Usuario no encontrado' });
             }
 
-            next();
+            return next();
         } catch (error) {
-            console.error('Error de token:', error);
-            res.status(401).json({ message: 'Token no válido o expirado' });
+            return res.status(401).json({ message: 'Token no válido o expirado' });
         }
     }
 
     if (!token) {
-        res.status(401).json({ message: 'No autorizado, no hay token' });
+        return res.status(401).json({ message: 'No autorizado, no hay token' });
     }
 };

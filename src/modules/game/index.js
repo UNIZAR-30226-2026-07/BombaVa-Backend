@@ -1,13 +1,14 @@
 /**
- * Fachada del módulo de Juego (Matchmaking y Estados).
- * Expone las rutas de consulta y los manejadores de eventos en tiempo real.
+ * Fachada del módulo de Juego.
  */
+import Match from './models/Match.js';
+import MatchPlayer from './models/MatchPlayer.js';
 import matchRoutes from './routes/matchRoutes.js';
-import * as matchService from './services/matchService.js';
+import { matchService, statusService } from './services/index.js';
 import { registerGameHandlers } from './sockets/index.js';
 
 export {
-    matchRoutes,
-    matchService,
-    registerGameHandlers
+    Match,
+    MatchPlayer, matchRoutes,
+    matchService, registerGameHandlers, statusService
 };

@@ -11,13 +11,15 @@ import { registerTurnHandlers } from './turn.js';
 export const registerGameHandlers = (io, socket) => {
     /**
      * Gestión de entrada a la sala de partida.
+     * Envía confirmación al cliente para evitar condiciones de carrera.
      */
     socket.on('game:join', (matchId) => {
         socket.join(matchId);
+        socket.emit('game:joined', { matchId });
     });
 
     /**
-     * Gestión de pausas (Sincronización simple).
+     * Gestión de pausas
      */
     socket.on('match:pause_request', (data) => {
         const { matchId } = data;

@@ -1,21 +1,20 @@
 /**
  * Rutas del módulo de Juego.
- * Solo mantiene los endpoints de consulta asíncrona
- * Las acciones de partida en curso se gestionan mediante Sockets.
+ * Define los puntos de entrada REST para consultas de metadatos.
  */
 import { Router } from 'express';
-import { protect } from '../../../shared/middlewares/authMiddleware.js';
+import { protect } from '../../../shared/index.js';
 import { getMatchHistory } from '../controllers/matchController.js';
 
 const router = Router();
 
 /**
- * Todas las rutas de partidas requieren autenticación.
+ * Middleware de protección para todas las rutas de este módulo.
  */
 router.use(protect);
 
 /**
- * Obtener el historial de partidas del usuario.
+ * Ruta para obtener el historial de partidas del jugador.
  */
 router.get('/history', getMatchHistory);
 

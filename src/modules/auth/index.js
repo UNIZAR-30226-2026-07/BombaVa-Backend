@@ -1,11 +1,12 @@
 /**
  * Fachada del módulo de Autenticación.
- * Expone las rutas y servicios públicos para el resto de la aplicación.
  */
+import { authController, userController } from './controllers/index.js';
+import User from './models/User.js';
 import authRoutes from './routes/authRoutes.js';
-import * as authService from './services/authService.js';
+import { authService, userService } from './services/index.js';
 
 export {
-    authRoutes,
-    authService
+    authController, authRoutes,
+    authService, User, userController, userService
 };

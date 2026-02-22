@@ -1,11 +1,8 @@
 /**
  * Fachada de Sockets del Módulo Engine.
- * Registra los manejadores de movimiento y combate.
- * 
- * @param {Object} io - Instancia de Socket.io.
- * @param {Object} socket - Socket del cliente.
+ * Coordina los manejadores de movimiento y la nueva estructura segmentada de combate.
  */
-import { registerCombatHandlers } from './combat.js';
+import { registerCombatHandlers } from './combat/index.js';
 import { registerMovementHandlers } from './movement.js';
 
 export const registerEngineHandlers = (io, socket) => {

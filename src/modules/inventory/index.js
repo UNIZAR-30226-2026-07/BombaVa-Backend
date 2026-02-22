@@ -1,11 +1,14 @@
 /**
  * Fachada del módulo de Inventario.
- * Expone las rutas de gestión de barcos y mazos.
  */
+import InventoryDao from './dao/InventoryDao.js';
+import FleetDeck from './models/FleetDeck.js';
+import ShipTemplate from './models/ShipTemplate.js';
+import UserShip from './models/UserShip.js';
 import inventoryRoutes from './routes/inventoryRoutes.js';
 import * as inventoryService from './services/inventoryService.js';
 
 export {
-    inventoryRoutes,
-    inventoryService
+    FleetDeck, InventoryDao, inventoryRoutes,
+    inventoryService, ShipTemplate, UserShip
 };

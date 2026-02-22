@@ -1,43 +1,15 @@
-import { Match } from '../../../shared/models/index.js';
+/**
+ * Controlador de Partidas (Consultas REST).
+ * Solo gestiona peticiones asíncronas de lectura (Historial).
+ */
 import * as matchService from '../services/matchService.js';
 
 /**
- * Consulta de estado
- */
-export const getMatchStatus = async (req, res, next) => {
-    try {
-        const partida = await matchService.obtenerEstadoCompletoPartida(req.params.matchId);
-        if (!partida) return res.status(404).json({ message: 'Partida no encontrada' });
-        res.json(partida);
-    } catch (error) {
-        next(error);
-    }
-};
-
-/**
- * Gestión de pausas
- */
-export const requestPause = async (req, res, next) => {
-    try {
-        const { matchId } = req.params;
-        const { accept } = req.body;
-        const partida = await Match.findByPk(matchId);
-
-        if (!partida) return res.status(404).json({ message: 'Partida no encontrada' });
-
-        if (accept === true) {
-            partida.status = 'WAITING';
-            await partida.save();
-            return res.json({ message: 'Pausa aceptada.', status: partida.status });
-        }
-        res.json({ message: 'Solicitud de pausa enviada', matchId });
-    } catch (error) {
-        next(error);
-    }
-};
-
-/**
- * Historial de usuario
+ * Recupera el historial de partidas del usuario autenticado.
+ * 
+ * @param {Object} req - Petición Express.
+ * @param {Object} res - Respuesta Express.
+ * @param {Function} next - Middleware de error.
  */
 export const getMatchHistory = async (req, res, next) => {
     try {
