@@ -21,7 +21,7 @@ export const registerCombatHandlers = (io, socket) => {
             const barco = await ShipInstance.findByPk(shipId, { transaction });
             const jugador = await MatchPlayer.findOne({ where: { matchId, userId }, transaction });
 
-            if (barco.lastAttackTurn === partida.turnNumber || jugador.ammoCurrent < costes.CANNON) {
+            if (!barco || barco.lastAttackTurn === partida.turnNumber || jugador.ammoCurrent < costes.CANNON) {
                 throw new Error('Ataque no disponible o munición insuficiente');
             }
 
@@ -42,7 +42,13 @@ export const registerCombatHandlers = (io, socket) => {
             await Promise.all([barco.save({ transaction }), jugador.save({ transaction })]);
             await transaction.commit();
 
-            io.to(matchId).emit('ship:attacked', { attackerId: userId, hit: !!objetivo, target, targetHp, ammoCurrent: jugador.ammoCurrent });
+            io.to(matchId).emit('ship:attacked', {
+                attackerId: userId,
+                hit: !!objetivo,
+                target,
+                targetHp,
+                ammoCurrent: jugador.ammoCurrent
+            });
         } catch (error) {
             await transaction.rollback();
             socket.emit('game:error', { message: error.message });

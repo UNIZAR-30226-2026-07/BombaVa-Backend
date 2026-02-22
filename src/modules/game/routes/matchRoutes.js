@@ -1,30 +1,22 @@
+/**
+ * Rutas del módulo de Juego.
+ * Solo mantiene los endpoints de consulta asíncrona
+ * Las acciones de partida en curso se gestionan mediante Sockets.
+ */
 import { Router } from 'express';
-import { param } from 'express-validator';
 import { protect } from '../../../shared/middlewares/authMiddleware.js';
-import { getMatchHistory, getMatchStatus, requestPause } from '../controllers/matchController.js';
-import { surrenderMatch } from '../controllers/matchStatusController.js';
-import { endTurn } from '../controllers/turnController.js';
+import { getMatchHistory } from '../controllers/matchController.js';
 
 const router = Router();
 
+/**
+ * Todas las rutas de partidas requieren autenticación.
+ */
 router.use(protect);
 
+/**
+ * Obtener el historial de partidas del usuario.
+ */
 router.get('/history', getMatchHistory);
-
-router.get('/:matchId', [
-    param('matchId').isUUID().withMessage('ID de partida inválido')
-], getMatchStatus);
-
-router.post('/:matchId/pause', [
-    param('matchId').isUUID().withMessage('ID de partida inválido')
-], requestPause);
-
-router.post('/:matchId/turn/end', [
-    param('param').isUUID().withMessage('ID de partida inválido')
-], endTurn);
-
-router.post('/:matchId/surrender', [
-    param('matchId').isUUID().withMessage('ID de partida inválido')
-], surrenderMatch);
 
 export default router;
