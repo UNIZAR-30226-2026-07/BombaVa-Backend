@@ -1,9 +1,9 @@
 /**
  * Lógica de Socket para el ataque de cañón.
  */
-import { GAME_RULES } from '../../../../config/gameRules.js';
+import { GAME_RULES } from '../../../../config/index.js';
 import { Match, MatchPlayer, sequelize, ShipInstance } from '../../../../shared/models/index.js';
-import * as combatService from '../../services/combatService.js';
+import { combatService } from '../../index.js';
 
 export const handleCannonAttack = async (io, socket, data) => {
     const { matchId, shipId, target } = data;
@@ -17,7 +17,7 @@ export const handleCannonAttack = async (io, socket, data) => {
         const jugador = await MatchPlayer.findOne({ where: { matchId, userId }, transaction });
 
         if (!partida || !barco || !jugador) {
-            throw new Error('No se han encontrado las entidades necesarias para el ataque');
+            throw new Error('No se han encontrado las entidades necesarias');
         }
 
         if (barco.lastAttackTurn === partida.turnNumber || jugador.ammoCurrent < costes.CANNON) {

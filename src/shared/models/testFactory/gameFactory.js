@@ -1,12 +1,15 @@
 /**
  * Factoría de Juego para pruebas.
+ * Gestiona la creación de partidas, jugadores e instancias de tablero.
  */
-import { Match, MatchPlayer, ShipInstance } from '../index.js';
+import ShipInstance from '../../../modules/engine/models/ShipInstance.js';
+import Match from '../../../modules/game/models/Match.js';
+import MatchPlayer from '../../../modules/game/models/MatchPlayer.js';
 import { createUser } from './authFactory.js';
 import { createFullInventoryContext } from './inventoryFactory.js';
 
 /**
- * Crea una partida completa con atacante y víctima en posiciones de tiro (distancia 2).
+ * Crea una partida completa con dos jugadores enfrentados.
  */
 export const createCompleteMatch = async (p1Data, p2Data) => {
     const hostUser = await createUser(p1Data.username, p1Data.email);
@@ -40,18 +43,27 @@ export const createCompleteMatch = async (p1Data, p2Data) => {
         x: 5, y: 7, orientation: 'S', currentHp: guestInv.template.baseMaxHp
     });
 
-    return { match, host: { user: hostUser, ...hostInv }, guest: { user: guestUser, ...guestInv }, shipH, shipG };
+    return {
+        match,
+        host: { user: hostUser, ...hostInv },
+        guest: { user: guestUser, ...guestInv },
+        shipH,
+        shipG
+    };
 };
 
 /**
- * Crea una partida con una sola instancia para tests de movimiento.
+ * Crea una partida con una sola instancia.
  */
 export const createMatchWithInstance = async (username, email, pos = { x: 5, y: 5 }) => {
     const user = await createUser(username, email);
     const inv = await createFullInventoryContext(user);
 
     const match = await Match.create({
-        status: 'PLAYING', mapTerrain: { size: 15 }, turnNumber: 1
+        status: 'PLAYING',
+        mapTerrain: { size: 15 },
+        turnNumber: 1,
+        currentTurnPlayerId: user.id
     });
 
     await MatchPlayer.create({

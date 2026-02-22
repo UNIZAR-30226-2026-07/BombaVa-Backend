@@ -1,14 +1,13 @@
 /**
  * Fachada raíz de componentes compartidos (Shared).
- * Expone middlewares, modelos, servicios y utilidades de factoría.
+ * Re-exporta modelos de forma nominal para compatibilidad con factorías.
  */
-import * as models from './models/index.js';
 import * as services from './services/index.js';
 
 export * from './middlewares/index.js';
+export * from './models/index.js';
 export * from './models/testFactory.js';
 
 export {
-    models,
     services
 };

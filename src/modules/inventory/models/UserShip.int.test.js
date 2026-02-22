@@ -1,9 +1,10 @@
 /**
  * Test de Integración: Modelo UserShip
+ * Valida la persistencia y la relación con ShipTemplate.
  */
 import { sequelize } from '../../../config/db.js';
+import { ShipTemplate, UserShip } from '../../../shared/models/index.js';
 import { createFullUserContext } from '../../../shared/models/testFactory.js';
-import UserShip from './UserShip.js';
 
 describe('UserShip Model Integration (Refactored)', () => {
     let setup;
@@ -21,10 +22,11 @@ describe('UserShip Model Integration (Refactored)', () => {
 
     it('Debe verificar que el barco de usuario está correctamente vinculado a su plantilla', async () => {
         const ship = await UserShip.findByPk(setup.uShip.id, {
-            include: ['ShipTemplate']
+            include: [{ model: ShipTemplate }]
         });
 
         expect(ship.templateSlug).toBe('lancha');
+        expect(ship.ShipTemplate).toBeDefined();
         expect(ship.ShipTemplate.baseMaxHp).toBeDefined();
     });
 });

@@ -1,15 +1,13 @@
 /**
  * Test de Integración: Gestión de Turnos por Sockets.
- * Valida el flujo de la partida mediante la fachada del módulo game.
  */
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { io as Client } from 'socket.io-client';
-import { sequelize } from '../../../config/db.js';
-import { socketProtect } from '../../../shared/middlewares/socketMiddleware.js';
-import { createCompleteMatch } from '../../../shared/models/testFactory.js';
-import { generarTokenAcceso } from '../../auth/services/authService.js';
-import { registerGameHandlers } from './index.js'; // Ruta corregida
+import { sequelize } from '../../../config/index.js';
+import { createCompleteMatch, socketProtect } from '../../../shared/index.js';
+import { authService } from '../../auth/index.js';
+import { registerGameHandlers } from './index.js';
 
 describe('Turn Socket Responsibility', () => {
     let io, server, client, setup;
@@ -18,7 +16,11 @@ describe('Turn Socket Responsibility', () => {
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
-        setup = await createCompleteMatch({ username: 'h', email: 'h@t.va' }, { username: 'g', email: 'g@t.va' });
+
+        setup = await createCompleteMatch(
+            { username: 'host', email: 'h@t.va' },
+            { username: 'guest', email: 'g@t.va' }
+        );
 
         server = createServer();
         io = new Server(server);
@@ -27,14 +29,14 @@ describe('Turn Socket Responsibility', () => {
         server.listen(port);
 
         client = new Client(`http://localhost:${port}`, {
-            auth: { token: generarTokenAcceso(setup.host.user) }
+            auth: { token: authService.generarTokenAcceso(setup.host.user) }
         });
         await new Promise(res => client.on('connect', res));
     });
 
     afterAll(async () => {
-        io.close();
-        client.close();
+        if (client) client.disconnect();
+        if (io) io.close();
         await new Promise(resolve => server.close(resolve));
         await sequelize.close();
     });
@@ -42,7 +44,9 @@ describe('Turn Socket Responsibility', () => {
     it('Debe notificar el cambio de turno a la sala', (done) => {
         client.emit('game:join', setup.match.id);
 
-        client.emit('match:turn_end', { matchId: setup.match.id });
+        client.once('game:joined', () => {
+            client.emit('match:turn_end', { matchId: setup.match.id });
+        });
 
         client.on('match:turn_changed', (payload) => {
             expect(payload.turnNumber).toBe(2);

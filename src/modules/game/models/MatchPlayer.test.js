@@ -14,7 +14,8 @@ describe('MatchPlayer Model Unit Tests', () => {
         try {
             await mp.validate();
         } catch (err) {
-            expect(err.errors.map(e => e.path)).toContain('fuelReserve');
+            const paths = err.errors.map(e => e.path);
+            expect(paths).toContain('fuelReserve');
         }
     });
 });

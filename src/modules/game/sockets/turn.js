@@ -2,17 +2,23 @@
  * Manejador interno de eventos de turno y rendición.
  */
 import { Match, MatchPlayer, sequelize } from '../../../shared/models/index.js';
-import * as matchService from '../services/matchService.js';
-import * as statusService from '../services/matchStatusService.js';
+import { matchService, statusService } from '../index.js';
 
 export const registerTurnHandlers = (io, socket) => {
+
+    /**
+     * Finaliza el turno del jugador actual.
+     */
     socket.on('match:turn_end', async (data) => {
         const { matchId } = data;
         const userId = socket.data.user.id;
         const transaction = await sequelize.transaction();
 
         try {
-            const partida = await Match.findByPk(matchId, { include: [MatchPlayer], transaction });
+            const partida = await Match.findByPk(matchId, {
+                include: [MatchPlayer],
+                transaction
+            });
 
             if (!partida || partida.currentTurnPlayerId !== userId) {
                 throw new Error('No es tu turno');
@@ -29,7 +35,11 @@ export const registerTurnHandlers = (io, socket) => {
             partida.currentTurnPlayerId = oponente.userId;
             partida.turnNumber += 1;
 
-            await Promise.all([partida.save({ transaction }), oponente.save({ transaction })]);
+            await Promise.all([
+                partida.save({ transaction }),
+                oponente.save({ transaction })
+            ]);
+
             await transaction.commit();
 
             io.to(matchId).emit('match:turn_changed', {
@@ -38,11 +48,14 @@ export const registerTurnHandlers = (io, socket) => {
                 resources: nuevosRecursos
             });
         } catch (error) {
-            await transaction.rollback();
+            if (transaction) await transaction.rollback();
             socket.emit('game:error', { message: error.message });
         }
     });
 
+    /**
+     * Gestiona la rendición voluntaria.
+     */
     socket.on('match:surrender', async (data) => {
         const { matchId } = data;
         const userId = socket.data.user.id;
@@ -52,7 +65,9 @@ export const registerTurnHandlers = (io, socket) => {
             if (!partida || partida.status === 'FINISHED') return;
 
             const ganador = partida.MatchPlayers.find(p => p.userId !== userId);
-            if (ganador) await statusService.registrarVictoria(matchId, ganador.userId);
+            if (ganador) {
+                await statusService.registrarVictoria(matchId, ganador.userId);
+            }
 
             io.to(matchId).emit('match:finished', {
                 winnerId: ganador ? ganador.userId : null,

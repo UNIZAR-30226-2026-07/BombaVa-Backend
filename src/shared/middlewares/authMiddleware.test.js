@@ -5,19 +5,16 @@
 import { jest } from '@jest/globals';
 import jwt from 'jsonwebtoken';
 
-jest.unstable_mockModule('../../modules/auth/index.js', () => ({
-    User: {
+// Mockeamos el archivo físico del modelo, que es lo que importa el middleware ahora
+jest.unstable_mockModule('../../modules/auth/models/User.js', () => ({
+    default: {
         findOne: jest.fn()
-    },
-    authService: {},
-    userService: {},
-    authController: {},
-    userController: {},
-    authRoutes: {}
+    }
 }));
 
+// Importaciones dinámicas para respetar el orden de los mocks en ESM
 const { protect } = await import('./authMiddleware.js');
-const { User } = await import('../../modules/auth/index.js');
+const User = (await import('../../modules/auth/models/User.js')).default;
 
 describe('AuthMiddleware Unit Tests', () => {
     let req, res, next;
@@ -42,6 +39,7 @@ describe('AuthMiddleware Unit Tests', () => {
 
         await protect(req, res, next);
 
+        expect(User.findOne).toHaveBeenCalled();
         expect(next).toHaveBeenCalled();
     });
 
@@ -51,6 +49,17 @@ describe('AuthMiddleware Unit Tests', () => {
         expect(res.status).toHaveBeenCalledWith(401);
         expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
             message: expect.stringContaining('no hay token')
+        }));
+    });
+
+    it('Debe devolver 401 si el token es inválido', async () => {
+        req.headers.authorization = 'Bearer token_inventado';
+
+        await protect(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+            message: expect.stringContaining('Token no válido')
         }));
     });
 });

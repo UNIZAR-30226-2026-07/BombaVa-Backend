@@ -1,29 +1,32 @@
 /**
- * Fachada del manejador de Lobbies.
- * Gestiona el matchmaking y la creación de salas privadas.
- * 
- * @param {Object} io - Instancia global de Socket.io.
- * @param {Object} socket - Socket del cliente autenticado.
+ * Manejador de eventos de Socket para la fase de Lobby.
+ * Utiliza la identidad del usuario vinculada al socket.
  */
-import * as lobbyService from '../../../shared/services/lobbyService.js';
+import { services } from '../../../shared/index.js';
+
+const { lobbyService } = services;
 
 export const registerLobbyHandlers = (io, socket) => {
 
     /**
-     * Crea un nuevo lobby y devuelve el código al host.
+     * Crea un nuevo lobby.
      */
-    socket.on('lobby:create', (datos) => {
-        const codigo = lobbyService.crearLobby(datos.userId, socket.id);
+    socket.on('lobby:create', () => {
+        const userId = socket.data.user.id;
+        const codigo = lobbyService.crearLobby(userId, socket.id);
+
         socket.join(codigo);
         socket.emit('lobby:created', { codigo });
     });
 
     /**
-     * Une a un jugador a un lobby existente por código.
+     * Une al jugador a un lobby existente por código.
      */
     socket.on('lobby:join', async (datos) => {
         try {
-            const { codigo, userId } = datos;
+            const { codigo } = datos;
+            const userId = socket.data.user.id;
+
             const lobby = lobbyService.intentarUnirseALobby(codigo, userId, socket.id);
 
             socket.join(codigo);

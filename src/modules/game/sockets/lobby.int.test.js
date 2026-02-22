@@ -1,25 +1,25 @@
 /**
- * Test de Integración: Lobby por Sockets (Game Module).
- * Valida la creación de salas mediante la fachada del módulo game.
+ * Test de Integración: Lobby por Sockets.
+ * Valida el matchmaking usando la identidad vinculada al socket.
  */
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { io as Client } from 'socket.io-client';
-import { sequelize } from '../../../config/db.js';
-import { socketProtect } from '../../../shared/middlewares/socketMiddleware.js';
-import { createFullUserContext } from '../../../shared/models/testFactory.js';
-import { generarTokenAcceso } from '../../auth/services/authService.js';
-import { registerGameHandlers } from './index.js';
+import { sequelize } from '../../../config/index.js';
+import { createFullUserContext, socketProtect } from '../../../shared/index.js';
+import { authService } from '../../auth/index.js';
+import { registerGameHandlers } from '../index.js';
 
-describe('Game Sockets: Lobby Integration', () => {
+describe('Game Sockets: Lobby Identity Refactor', () => {
     let io, server, hSocket, gSocket, hCtx, gCtx;
-    const port = 4061;
+    const port = 4210;
 
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
-        hCtx = await createFullUserContext('h', 'h@t.va');
-        gCtx = await createFullUserContext('g', 'g@t.va');
+
+        hCtx = await createFullUserContext('hoster', 'h@t.va');
+        gCtx = await createFullUserContext('guesty', 'g@t.va');
 
         server = createServer();
         io = new Server(server);
@@ -27,27 +27,40 @@ describe('Game Sockets: Lobby Integration', () => {
         io.on('connection', (s) => registerGameHandlers(io, s));
         server.listen(port);
 
-        hSocket = new Client(`http://localhost:${port}`, { auth: { token: generarTokenAcceso(hCtx.user) } });
-        gSocket = new Client(`http://localhost:${port}`, { auth: { token: generarTokenAcceso(gCtx.user) } });
-        await Promise.all([new Promise(r => hSocket.on('connect', r)), new Promise(r => gSocket.on('connect', r))]);
-    });
-
-    afterAll(() => {
-        io.close();
-        hSocket.close();
-        gSocket.close();
-        server.close();
-    });
-
-    it('Debe crear sala y notificar match:ready mediante la fachada game', (done) => {
-        hSocket.emit('lobby:create', { userId: hCtx.user.id });
-        hSocket.on('lobby:created', ({ codigo }) => {
-            gSocket.emit('lobby:join', { codigo, userId: gCtx.user.id });
+        hSocket = new Client(`http://localhost:${port}`, {
+            auth: { token: authService.generarTokenAcceso(hCtx.user) }
+        });
+        gSocket = new Client(`http://localhost:${port}`, {
+            auth: { token: authService.generarTokenAcceso(gCtx.user) }
         });
 
-        gSocket.on('match:ready', (data) => {
+        await Promise.all([
+            new Promise(r => hSocket.on('connect', r)),
+            new Promise(r => gSocket.on('connect', r))
+        ]);
+    });
+
+    afterAll(async () => {
+        if (hSocket) hSocket.disconnect();
+        if (gSocket) gSocket.disconnect();
+        if (io) io.close();
+        await new Promise(res => server.close(res));
+        await sequelize.close();
+    });
+
+    it('Debe crear y unirse a sala usando la identidad del socket', (done) => {
+        hSocket.emit('lobby:create');
+
+        hSocket.once('lobby:created', ({ codigo }) => {
+            expect(codigo).toBeDefined();
+            gSocket.emit('lobby:join', { codigo });
+        });
+
+        gSocket.once('match:ready', (data) => {
             expect(data.matchId).toBeDefined();
             done();
         });
+
+        gSocket.once('lobby:error', (err) => done(new Error(err.message)));
     });
 });
