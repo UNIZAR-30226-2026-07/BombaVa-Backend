@@ -2,17 +2,24 @@
  * Servicio de Gestión de Partidas
  * Orquesta la creación, recuperación de estados y lógica de recursos.
  */
+import { GAME_RULES } from '../../../config/gameRules.js';
 import { FleetDeck, Match, MatchPlayer, Projectile, ShipInstance, ShipTemplate, UserShip } from '../../../shared/models/index.js';
 
 /**
  * Traduce coordenadas relativas del puerto a absolutas del mapa de batalla
+ * @param {Object} pos 
+ * @param {string} bando 
  */
 export const traducirPosicionTablero = (pos, bando) => {
-    return bando === 'NORTH' ? pos : { x: pos.x, y: 14 - pos.y };
+    return bando === 'NORTH' ? pos : { x: pos.x, y: (GAME_RULES.MAP.SIZE - 1) - pos.y };
 };
 
 /**
  * Crea las instancias físicas de los barcos en el tablero
+ * @param {string} matchId 
+ * @param {string} playerId 
+ * @param {string} bando 
+ * @param {Array} configuracionMazo 
  */
 export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configuracionMazo) => {
     for (const shipCfg of configuracionMazo) {
@@ -25,7 +32,9 @@ export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configu
 
         await ShipInstance.create({
             matchId, playerId, userShipId: userShip.id,
-            x: posAbs.x, y: posAbs.y, orientation,
+            x: posAbs.x,
+            y: posAbs.y,
+            orientation,
             currentHp: userShip.ShipTemplate.baseMaxHp,
             isSunk: false
         });
@@ -33,15 +42,15 @@ export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configu
 };
 
 /**
- * Orquestador principal para iniciar una partida desde cero (Movido desde el controlador)
- * @param {Array} usuarios - Lista de {id, socketId}
+ * Orquestador principal para iniciar una partida desde cero
+ * @param {Array} usuarios 
  */
 export const iniciarPartidaOrquestada = async (usuarios) => {
     const nuevaPartida = await Match.create({
         status: 'PLAYING',
-        mapTerrain: { size: 15, obstacles: [] },
+        mapTerrain: { size: GAME_RULES.MAP.SIZE, obstacles: [] },
         turnNumber: 1,
-        currentTurnPlayerId: usuarios[0].id // El primero en unirse empieza
+        currentTurnPlayerId: usuarios[0].id
     });
 
     for (let i = 0; i < usuarios.length; i++) {
@@ -53,8 +62,8 @@ export const iniciarPartidaOrquestada = async (usuarios) => {
             matchId: nuevaPartida.id,
             userId: user.id,
             side: bando,
-            fuelReserve: 10,
-            ammoCurrent: 5,
+            fuelReserve: GAME_RULES.RESOURCES.MAX_FUEL / 3,
+            ammoCurrent: GAME_RULES.RESOURCES.RESET_AMMO,
             deckSnapshot: mazo ? mazo.shipIds : []
         });
 
@@ -67,17 +76,19 @@ export const iniciarPartidaOrquestada = async (usuarios) => {
 };
 
 /**
- * Calcula la regeneración de recursos al inicio del turno
+ * Calcula la regeneración de recursos al inicio del turno usando GAME_RULES
+ * @param {Object} recursosActuales 
  */
 export const calcularRegeneracionTurno = (recursosActuales) => {
     return {
-        fuel: Math.min(30, recursosActuales.fuel + 10),
-        ammo: 5
+        fuel: Math.min(GAME_RULES.RESOURCES.MAX_FUEL, recursosActuales.fuel + GAME_RULES.RESOURCES.REGEN_FUEL),
+        ammo: GAME_RULES.RESOURCES.RESET_AMMO
     };
 };
 
 /**
  * Recupera el estado completo de una partida
+ * @param {string} matchId 
  */
 export const obtenerEstadoCompletoPartida = async (matchId) => {
     return await Match.findByPk(matchId, {
@@ -87,6 +98,7 @@ export const obtenerEstadoCompletoPartida = async (matchId) => {
 
 /**
  * Recupera el historial de un usuario
+ * @param {string} userId 
  */
 export const obtenerHistorialUsuario = async (userId) => {
     return await Match.findAll({

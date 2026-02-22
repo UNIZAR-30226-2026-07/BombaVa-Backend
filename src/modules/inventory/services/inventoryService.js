@@ -2,15 +2,16 @@
  * Servicio de Inventario y Puerto
  * Contiene la lógica de validación de formaciones y equipamiento.
  */
+import { GAME_RULES } from '../../../config/gameRules.js';
 import InventoryDao from '../dao/InventoryDao.js';
 
 /**
- * Valida que los barcos estén dentro del área de despliegue (15x5)
- * @param {Array} formation - Array de barcos con sus posiciones
+ * Valida que los barcos estén dentro del área de despliegue usando GAME_RULES
+ * @param {Array} formation 
  */
 export const validarLimitesPuerto = (formation) => {
-    const MAX_X = 14;
-    const MAX_Y = 4; // V1: Tablero de despliegue es 15x5 (0-4)
+    const MAX_X = GAME_RULES.MAP.SIZE - 1;
+    const MAX_Y = GAME_RULES.MAP.DEPLOY_ZONE_Y;
 
     return formation.every(ship =>
         ship.position.x >= 0 && ship.position.x <= MAX_X &&
@@ -20,8 +21,8 @@ export const validarLimitesPuerto = (formation) => {
 
 /**
  * Actualiza el equipamiento de un barco
- * @param {Object} ship - Instancia de UserShip
- * @param {string} weaponSlug - Identificador del arma
+ * @param {Object} ship 
+ * @param {string} weaponSlug 
  */
 export const equiparArma = async (ship, weaponSlug) => {
     const statsActuales = ship.customStats || {};
@@ -29,5 +30,4 @@ export const equiparArma = async (ship, weaponSlug) => {
         ...statsActuales,
         equippedWeapon: weaponSlug
     });
-    // TODO: añadir logica de armas
 };
