@@ -1,11 +1,9 @@
 import { validationResult } from 'express-validator';
 import InventoryDao from '../dao/InventoryDao.js';
+import * as inventoryService from '../services/inventoryService.js';
 
 /**
- * Recupera la lista de barcos del usuario autenticado
- * @param {object} req - Petición de Express
- * @param {object} res - Respuesta de Express
- * @param {function} next - Middleware de error
+ * Listado de barcos (Capa de API)
  */
 export const getMyShips = async (req, res, next) => {
     try {
@@ -17,29 +15,20 @@ export const getMyShips = async (req, res, next) => {
 };
 
 /**
- * Modifica el armamento equipado de un barco
- * @param {object} req - Petición con shipId y weaponSlug
- * @param {object} res - Respuesta con datos actualizados
- * @param {function} next - Middleware de error
+ * Equipamiento de armas (Capa de API)
  */
 export const equipWeapon = async (req, res, next) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     try {
         const { shipId } = req.params;
         const { weaponSlug } = req.body;
 
         const ship = await InventoryDao.findByIdAndUser(shipId, req.user.id);
+        if (!ship) return res.status(404).json({ message: 'Barco no encontrado' });
 
-        if (!ship) {
-            return res.status(404).json({ message: 'Barco no encontrado' });
-        }
-
-        const updatedShip = await InventoryDao.updateShipStats(ship, { equippedWeapon: weaponSlug });
-
+        const updatedShip = await inventoryService.equiparArmaEnBarco(ship, weaponSlug);
         res.json(updatedShip);
     } catch (error) {
         next(error);

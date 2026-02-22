@@ -14,3 +14,8 @@ export const validarDimensionesMazo = (shipIds, dimensiones = { x: 15, y: 5 }) =
         conf.position.y >= 0 && conf.position.y < dimensiones.y
     );
 };
+
+export const equiparArmaEnBarco = async (barco, weaponSlug) => {
+    // TODO: añadir lógica de compatibilidad de armas
+    return await InventoryDao.updateShipStats(barco, { equippedWeapon: weaponSlug });
+};
