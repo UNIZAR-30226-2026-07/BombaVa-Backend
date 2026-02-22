@@ -1,11 +1,11 @@
 /**
- * Manejador de eventos de Socket para la fase de Lobby.
- * Gestiona la creación de salas privadas y la unión de jugadores.
+ * Fachada del manejador de Lobbies.
+ * Gestiona el matchmaking y la creación de salas privadas.
  * 
  * @param {Object} io - Instancia global de Socket.io.
  * @param {Object} socket - Socket del cliente autenticado.
  */
-import * as lobbyService from '../services/lobbyService.js';
+import * as lobbyService from '../../services/lobbyService.js';
 
 export const registerLobbyHandlers = (io, socket) => {
 
@@ -20,7 +20,6 @@ export const registerLobbyHandlers = (io, socket) => {
 
     /**
      * Une a un jugador a un lobby existente por código.
-     * Si la sala se llena, orquesta el inicio de la partida.
      */
     socket.on('lobby:join', async (datos) => {
         try {
