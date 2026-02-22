@@ -6,10 +6,10 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { io as Client } from 'socket.io-client';
 import { sequelize } from '../../../config/db.js';
-import { generarTokenAcceso } from '../../../modules/auth/services/authService.js';
-import { socketProtect } from '../../middlewares/socketMiddleware.js';
-import { createCompleteMatch } from '../../models/testFactory.js';
-import { registerGameHandlers } from './index.js';
+import { socketProtect } from '../../../shared/middlewares/socketMiddleware.js';
+import { createCompleteMatch } from '../../../shared/models/testFactory.js';
+import { registerGameHandlers } from '../../../shared/sockets/gameHandler/index.js';
+import { generarTokenAcceso } from '../../auth/services/authService.js';
 
 describe('Turn Socket Responsibility', () => {
     let io, server, client, setup;

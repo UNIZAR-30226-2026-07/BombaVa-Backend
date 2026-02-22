@@ -1,9 +1,9 @@
 /**
  * Manejador interno de eventos de turno y rendición.
  */
-import * as matchService from '../../../modules/game/services/matchService.js';
-import * as statusService from '../../../modules/game/services/matchStatusService.js';
-import { Match, MatchPlayer, sequelize } from '../../models/index.js';
+import { Match, MatchPlayer, sequelize } from '../../../shared/models/index.js';
+import * as matchService from '../services/matchService.js';
+import * as statusService from '../services/matchStatusService.js';
 
 export const registerTurnHandlers = (io, socket) => {
     socket.on('match:turn_end', async (data) => {

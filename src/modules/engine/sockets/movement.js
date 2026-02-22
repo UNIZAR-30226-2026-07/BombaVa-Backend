@@ -1,8 +1,8 @@
 /**
  * Manejador interno de eventos de movimiento.
  */
-import * as engineService from '../../../modules/engine/services/engineService.js';
-import { MatchPlayer, ShipInstance, sequelize } from '../../models/index.js';
+import { MatchPlayer, ShipInstance, sequelize } from '../../../shared/models/index.js';
+import * as engineService from '../services/engineService.js';
 
 export const registerMovementHandlers = (io, socket) => {
     socket.on('ship:move', async (data) => {

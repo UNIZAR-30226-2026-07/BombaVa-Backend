@@ -1,29 +1,30 @@
 /**
- * Test de Integración: Movimiento por Sockets.
- * Valida que el servidor procese traslaciones y notifique a la sala.
+ * Test de Integración: Movimiento por Sockets (Módulo Engine).
  */
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { io as Client } from 'socket.io-client';
 import { sequelize } from '../../../config/db.js';
-import { generarTokenAcceso } from '../../../modules/auth/services/authService.js';
-import { socketProtect } from '../../middlewares/socketMiddleware.js';
-import { createMatchWithInstance } from '../../models/testFactory.js';
-import { registerGameHandlers } from './index.js';
+import { socketProtect } from '../../../shared/middlewares/socketMiddleware.js';
+import { createMatchWithInstance } from '../../../shared/models/testFactory.js';
+import { generarTokenAcceso } from '../../auth/services/authService.js';
+import { registerEngineHandlers } from './index.js';
 
-describe('Movement Socket Responsibility', () => {
+describe('Engine Socket: Movement Responsibility', () => {
     let io, server, client, setup;
-    const port = 4030;
+    const port = 4050;
 
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
-        setup = await createMatchWithInstance('mover_test', 'm@t.va', { x: 5, y: 5 });
+        setup = await createMatchWithInstance('engine_mover', 'em@t.va', { x: 5, y: 5 });
 
         server = createServer();
         io = new Server(server);
         io.use(socketProtect);
-        io.on('connection', (s) => registerGameHandlers(io, s));
+
+        // Solo registramos los eventos del módulo que estamos testeando
+        io.on('connection', (s) => registerEngineHandlers(io, s));
         server.listen(port);
 
         client = new Client(`http://localhost:${port}`, {
@@ -38,8 +39,7 @@ describe('Movement Socket Responsibility', () => {
         server.close();
     });
 
-    it('Debe emitir ship:moved al recibir una dirección válida', (done) => {
-        client.emit('game:join', setup.match.id);
+    it('Debe mover el barco mediante el evento de socket del módulo engine', (done) => {
         client.emit('ship:move', {
             matchId: setup.match.id,
             shipId: setup.instance.id,

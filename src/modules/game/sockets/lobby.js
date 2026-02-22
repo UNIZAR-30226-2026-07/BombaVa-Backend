@@ -5,7 +5,7 @@
  * @param {Object} io - Instancia global de Socket.io.
  * @param {Object} socket - Socket del cliente autenticado.
  */
-import * as lobbyService from '../../services/lobbyService.js';
+import * as lobbyService from '../../../shared/services/lobbyService.js';
 
 export const registerLobbyHandlers = (io, socket) => {
 
