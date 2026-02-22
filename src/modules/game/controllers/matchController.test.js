@@ -13,9 +13,15 @@ describe('MatchController Unit Tests', () => {
     });
 
     it('Debe devolver el estado de la partida si el ID es correcto', async () => {
-        const m = await Match.create({ status: 'WAITING', mapTerrain: { size: 15 } });
+        const m = await Match.create({
+            status: 'WAITING',
+            mapTerrain: { size: 15, obstacles: [] }
+        });
 
-        const req = { params: { matchId: m.id } };
+        const req = {
+            params: { matchId: m.id },
+            user: { id: '550e8400-e29b-41d4-a716-446655440000' }
+        };
         const res = {
             json: jest.fn(),
             status: jest.fn().mockReturnThis()

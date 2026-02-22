@@ -10,9 +10,21 @@ const router = Router();
 router.use(protect);
 
 router.get('/history', getMatchHistory);
-router.get('/:matchId', [param('matchId').isUUID()], getMatchStatus);
-router.post('/:matchId/pause', [param('matchId').isUUID()], requestPause);
-router.post('/:matchId/turn/end', [param('matchId').isUUID()], endTurn);
-router.post('/:matchId/surrender', [param('matchId').isUUID()], surrenderMatch);
+
+router.get('/:matchId', [
+    param('matchId').isUUID().withMessage('ID de partida inválido')
+], getMatchStatus);
+
+router.post('/:matchId/pause', [
+    param('matchId').isUUID().withMessage('ID de partida inválido')
+], requestPause);
+
+router.post('/:matchId/turn/end', [
+    param('param').isUUID().withMessage('ID de partida inválido')
+], endTurn);
+
+router.post('/:matchId/surrender', [
+    param('matchId').isUUID().withMessage('ID de partida inválido')
+], surrenderMatch);
 
 export default router;
