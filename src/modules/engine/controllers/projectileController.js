@@ -1,10 +1,8 @@
 import { Match, MatchPlayer, Projectile, sequelize, ShipInstance } from '../../../shared/models/index.js';
+import * as combatService from '../services/combatService.js';
 
 /**
- * Lanza un torpedo desde la proa del barco (Coste 3 AP)
- * @param {object} req - Petición Express
- * @param {object} res - Respuesta Express
- * @param {function} next - Siguiente middleware
+ * Endpoint para lanzar torpedos
  */
 export const launchTorpedo = async (req, res, next) => {
     const transaccion = await sequelize.transaction();
@@ -16,42 +14,32 @@ export const launchTorpedo = async (req, res, next) => {
         const barco = await ShipInstance.findByPk(shipId, { transaction: transaccion });
         const jugador = await MatchPlayer.findOne({ where: { matchId, userId: req.user.id }, transaction: transaccion });
 
-        if (jugador.ammoCurrent < 3) {
+        if (!barco || jugador.ammoCurrent < 3) {
             await transaccion.rollback();
-            return res.status(403).json({ message: 'Munición insuficiente (3 AP)' });
+            return res.status(403).json({ message: 'No permitido' });
         }
 
-        let vx = 0, vy = 0;
-        if (barco.orientation === 'N') vy = -1;
-        else if (barco.orientation === 'S') vy = 1;
-        else if (barco.orientation === 'E') vx = 1;
-        else if (barco.orientation === 'W') vx = -1;
-
+        const vector = combatService.calcularVectorProyectil(barco.orientation);
         await Projectile.create({
             matchId, ownerId: req.user.id, type: 'TORPEDO',
-            x: barco.x + vx, y: barco.y + vy,
-            vectorX: vx, vectorY: vy, lifeDistance: 6
+            x: barco.x + vector.vx, y: barco.y + vector.vy,
+            vectorX: vector.vx, vectorY: vector.vy, lifeDistance: 6
         }, { transaction: transaccion });
 
         jugador.ammoCurrent -= 3;
         barco.lastAttackTurn = partida.turnNumber;
-
-        await jugador.save({ transaction: transaccion });
-        await barco.save({ transaction: transaccion });
+        await Promise.all([jugador.save({ transaction: transaccion }), barco.save({ transaction: transaccion })]);
         await transaccion.commit();
 
         res.json({ message: 'Torpedo lanzado', ammoCurrent: jugador.ammoCurrent });
     } catch (error) {
-        await transaccion.rollback();
+        if (transaccion) await transaccion.rollback();
         next(error);
     }
 };
 
 /**
- * Coloca una mina en un radio adyacente al barco (Coste 2 AP)
- * @param {object} req - Petición con target {x, y}
- * @param {object} res - Respuesta Express
- * @param {function} next - Siguiente middleware
+ * Endpoint para colocar minas
  */
 export const dropMine = async (req, res, next) => {
     const transaccion = await sequelize.transaction();
@@ -63,34 +51,26 @@ export const dropMine = async (req, res, next) => {
         const barco = await ShipInstance.findByPk(shipId, { transaction: transaccion });
         const jugador = await MatchPlayer.findOne({ where: { matchId, userId: req.user.id }, transaction: transaccion });
 
+        if (!combatService.validarAdyacencia({ x: barco.x, y: barco.y }, target)) {
+            await transaccion.rollback();
+            return res.status(400).json({ message: 'Demasiado lejos' });
+        }
+
         if (jugador.ammoCurrent < 2) {
             await transaccion.rollback();
-            return res.status(403).json({ message: 'Munición insuficiente (2 AP)' });
+            return res.status(403).json({ message: 'Sin munición' });
         }
 
-        const dx = Math.abs(target.x - barco.x);
-        const dy = Math.abs(target.y - barco.y);
-
-        if (dx > 1 || dy > 1) {
-            await transaccion.rollback();
-            return res.status(400).json({ message: 'La mina debe colocarse adyacente al barco' });
-        }
-
-        await Projectile.create({
-            matchId, ownerId: req.user.id, type: 'MINE',
-            x: target.x, y: target.y, lifeDistance: 10
-        }, { transaction: transaccion });
+        await Projectile.create({ matchId, ownerId: req.user.id, type: 'MINE', x: target.x, y: target.y, lifeDistance: 10 }, { transaction: transaccion });
 
         jugador.ammoCurrent -= 2;
         barco.lastAttackTurn = partida.turnNumber;
-
-        await jugador.save({ transaction: transaccion });
-        await barco.save({ transaction: transaccion });
+        await Promise.all([jugador.save({ transaction: transaccion }), barco.save({ transaction: transaccion })]);
         await transaccion.commit();
 
-        res.json({ message: 'Mina colocada', ammoCurrent: jugador.ammoCurrent });
+        res.json({ message: 'Mina colocada' });
     } catch (error) {
-        await transaccion.rollback();
+        if (transaccion) await transaccion.rollback();
         next(error);
     }
 };
