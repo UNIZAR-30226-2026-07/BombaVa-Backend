@@ -9,7 +9,10 @@
     "dev": "nodemon src/server.js",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --noStackTrace",
     "test:unit": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest --testMatch='**/*.test.js' --testPathIgnorePatterns='**/*.int.test.js'",
-    "test:int": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest --testMatch='**/*.int.test.js' --runInBand"
+    "test:int": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest --testMatch='**/*.int.test.js' --runInBand",
+    "infra:up": "docker-compose -f .infrastructure/docker-compose.yml up -d",
+    "infra:down": "docker-compose -f .infrastructure/docker-compose.yml down",
+    "infra:logs": "docker-compose -f .infrastructure/docker-compose.yml logs -f"
   },
   "repository": {
     "type": "git",
