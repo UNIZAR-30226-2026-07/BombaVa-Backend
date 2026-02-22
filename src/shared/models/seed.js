@@ -1,67 +1,98 @@
 /**
- * Database Seeder
- * Poblar la base de datos con valores (testing)
+ * Semilla de Base de Datos
+ * Puebla la base de datos con valores iniciales para el entorno de desarrollo
+ * Garantiza la idempotencia utilizando nombres de atributos de modelo
  */
+import { authService } from '../../modules/auth/index.js';
 import { FleetDeck, ShipTemplate, User, UserShip } from './index.js';
 
+/**
+ * Ejecuta el proceso de seeding inicial.
+ */
 const runSeeder = async () => {
     try {
-        console.log('Poblando la Base de Datos...');
+        console.log('Poblando la Base de Datos de desarrollo...');
 
-        // Plantillas de Barcos
-        const templates = await ShipTemplate.bulkCreate([
+        const templatesData = [
             {
                 slug: 'lancha',
                 name: 'Lancha',
                 width: 1, height: 1,
                 baseMaxHp: 20,
                 supplyCost: 10,
-                baseStats: { speed: 5, vision: 5 }
+                baseStats: { speed: 5, vision: 4 }
             },
             {
-                slug: 'submarino',
-                name: 'Submarino',
-                width: 3, height: 1,
-                baseMaxHp: 40,
-                supplyCost: 25,
-                baseStats: { speed: 2, vision: 3, stealth: true }
+                slug: 'fragata',
+                name: 'Fragata',
+                width: 1, height: 3,
+                baseMaxHp: 30,
+                supplyCost: 15,
+                baseStats: { speed: 3, vision: 3 }
             },
             {
                 slug: 'acorazado',
                 name: 'Acorazado',
-                width: 4, height: 1,
-                baseMaxHp: 100,
+                width: 1, height: 5,
+                baseMaxHp: 50,
                 supplyCost: 40,
-                baseStats: { speed: 1, vision: 4, armor: 10 }
+                baseStats: { speed: 1, vision: 2 }
             }
-        ], { ignoreDuplicates: true });
+        ];
 
-        // Crear Usuarios de Prueba
-        const raul = await User.create({
-            username: 'raul_lead',
-            email: 'raul@unizar.es',
-            password_hash: 'admin123'
-        }).catch(() => null);
-
-        if (raul && templates.length > 0) {
-            const userShip = await UserShip.create({
-                userId: raul.id,
-                templateSlug: 'lancha',
-                level: 1,
-                customStats: { engine: 'V8' }
-            });
-
-            await FleetDeck.create({
-                userId: raul.id,
-                deckName: 'Mazo Inicial',
-                shipIds: [{ userShipId: userShip.id, position: { x: 0, y: 0 }, orientation: 'N' }],
-                isActive: true
+        for (const t of templatesData) {
+            await ShipTemplate.findOrCreate({
+                where: { slug: t.slug },
+                defaults: t
             });
         }
 
+        const hashedPass = await authService.cifrarContrasena('admin123');
+
+        const [raul, createdUser] = await User.findOrCreate({
+            where: { email: 'raul@unizar.es' },
+            defaults: {
+                username: 'raul_lead',
+                password_hash: hashedPass,
+                elo_rating: 1200
+            }
+        });
+
+        if (createdUser) {
+            console.log('Usuario de prueba "raul_lead" creado.');
+        }
+
+        const [uShip] = await UserShip.findOrCreate({
+            where: {
+                userId: raul.id,
+                templateSlug: 'lancha'
+            },
+            defaults: {
+                level: 1,
+                customStats: { engine: 'V8-Turbo', equippedWeapon: 'cannon-base' }
+            }
+        });
+
+        await FleetDeck.findOrCreate({
+            where: {
+                userId: raul.id,
+                deckName: 'Mazo Inicial'
+            },
+            defaults: {
+                isActive: true,
+                shipIds: [
+                    {
+                        userShipId: uShip.id,
+                        position: { x: 5, y: 0 },
+                        orientation: 'N'
+                    }
+                ]
+            }
+        });
+
         console.log('Seeding completado con éxito.');
     } catch (error) {
-        console.error('Error durante el Seeding:', error);
+        console.error('Error durante el Seeding:', error.message);
     }
 };
 
