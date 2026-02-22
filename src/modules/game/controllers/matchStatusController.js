@@ -1,10 +1,11 @@
-import { Match, ShipInstance } from '../../../shared/models/index.js';
+import { Match } from '../../../shared/models/index.js';
+import * as statusService from '../services/matchStatusService.js';
 
 /**
- * Procesa la rendición voluntaria de un jugador y finaliza la partida
- * @param {object} req - Petición con matchId
- * @param {object} res - Confirmación de rendición
- * @param {function} next - Middleware de error
+ * Endpoint para rendición voluntaria
+ * @param {object} req 
+ * @param {object} res 
+ * @param {function} next 
  */
 export const surrenderMatch = async (req, res, next) => {
     try {
@@ -12,30 +13,26 @@ export const surrenderMatch = async (req, res, next) => {
         const partida = await Match.findByPk(matchId);
 
         if (!partida || partida.status === 'FINISHED') {
-            return res.status(400).json({ message: 'La partida no es válida o ya ha finalizado' });
+            return res.status(400).json({ message: 'Operación no válida' });
         }
 
-        partida.status = 'FINISHED';
-        await partida.save();
-
-        res.json({ message: 'Te has rendido. Partida finalizada.', status: partida.status });
+        await statusService.finalizarPartida(matchId);
+        res.json({ message: 'Rendición procesada', status: 'FINISHED' });
     } catch (error) {
         next(error);
     }
 };
 
 /**
- * Verifica si un jugador ha perdido todos sus barcos y actualiza el estado de la partida
- * @param {string} matchId - ID de la partida
- * @param {string} playerId - ID del jugador que recibió daño
+ * Utilidad de API para verificar victoria tras un daño (Usada por otros controladores)
+ * @param {string} matchId 
+ * @param {string} playerId 
+ * @returns {Promise<boolean>}
  */
 export const checkWinCondition = async (matchId, playerId) => {
-    const barcosActivos = await ShipInstance.count({
-        where: { matchId, playerId, isSunk: false }
-    });
-
-    if (barcosActivos === 0) {
-        await Match.update({ status: 'FINISHED' }, { where: { id: matchId } });
+    const haPerdido = await statusService.verificarDerrotaJugador(matchId, playerId);
+    if (haPerdido) {
+        await statusService.finalizarPartida(matchId);
         return true;
     }
     return false;
