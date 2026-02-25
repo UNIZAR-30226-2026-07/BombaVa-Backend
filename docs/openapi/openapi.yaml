@@ -32,3 +32,5 @@ paths:
     $ref: './inventory/equip_weapon.yaml'
   /api/inventory/decks:
     $ref: './inventory/decks.yaml'
+  /api/inventory/decks/{deckId}/activate:
+    $ref: './inventory/activate_deck.yaml'

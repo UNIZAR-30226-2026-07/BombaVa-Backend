@@ -1,0 +1,41 @@
+patch:
+  tags:
+    - Inventory
+  summary: Activar un mazo de flota
+  description: Marca el mazo especificado como activo para su uso en partidas. Desactiva automáticamente cualquier otro mazo que el usuario tuviera activo.
+  operationId: setActiveDeck
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: deckId
+      in: path
+      required: true
+      description: UUID del mazo a activar
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Mazo activado con éxito
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Mazo activado correctamente"
+              deck:
+                $ref: '../shared/schemas.yaml#/FleetDeck'
+    '404':
+      description: El mazo no existe o no pertenece al usuario autenticado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Mazo no encontrado"
+    '401':
+      description: No autorizado
