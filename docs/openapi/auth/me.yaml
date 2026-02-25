@@ -14,7 +14,7 @@ get:
           schema:
             $ref: '../shared/schemas.yaml#/User'
     '401':
-      description: No autorizado - Token faltante o inválido
+      description: No autorizado
       content:
         application/json:
           schema:
@@ -23,3 +23,52 @@ get:
               message:
                 type: string
                 example: "Token no válido o expirado"
+
+patch:
+  tags:
+    - Auth
+  summary: Actualizar datos del perfil
+  description: Permite modificar el nombre de usuario o el email del usuario autenticado.
+  operationId: updateProfile
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              example: nuevo_nombre
+            email:
+              type: string
+              format: email
+              example: nuevo@email.com
+  responses:
+    '200':
+      description: Perfil actualizado correctamente
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Perfil actualizado"
+              user:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  email:
+                    type: string
+    '400':
+      description: Error de validación
+      content:
+        application/json:
+          schema:
+            $ref: '../shared/schemas.yaml#/ValidationError'
+    '401':
+      description: No autorizado
