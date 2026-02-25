@@ -1,0 +1,18 @@
+ValidationError:
+  type: object
+  properties:
+    errors:
+      type: array
+      items:
+        type: object
+        properties:
+          msg:
+            type: string
+          path:
+            type: string
+
+AuthResponse:
+  type: object
+  properties:
+    token:
+      type: string
