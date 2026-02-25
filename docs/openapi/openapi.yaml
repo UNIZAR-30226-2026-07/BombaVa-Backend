@@ -30,3 +30,5 @@ paths:
       $ref: './inventory/get_ships.yaml'
   /api/inventory/ships/{shipId}/equip:
     $ref: './inventory/equip_weapon.yaml'
+  /api/inventory/decks:
+    $ref: './inventory/decks.yaml'
