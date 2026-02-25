@@ -17,7 +17,6 @@ AuthResponse:
     token:
       type: string
 
-
 User:
   type: object
   properties:
@@ -37,3 +36,43 @@ User:
     created_at:
       type: string
       format: date-time
+
+ShipTemplate:
+  type: object
+  properties:
+    slug: { type: string, example: "lancha" }
+    name: { type: string, example: "Lancha" }
+    width: { type: integer, example: 1 }
+    height: { type: integer, example: 1 }
+    baseMaxHp: { type: integer, example: 20 }
+    supplyCost: { type: integer, example: 10 }
+    baseStats: { type: object }
+
+UserShip:
+  type: object
+  properties:
+    id: { type: string, format: uuid }
+    templateSlug: { type: string }
+    level: { type: integer, example: 1 }
+    customStats: { type: object }
+    ShipTemplate: 
+      $ref: '#/ShipTemplate'
+
+FleetDeck:
+  type: object
+  properties:
+    id: { type: string, format: uuid }
+    deckName: { type: string, example: "Mazo Principal" }
+    isActive: { type: boolean, example: true }
+    shipIds:
+      type: array
+      items:
+        type: object
+        properties:
+          userShipId: { type: string, format: uuid }
+          position:
+            type: object
+            properties:
+              x: { type: integer, example: 5 }
+              y: { type: integer, example: 2 }
+          orientation: { type: string, enum: [N, S, E, W], example: "N" }

@@ -16,6 +16,7 @@ components:
       bearerFormat: JWT
 
 paths:
+  #auth
   /api/auth/register:
     $ref: './auth/register.yaml'
   /api/auth/login:
@@ -24,3 +25,6 @@ paths:
       $ref: './auth/me.yaml'
   /api/auth/ranking:
     $ref: './auth/ranking.yaml'
+  #inventory
+  /api/inventory/ships:
+      $ref: './inventory/get_ships.yaml'

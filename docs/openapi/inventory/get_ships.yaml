@@ -1,0 +1,25 @@
+get:
+  tags:
+    - Inventory
+  summary: Listar barcos del usuario
+  description: Recupera todos los barcos del jugador autenticado.
+  operationId: getMyShips
+  security:
+    - bearerAuth: []
+  responses:
+    '200':
+      description: Lista de barcos obtenida con éxito
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../shared/schemas.yaml#/UserShip'
+    '401':
+      description: No autorizado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string }
