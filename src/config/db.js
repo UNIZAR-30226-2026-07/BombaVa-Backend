@@ -1,11 +1,23 @@
 /**
  * Configuración de Conexión a Base de Datos.
- * Inicializa la instancia para PostgreSQL con estándares de nomenclatura snake_case.
+ * Utiliza una lógica de fallback para detectar si el host es 'db' o 'localhost'.
  */
 import 'dotenv/config';
 import Sequelize from 'sequelize';
 
-export const sequelize = new Sequelize(process.env.DATABASE_URL, {
+/**
+ * Construye la URL de conexión. 
+ * Prioriza DB_HOST si existe (útil para Docker), de lo contrario usa la URL de .env.
+ */
+const getDatabaseUrl = () => {
+    const url = process.env.DATABASE_URL;
+    if (process.env.DB_HOST) {
+        return url.replace('localhost', process.env.DB_HOST).replace('db', process.env.DB_HOST);
+    }
+    return url;
+};
+
+export const sequelize = new Sequelize(getDatabaseUrl(), {
     dialect: 'postgres',
     logging: false,
     define: {
@@ -13,6 +25,9 @@ export const sequelize = new Sequelize(process.env.DATABASE_URL, {
         underscored: true,
         createdAt: 'created_at',
         updatedAt: 'updated_at'
+    },
+    retry: {
+        max: 3
     }
 });
 
@@ -22,7 +37,7 @@ export const sequelize = new Sequelize(process.env.DATABASE_URL, {
 export const connectDB = async () => {
     try {
         await sequelize.authenticate();
-        console.log('Conexión a PostgreSQL establecida correctamente.');
+        console.log('Conexión establecida con:', getDatabaseUrl());
     } catch (error) {
         console.error('Error de conexión a DB:', error.message);
         process.exit(1);
