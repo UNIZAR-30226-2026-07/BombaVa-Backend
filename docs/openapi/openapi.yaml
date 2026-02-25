@@ -21,3 +21,5 @@ security:
 paths:
   /api/auth/register:
     $ref: './auth/register.yaml'
+  /api/auth/login:
+    $ref: './auth/login.yaml'
