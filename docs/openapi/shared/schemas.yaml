@@ -16,3 +16,24 @@ AuthResponse:
   properties:
     token:
       type: string
+
+
+User:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    username:
+      type: string
+      example: oscar_tester
+    email:
+      type: string
+      format: email
+      example: oscar@test.com
+    elo_rating:
+      type: integer
+      example: 1200
+    created_at:
+      type: string
+      format: date-time

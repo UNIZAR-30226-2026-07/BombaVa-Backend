@@ -1,0 +1,25 @@
+get:
+  tags:
+    - Auth
+  summary: Obtener perfil del usuario autenticado
+  description: Retorna la información privada del usuario del token JWT.
+  operationId: getProfile
+  security:
+    - bearerAuth: []
+  responses:
+    '200':
+      description: Perfil recuperado con éxito
+      content:
+        application/json:
+          schema:
+            $ref: '../shared/schemas.yaml#/User'
+    '401':
+      description: No autorizado - Token faltante o inválido
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Token no válido o expirado"
