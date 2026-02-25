@@ -22,3 +22,5 @@ paths:
     $ref: './auth/login.yaml'
   /api/auth/me:
       $ref: './auth/me.yaml'
+  /api/auth/ranking:
+    $ref: './auth/ranking.yaml'
