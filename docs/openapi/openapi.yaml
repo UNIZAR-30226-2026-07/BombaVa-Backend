@@ -34,3 +34,6 @@ paths:
     $ref: './inventory/decks.yaml'
   /api/inventory/decks/{deckId}/activate:
     $ref: './inventory/activate_deck.yaml'
+  #matches
+  /api/matches/history:
+    $ref: './game/history.yaml'

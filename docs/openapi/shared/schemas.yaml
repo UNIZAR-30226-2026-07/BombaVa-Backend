@@ -76,3 +76,36 @@ FleetDeck:
               x: { type: integer, example: 5 }
               y: { type: integer, example: 2 }
           orientation: { type: string, enum: [N, S, E, W], example: "N" }
+
+Match:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    status:
+      type: string
+      enum: [WAITING, PLAYING, FINISHED]
+      example: "FINISHED"
+    current_turn_player_id:
+      type: string
+      format: uuid
+    turn_number:
+      type: integer
+      example: 15
+    map_terrain:
+      type: object
+      properties:
+        size: { type: integer, example: 15 }
+    created_at:
+      type: string
+      format: date-time
+    MatchPlayers:
+      type: array
+      items:
+        type: object
+        properties:
+          side: { type: string, enum: [NORTH, SOUTH] }
+          fuel_reserve: { type: integer }
+          ammo_current: { type: integer }
+          user_id: { type: string, format: uuid }
