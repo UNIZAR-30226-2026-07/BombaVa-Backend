@@ -1,7 +1,9 @@
 /**
  * Factoría de Inventario para pruebas.
  */
-import { FleetDeck, ShipTemplate, UserShip } from '../index.js';
+import FleetDeck from '../../../modules/inventory/models/FleetDeck.js';
+import ShipTemplate from '../../../modules/inventory/models/ShipTemplate.js';
+import UserShip from '../../../modules/inventory/models/UserShip.js';
 import { createUser } from './authFactory.js';
 
 /**
@@ -43,7 +45,6 @@ export const createFullInventoryContext = async (user) => {
 
 /**
  * Orquestador: Crea usuario + inventario completo.
- * Requerido por la mayoría de tests de integración.
  */
 export const createFullUserContext = async (username, email) => {
     const user = await createUser(username, email);

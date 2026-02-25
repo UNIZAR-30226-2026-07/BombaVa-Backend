@@ -1,8 +1,8 @@
 /**
  * Factoría de Autenticación para pruebas.
  */
-import { authService } from '../../../modules/auth/index.js';
 import User from '../../../modules/auth/models/User.js';
+import * as authService from '../../../modules/auth/services/authService.js';
 
 /**
  * Crea un usuario con contraseña cifrada válida para login.

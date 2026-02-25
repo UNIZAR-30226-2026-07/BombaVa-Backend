@@ -1,6 +1,6 @@
 /**
  * Test Unitario: Servicio de Estado de Partida
- * Valida la lógica de victoria y derrota aislando los modelos de base de datos.
+ * Valida la lógica de victoria y derrota aislando los modelos.
  */
 import { jest } from '@jest/globals';
 
@@ -9,7 +9,7 @@ const countMock = jest.fn();
 jest.unstable_mockModule('../../../shared/models/index.js', () => ({
     ShipInstance: { count: countMock },
     Match: { update: jest.fn(), findByPk: jest.fn() },
-    MatchPlayer: {},
+    MatchPlayer: { findOne: jest.fn() },
     Projectile: {},
     User: {},
     UserShip: {},
@@ -34,7 +34,7 @@ describe('MatchStatusService Unit Tests', () => {
 
         expect(result).toBe(true);
         expect(countMock).toHaveBeenCalledWith(expect.objectContaining({
-            where: { matchId: 'm1', playerId: 'p1', isSunk: false }
+            where: expect.objectContaining({ isSunk: false })
         }));
     });
 

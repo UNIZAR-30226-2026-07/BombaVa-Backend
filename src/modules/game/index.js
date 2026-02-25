@@ -9,6 +9,9 @@ import { registerGameHandlers } from './sockets/index.js';
 
 export {
     Match,
-    MatchPlayer, matchRoutes,
-    matchService, registerGameHandlers, statusService
+    MatchPlayer,
+    matchRoutes,
+    matchService,
+    registerGameHandlers,
+    statusService
 };

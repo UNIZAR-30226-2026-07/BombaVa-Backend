@@ -6,7 +6,7 @@
  * @param {Function} next - Función de paso al siguiente middleware.
  */
 import jwt from 'jsonwebtoken';
-import { User } from '../../modules/auth/index.js';
+import User from '../../modules/auth/models/User.js';
 
 export const protect = async (req, res, next) => {
     let token;
