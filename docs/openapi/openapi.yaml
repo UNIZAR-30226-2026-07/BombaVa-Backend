@@ -1,0 +1,24 @@
+openapi: 3.0.0
+info:
+  title: BombaVa REST API
+  description: API REST para la gestión de usuarios, inventario y perfiles del juego BombaVa.
+  version: 1.0.0
+  contact:
+    name: Equipo 07 - UNIZAR
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor de desarrollo local
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
+paths:
+  # Endpoints a añadir aquí
