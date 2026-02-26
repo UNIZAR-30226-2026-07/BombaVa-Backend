@@ -1,0 +1,14 @@
+databases:
+  - name: bombava_postgres
+    databaseName: bombava_db
+    user: admin
+    postgresMajorVersion: "16"
+    plan: free 
+
+services:
+  - type: web
+    name: bombava_adminer
+    env: image
+    image:
+      url: docker.io/library/adminer:latest
+    plan: free
