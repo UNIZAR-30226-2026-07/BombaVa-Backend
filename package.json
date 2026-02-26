@@ -7,7 +7,12 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand"
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --noStackTrace",
+    "test:unit": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest --testMatch='**/*.test.js' --testPathIgnorePatterns='**/*.int.test.js'",
+    "test:int": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest --testMatch='**/*.int.test.js' --runInBand",
+    "infra:up": "docker-compose -f .infrastructure/docker-compose.yml up -d",
+    "infra:down": "docker-compose -f .infrastructure/docker-compose.yml down",
+    "infra:logs": "docker-compose -f .infrastructure/docker-compose.yml logs -f"
   },
   "repository": {
     "type": "git",
@@ -22,7 +27,7 @@
     "express": "^5.2.1",
     "express-validator": "^7.3.1",
     "jsonwebtoken": "^9.0.3",
-    "pg": "^8.18.0",
+    "pg": "^8.19.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7",
     "socket.io": "^4.8.3"
@@ -30,7 +35,8 @@
   "devDependencies": {
     "cross-env": "^10.1.0",
     "jest": "^30.2.0",
-    "nodemon": "^3.1.11",
+    "nodemon": "^3.1.14",
+    "socket.io-client": "^4.8.1",
     "supertest": "^7.2.2"
   }
 }

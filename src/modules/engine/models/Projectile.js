@@ -7,6 +7,16 @@ const Projectile = sequelize.define('Projectile', {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
+    matchId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        field: 'match_id'
+    },
+    ownerId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        field: 'owner_id'
+    },
     type: {
         type: DataTypes.ENUM('TORPEDO', 'MINE'),
         allowNull: false,
@@ -20,12 +30,12 @@ const Projectile = sequelize.define('Projectile', {
     x: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        validate: { min: 0, max: 14 } // OJO: Tablero 15x15
+        validate: { min: 0, max: 14 }
     },
     y: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        validate: { min: 0, max: 14 } // OJO: Tablero 15x15
+        validate: { min: 0, max: 14 }
     },
     vectorX: {
         type: DataTypes.INTEGER,

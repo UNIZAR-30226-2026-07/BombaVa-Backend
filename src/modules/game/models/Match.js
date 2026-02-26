@@ -12,6 +12,11 @@ const Match = sequelize.define('Match', {
         defaultValue: 'WAITING',
         allowNull: false
     },
+    currentTurnPlayerId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        field: 'current_turn_player_id'
+    },
     turnNumber: {
         type: DataTypes.INTEGER,
         defaultValue: 1,
@@ -25,9 +30,7 @@ const Match = sequelize.define('Match', {
     mapTerrain: {
         type: DataTypes.JSONB,
         allowNull: false,
-        validate: {
-            notEmpty: true
-        }
+        validate: { notEmpty: true }
     }
 }, {
     tableName: 'matches',

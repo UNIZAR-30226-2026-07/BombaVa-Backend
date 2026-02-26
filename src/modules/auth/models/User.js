@@ -1,7 +1,7 @@
 /**
- * User Model
+ * Modelo de Usuario
+ * Define la estructura de la tabla 'users' y sus validaciones básicas.
  */
-
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../../config/db.js';
 
@@ -33,7 +33,8 @@ export const User = sequelize.define('User', {
         defaultValue: 1200
     }
 }, {
-    tableName: 'users'
+    tableName: 'users',
+    underscored: true
 });
 
 export default User;

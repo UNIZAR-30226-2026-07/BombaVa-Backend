@@ -1,5 +1,10 @@
+/**
+ * Modelo MatchPlayer
+ * Representa el estado de un jugador dentro de una partida específica.
+ */
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../../config/db.js';
+import { GAME_RULES } from '../../../config/gameRules.js';
 
 const MatchPlayer = sequelize.define('MatchPlayer', {
     id: {
@@ -7,15 +12,25 @@ const MatchPlayer = sequelize.define('MatchPlayer', {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
+    matchId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        field: 'match_id'
+    },
+    userId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        field: 'user_id'
+    },
     fuelReserve: {
         type: DataTypes.INTEGER,
-        defaultValue: 100,
+        defaultValue: GAME_RULES.RESOURCES.MAX_FUEL / 3,
         allowNull: false,
         validate: { min: 0 }
     },
     ammoCurrent: {
         type: DataTypes.INTEGER,
-        defaultValue: 10,
+        defaultValue: GAME_RULES.RESOURCES.RESET_AMMO,
         allowNull: false,
         validate: { min: 0 }
     },

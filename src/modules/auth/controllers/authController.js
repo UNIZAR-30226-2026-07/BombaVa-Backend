@@ -1,23 +1,13 @@
-import bcrypt from 'bcrypt';
-import { validationResult } from 'express-validator';
-import jwt from 'jsonwebtoken';
-import UserDao from '../dao/UserDao.js';
-
 /**
- * Función que genera el token de sesión para un usuario
- * @param {string} nombreUsuario 
- * @param {string} email 
- * @returns Devuelve el token de sesión para el usuario
+ * Controlador de Autenticación
+ * Gestiona las peticiones HTTP de registro y login.
  */
-export const generateToken = (nombreUsuario, email) => {
-  const payload = { nombreUsuario, email };
-  return jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: '24h',
-  });
-};
+import { validationResult } from 'express-validator';
+import UserDao from '../dao/UserDao.js';
+import * as authService from '../services/authService.js';
 
 /**
- * Controlador que registra un usuario
+ * Endpoint de registro de usuarios
  */
 export const registerUser = async (req, res, next) => {
   const errors = validationResult(req);
@@ -26,22 +16,40 @@ export const registerUser = async (req, res, next) => {
   }
 
   try {
-    const { username, email, contrasena } = req.body;
-
-    const salt = await bcrypt.genSalt(10);
-    const hashContrasena = await bcrypt.hash(contrasena, salt);
-
-    const nuevoUser = {
-      username,
-      email,
-      password_hash: hashContrasena
-    };
-
-    const userCreado = await UserDao.createUser(nuevoUser);
-    const token = generateToken(userCreado.username, userCreado.email);
-
+    const usuarioCreado = await authService.registrarNuevoUsuario(req.body);
+    const token = authService.generarTokenAcceso(usuarioCreado);
     res.status(201).json({ token });
   } catch (error) {
     next(error);
   }
-}
+};
+
+/**
+ * Endpoint de inicio de sesión
+ */
+export const loginUser = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const { email, contrasena } = req.body;
+    const usuario = await UserDao.findByMail(email);
+
+    if (!usuario || !(await authService.verificarContrasena(contrasena, usuario.password_hash))) {
+      return res.status(401).json({ message: 'Credenciales inválidas' });
+    }
+
+    const token = authService.generarTokenAcceso(usuario);
+    res.json({
+      id: usuario.id,
+      username: usuario.username,
+      email: usuario.email,
+      elo: usuario.elo_rating,
+      token
+    });
+  } catch (error) {
+    next(error);
+  }
+};

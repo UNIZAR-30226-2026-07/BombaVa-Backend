@@ -1,51 +1,45 @@
 /**
- * Main Entry Point
- * Inicializa Base de Datos, Servidor HTTP y WebSockets.
+ * Punto de entrada principal del servidor.
+ * Coordina la conexión, sincronización y registro de manejadores modulares.
  */
-import dotenv from 'dotenv';
 import { createServer } from 'http';
-import app from './app.js';
 import { Server } from 'socket.io';
-import { connectDB } from './config/db.js';
+import app from './app.js';
+import { connectDB } from './config/index.js';
+import { socketProtect } from './shared/middlewares/index.js';
 import { syncModels } from './shared/models/index.js';
 import runSeeder from './shared/models/seed.js';
 
+import { registerEngineHandlers } from './modules/engine/index.js';
+import { registerGameHandlers } from './modules/game/index.js';
 
 const PORT = process.env.PORT || 3000;
 const server = createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
 
-const io = new Server(server, {
-    cors: {
-        origin: "*", // por ahora permitimos todo, luego lo cerraremos
-    }
-});
+/**
+ * Seguridad de sockets.
+ */
+io.use(socketProtect);
 
 io.on('connection', (socket) => {
-    console.log(`Jugador conectado con ID: ${socket.id}`);
+    // Registro mediante fachadas modulares
+    registerEngineHandlers(io, socket);
+    registerGameHandlers(io, socket);
 
     socket.on('disconnect', () => {
-        console.log(`Jugador desconectado`);
+        console.log(`Jugador desconectado: ${socket.data.user.username}`);
     });
 });
 
 /**
- * Función de arranque del sistema
+ * Arranque del sistema.
  */
 const startServer = async () => {
     await connectDB();
     await syncModels();
-
-    // para testing (mock datas)
-    if (process.env.NODE_ENV === 'development') {
-        await runSeeder();
-    }
-
-    server.listen(PORT, () => {
-        console.log('---------------------------------------------');
-        console.log(`SERVIDOR BOMBA-VA`);
-        console.log(`URL: http://localhost:${PORT}`);
-        console.log('---------------------------------------------');
-    });
+    if (process.env.NODE_ENV === 'development') await runSeeder();
+    server.listen(PORT, () => console.log(`SERVIDOR BOMBA-VA V1 - PUERTO: ${PORT}`));
 };
 
 startServer();

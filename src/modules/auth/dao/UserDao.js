@@ -1,33 +1,44 @@
+/**
+ * Data Access Object para Usuarios
+ * Encapsula todas las consultas directas a la base de datos para la entidad User.
+ */
 import User from '../models/User.js';
 
 class UserDao {
-
     /**
-     * Método que devuelve una clase usuario por su nombre
-     * @param {string} name - Nombre de un usuario que se quiere buscar
-     * @returns Devuelve la información de un usuario si existe, o null si no existe
+     * Busca un usuario por su nombre de usuario único
+     * @param {string} username - Nombre a buscar
      */
-    async findByName(name) {
-        try {
-            return await User.findOne({
-                where: { username: name }
-            });
-        } catch (error) {
-            throw error;
-        }
+    async findByName(username) {
+        return await User.findOne({
+            where: { username }
+        });
     }
 
     /**
-     * Método que crea un usuario en la base de datos si es válido
-     * @param {Object} user - Datos del usuario
-     * @returns El usuario creado
+     * Busca un usuario por su correo electrónico único
+     * @param {string} email - Correo a buscar
      */
-    async createUser(user) {
-        try {
-            return await User.create(user);
-        } catch (error) {
-            throw error;
-        }
+    async findByMail(email) {
+        return await User.findOne({
+            where: { email }
+        });
+    }
+
+    /**
+     * Crea una nueva entrada de usuario en la base de datos
+     * @param {Object} userData - Datos validados del usuario
+     */
+    async createUser(userData) {
+        return await User.create(userData);
+    }
+
+    /**
+     * Busca un usuario por su clave primaria (UUID)
+     * @param {string} id - UUID del usuario
+     */
+    async findById(id) {
+        return await User.findByPk(id);
     }
 }
 

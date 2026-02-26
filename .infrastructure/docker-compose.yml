@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: bombava_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: bombava_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bombava_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d bombava_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer
+    container_name: bombava_adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - bombava_network
+
+networks:
+  bombava_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
