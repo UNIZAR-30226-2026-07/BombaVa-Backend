@@ -20,6 +20,13 @@ const getDatabaseUrl = () => {
 export const sequelize = new Sequelize(getDatabaseUrl(), {
     dialect: 'postgres',
     logging: false,
+    dialectOptions: {
+        ssl:{
+            require: true,
+            rejectUnauthorized: false // Esto es necesario en Render
+        }
+        
+    },
     define: {
         timestamps: true,
         underscored: true,
@@ -28,7 +35,8 @@ export const sequelize = new Sequelize(getDatabaseUrl(), {
     },
     retry: {
         max: 3
-    }
+    },
+    
 });
 
 /**
