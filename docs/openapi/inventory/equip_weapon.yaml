@@ -1,0 +1,53 @@
+patch:
+  tags:
+    - Inventory
+  summary: Equipar un arma en un barco
+  description: Actualiza el equipamiento del barco especificado. El cambio se guarda en el campo `customStats`.
+  operationId: equipWeapon
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: shipId
+      in: path
+      required: true
+      description: UUID del barco obtenido de /api/inventory/ships
+      schema:
+        type: string
+        format: uuid
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [weaponSlug]
+          properties:
+            weaponSlug:
+              type: string
+              example: "cannon-v1"
+              description: Identificador del arma a equipar.
+  responses:
+    '200':
+      description: Arma equipada exitosamente
+      content:
+        application/json:
+          schema:
+            $ref: '../shared/schemas.yaml#/UserShip'
+    '400':
+      description: Error de validación (formato de UUID inválido o falta weaponSlug)
+      content:
+        application/json:
+          schema:
+            $ref: '../shared/schemas.yaml#/ValidationError'
+    '404':
+      description: El barco no existe o no pertenece al usuario
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Barco no encontrado"
+    '401':
+      description: No autorizado

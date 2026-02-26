@@ -1,0 +1,82 @@
+get:
+  tags:
+    - Inventory
+  summary: Listar mazos de flota del usuario
+  description: Recupera todas las formaciones guardadas por el usuario.
+  operationId: getMyDecks
+  security:
+    - bearerAuth: []
+  responses:
+    '200':
+      description: Lista de mazos obtenida con éxito
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../shared/schemas.yaml#/FleetDeck'
+    '401':
+      description: No autorizado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Token no válido o expirado"
+
+post:
+  tags:
+    - Inventory
+  summary: Crear un nuevo mazo de flota
+  description: Registra una nueva formación. Los barcos deben estar dentro de la zona de despliegue (15x5).
+  operationId: createDeck
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [deckName, shipIds]
+          properties:
+            deckName:
+              type: string
+              minLength: 2
+              maxLength: 30
+              example: "Flota de Ataque"
+            shipIds:
+              type: array
+              minItems: 1
+              items:
+                type: object
+                properties:
+                  userShipId:
+                    type: string
+                    format: uuid
+                  position:
+                    type: object
+                    properties:
+                      x: { type: integer, example: 5 }
+                      y: { type: integer, example: 2 }
+                  orientation:
+                    type: string
+                    enum: [N, S, E, W]
+                    example: "N"
+  responses:
+    '201':
+      description: Mazo creado exitosamente
+      content:
+        application/json:
+          schema:
+            $ref: '../shared/schemas.yaml#/FleetDeck'
+    '400':
+      description: Error de validación o barcos fuera de los límites del puerto (15x5)
+      content:
+        application/json:
+          schema:
+            $ref: '../shared/schemas.yaml#/ValidationError'
+    '401':
+      description: No autorizado

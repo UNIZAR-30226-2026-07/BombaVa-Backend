@@ -1,0 +1,39 @@
+openapi: 3.0.0
+info:
+  title: BombaVa REST API
+  description: API REST para la gestión de usuarios, inventario y perfiles del juego BombaVa.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor de desarrollo local
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  #auth
+  /api/auth/register:
+    $ref: './auth/register.yaml'
+  /api/auth/login:
+    $ref: './auth/login.yaml'
+  /api/auth/me:
+      $ref: './auth/me.yaml'
+  /api/auth/ranking:
+    $ref: './auth/ranking.yaml'
+  #inventory
+  /api/inventory/ships:
+      $ref: './inventory/get_ships.yaml'
+  /api/inventory/ships/{shipId}/equip:
+    $ref: './inventory/equip_weapon.yaml'
+  /api/inventory/decks:
+    $ref: './inventory/decks.yaml'
+  /api/inventory/decks/{deckId}/activate:
+    $ref: './inventory/activate_deck.yaml'
+  #matches
+  /api/matches/history:
+    $ref: './game/history.yaml'

@@ -1,0 +1,27 @@
+get:
+  tags:
+    - Game
+  summary: Obtener historial de partidas del usuario
+  description: Recupera una lista de todas las partidas (finalizadas o en curso) en las que ha participado el jugador autenticado.
+  operationId: getMatchHistory
+  security:
+    - bearerAuth: []
+  responses:
+    '200':
+      description: Historial recuperado con éxito
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../shared/schemas.yaml#/Match'
+    '401':
+      description: No autorizado - Token JWT inválido o ausente
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Token no válido o expirado"

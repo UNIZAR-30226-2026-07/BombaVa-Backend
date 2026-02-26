@@ -1,0 +1,37 @@
+post:
+  tags:
+    - Auth
+  summary: Registrar un nuevo usuario
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [username, email, contrasena]
+          properties:
+            username:
+              type: string
+              example: oscar_tester
+            email:
+              type: string
+              format: email
+              example: oscar@test.com
+            contrasena:
+              type: string
+              format: password
+              minLength: 6
+              example: "Pass1234"
+  responses:
+    '201':
+      description: Usuario creado
+      content:
+        application/json:
+          schema:
+            $ref: '../shared/schemas.yaml#/AuthResponse'
+    '400':
+      description: Error de validación
+      content:
+        application/json:
+          schema:
+            $ref: '../shared/schemas.yaml#/ValidationError'
