@@ -17,9 +17,18 @@ const getDatabaseUrl = () => {
     return url;
 };
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const sequelize = new Sequelize(getDatabaseUrl(), {
     dialect: 'postgres',
     logging: false,
+    dialectOptions: isProduction ? {
+        ssl:{
+            require: true,
+            rejectUnauthorized: false // Esto es necesario en Render
+        }
+        
+    } : {}, //Para local, no hacer nada
     define: {
         timestamps: true,
         underscored: true,
@@ -28,7 +37,8 @@ export const sequelize = new Sequelize(getDatabaseUrl(), {
     },
     retry: {
         max: 3
-    }
+    },
+    
 });
 
 /**
