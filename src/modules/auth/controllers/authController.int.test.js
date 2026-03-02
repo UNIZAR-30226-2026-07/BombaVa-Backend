@@ -5,6 +5,7 @@ import request from 'supertest';
 import app from '../../../app.js';
 import { sequelize } from '../../../config/db.js';
 import { createFullUserContext } from '../../../shared/models/testFactory.js';
+import { initDefaults } from '../../../shared/models/bootstrap.js';
 
 describe('AuthController API Integration (Refactored)', () => {
     let setup;
@@ -12,7 +13,7 @@ describe('AuthController API Integration (Refactored)', () => {
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
-
+        initDefaults();
         setup = await createFullUserContext('auth_tester', 'auth@test.va');
     });
 

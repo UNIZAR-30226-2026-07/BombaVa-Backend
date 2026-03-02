@@ -20,11 +20,8 @@ export const registerUser = async (req, res, next) => {
     const usuarioCreado = await authService.registrarNuevoUsuario(req.body);
     const token = authService.generarTokenAcceso(usuarioCreado);
     const barco1 = await InventoryDao.associateShip(usuarioCreado.id, 'lancha');
-    console.log(barco1);
     const barco2 = await InventoryDao.associateShip(usuarioCreado.id, 'fragata');
-    console.log(barco2);
     const barco3 = await InventoryDao.associateShip(usuarioCreado.id, 'acorazado');
-    console.log(barco3);
     const listBarcos = [
       { userShipId: barco1,
         position: { x: 1, y: 1 },
