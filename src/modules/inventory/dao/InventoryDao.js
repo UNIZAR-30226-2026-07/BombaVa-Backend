@@ -34,6 +34,19 @@ class InventoryDao {
     }
 
     /**
+     * Crea un barco con un usario
+     * @param {string} userId - UUID del Usuario
+     * @param {string} shipType - Tipo del barco a crear
+     * @returns {Promise<Object>} Barco creado
+     */
+    async associateShip(userId, shipType){
+        return await UserShip.create({
+            userId: userId,
+            templateSlug: shipType
+        })
+    }
+
+    /**
      * Actualiza las estadísticas personalizadas de un barco
      * @param {Object} ship - Instancia del modelo UserShip
      * @param {Object} stats - Nuevas estadísticas a mezclar

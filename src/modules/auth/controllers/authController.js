@@ -5,6 +5,7 @@
 import { validationResult } from 'express-validator';
 import UserDao from '../dao/UserDao.js';
 import * as authService from '../services/authService.js';
+import InventoryDao from '../../inventory/dao/InventoryDao.js';
 
 /**
  * Endpoint de registro de usuarios
@@ -18,6 +19,34 @@ export const registerUser = async (req, res, next) => {
   try {
     const usuarioCreado = await authService.registrarNuevoUsuario(req.body);
     const token = authService.generarTokenAcceso(usuarioCreado);
+    const barco1 = await InventoryDao.associateShip(usuarioCreado.id, 'lancha');
+    console.log(barco1);
+    const barco2 = await InventoryDao.associateShip(usuarioCreado.id, 'fragata');
+    console.log(barco2);
+    const barco3 = await InventoryDao.associateShip(usuarioCreado.id, 'acorazado');
+    console.log(barco3);
+    const listBarcos = [
+      { userShipId: barco1,
+        position: { x: 1, y: 1 },
+        orientation: 'N'
+      }, 
+      {
+        userShipId: barco2,
+        position: {x:5, y:2},
+        orientation: 'N'
+      }, 
+      {
+        userShipId: barco3,
+        position: { x: 10, y: 3},
+        orientation: 'N'
+      }];
+    const deckTemplate = {
+      userId: usuarioCreado.id,
+      deckName: 'Mazo Base',
+      shipIds: listBarcos,
+      isActive: true
+    };
+    InventoryDao.createDeck(deckTemplate);
     res.status(201).json({ token });
   } catch (error) {
     next(error);
