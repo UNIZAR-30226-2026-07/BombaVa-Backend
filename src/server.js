@@ -8,6 +8,7 @@ import app from './app.js';
 import { connectDB } from './config/index.js';
 import { socketProtect } from './shared/middlewares/index.js';
 import { syncModels } from './shared/models/index.js';
+import { initDefaults } from './shared/models/bootstrap.js';
 import runSeeder from './shared/models/seed.js';
 
 import { registerEngineHandlers } from './modules/engine/index.js';
@@ -38,6 +39,7 @@ io.on('connection', (socket) => {
 const startServer = async () => {
     await connectDB();
     await syncModels();
+    await initDefaults();
     if (process.env.NODE_ENV === 'development') await runSeeder();
     server.listen(PORT, () => console.log(`SERVIDOR BOMBA-VA V1 - PUERTO: ${PORT}`));
 };
