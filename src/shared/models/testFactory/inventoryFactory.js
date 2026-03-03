@@ -5,6 +5,7 @@ import FleetDeck from '../../../modules/inventory/models/FleetDeck.js';
 import ShipTemplate from '../../../modules/inventory/models/ShipTemplate.js';
 import UserShip from '../../../modules/inventory/models/UserShip.js';
 import { createUser } from './authFactory.js';
+import { initDefaults } from '../bootstrap.js';
 
 /**
  * Crea o recupera una plantilla de barco.
@@ -47,6 +48,7 @@ export const createFullInventoryContext = async (user) => {
  * Orquestador: Crea usuario + inventario completo.
  */
 export const createFullUserContext = async (username, email) => {
+    initDefaults();
     const user = await createUser(username, email);
     const inventory = await createFullInventoryContext(user);
     return { user, ...inventory };

@@ -42,9 +42,7 @@ export const initDefaults = async () => {
                 defaults: t
             });
         }
-        console.log('Estructuras base del juego verificadas/creadas.');
     } catch (error) {
-        console.error('Error inicializando datos base:', error);
         throw error;
     }
 };

@@ -23,7 +23,7 @@ export const traducirPosicionTablero = (pos, bando) => {
  */
 export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configuracionMazo) => {
     for (const shipCfg of configuracionMazo) {
-        const userShip = await UserShip.findByPk(shipCfg.userShipId.id, {
+        const userShip = await UserShip.findByPk(shipCfg.userShipId, {
             include: [ShipTemplate]
         });
         const posAbs = traducirPosicionTablero(shipCfg.position, bando);

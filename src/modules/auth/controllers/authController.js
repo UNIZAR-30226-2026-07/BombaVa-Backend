@@ -23,17 +23,17 @@ export const registerUser = async (req, res, next) => {
     const barco2 = await InventoryDao.associateShip(usuarioCreado.id, 'fragata');
     const barco3 = await InventoryDao.associateShip(usuarioCreado.id, 'acorazado');
     const listBarcos = [
-      { userShipId: barco1,
+      { userShipId: barco1.id,
         position: { x: 1, y: 1 },
         orientation: 'N'
       }, 
       {
-        userShipId: barco2,
+        userShipId: barco2.id,
         position: {x:5, y:2},
         orientation: 'N'
       }, 
       {
-        userShipId: barco3,
+        userShipId: barco3.id,
         position: { x: 10, y: 3},
         orientation: 'N'
       }];
