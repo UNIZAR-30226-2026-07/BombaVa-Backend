@@ -26,7 +26,6 @@ export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configu
         const userShip = await UserShip.findByPk(shipCfg.userShipId, {
             include: [ShipTemplate]
         });
-
         const posAbs = traducirPosicionTablero(shipCfg.position, bando);
         const orientation = (bando === 'NORTH') ? shipCfg.orientation : 'S';
 

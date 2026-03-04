@@ -14,40 +14,6 @@ const runSeeder = async () => {
     try {
         console.log('Poblando la Base de Datos de desarrollo...');
 
-        const templatesData = [
-            {
-                slug: 'lancha',
-                name: 'Lancha',
-                width: 1, height: 1,
-                baseMaxHp: 20,
-                supplyCost: 10,
-                baseStats: { speed: 5, vision: 4 }
-            },
-            {
-                slug: 'fragata',
-                name: 'Fragata',
-                width: 1, height: 3,
-                baseMaxHp: 30,
-                supplyCost: 15,
-                baseStats: { speed: 3, vision: 3 }
-            },
-            {
-                slug: 'acorazado',
-                name: 'Acorazado',
-                width: 1, height: 5,
-                baseMaxHp: 50,
-                supplyCost: 40,
-                baseStats: { speed: 1, vision: 2 }
-            }
-        ];
-
-        for (const t of templatesData) {
-            await ShipTemplate.findOrCreate({
-                where: { slug: t.slug },
-                defaults: t
-            });
-        }
-
         const hashedPass = await authService.cifrarContrasena('admin123');
 
         const [raul] = await User.findOrCreate({

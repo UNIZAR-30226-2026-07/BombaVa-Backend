@@ -5,12 +5,14 @@
 import { sequelize } from '../../config/index.js';
 import { FleetDeck, User, UserShip } from './index.js';
 import runSeeder from './seed.js';
+import { initDefaults } from './bootstrap.js';
 
 describe('Database Seeder Smoke Test (Reliability)', () => {
 
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
+        await initDefaults();
     });
 
     afterAll(async () => {
