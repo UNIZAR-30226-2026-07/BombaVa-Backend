@@ -430,6 +430,102 @@
             "x-parser-schema-id": "<anonymous-schema-39>"
           },
           "x-parser-unique-object-id": "shipMoved"
+        },
+        "shipAttackCannon": {
+          "name": "ship:attack:cannon",
+          "contentType": "application/json",
+          "summary": "Disparar el cañón principal a una coordenada.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchId",
+              "shipId",
+              "target"
+            ],
+            "properties": {
+              "matchId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-47>"
+              },
+              "shipId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-48>"
+              },
+              "target": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer",
+                    "example": 10,
+                    "x-parser-schema-id": "<anonymous-schema-50>"
+                  },
+                  "y": {
+                    "type": "integer",
+                    "example": 5,
+                    "x-parser-schema-id": "<anonymous-schema-51>"
+                  }
+                },
+                "x-parser-schema-id": "<anonymous-schema-49>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-46>"
+          },
+          "x-parser-unique-object-id": "shipAttackCannon"
+        },
+        "shipAttacked": {
+          "name": "ship:attacked",
+          "contentType": "application/json",
+          "summary": "Notifica el resultado de un ataque de cañón.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "attackerId",
+              "hit",
+              "target",
+              "ammoCurrent"
+            ],
+            "properties": {
+              "attackerId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-53>"
+              },
+              "hit": {
+                "type": "boolean",
+                "description": "Indica si el disparo impactó en un barco.",
+                "x-parser-schema-id": "<anonymous-schema-54>"
+              },
+              "target": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer",
+                    "x-parser-schema-id": "<anonymous-schema-56>"
+                  },
+                  "y": {
+                    "type": "integer",
+                    "x-parser-schema-id": "<anonymous-schema-57>"
+                  }
+                },
+                "x-parser-schema-id": "<anonymous-schema-55>"
+              },
+              "targetHp": {
+                "type": "integer",
+                "nullable": true,
+                "description": "Nuevo HP del objetivo si hubo impacto.",
+                "x-parser-schema-id": "<anonymous-schema-58>"
+              },
+              "ammoCurrent": {
+                "type": "integer",
+                "example": 3,
+                "x-parser-schema-id": "<anonymous-schema-59>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-52>"
+          },
+          "x-parser-unique-object-id": "shipAttacked"
         }
       },
       "x-parser-unique-object-id": "main"
@@ -579,6 +675,24 @@
         "$ref:$.channels.main.messages.shipMoved"
       ],
       "x-parser-unique-object-id": "ship:moved"
+    },
+    "ship:attack:cannon": {
+      "action": "receive",
+      "channel": "$ref:$.channels.main",
+      "summary": "Ejecutar ataque de cañón.",
+      "messages": [
+        "$ref:$.channels.main.messages.shipAttackCannon"
+      ],
+      "x-parser-unique-object-id": "ship:attack:cannon"
+    },
+    "ship:attacked": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Notificar impacto o fallo de cañón.",
+      "messages": [
+        "$ref:$.channels.main.messages.shipAttacked"
+      ],
+      "x-parser-unique-object-id": "ship:attacked"
     }
   },
   "x-parser-spec-parsed": true,
