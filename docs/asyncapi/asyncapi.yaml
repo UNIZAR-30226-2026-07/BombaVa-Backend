@@ -50,6 +50,10 @@ channels:
         $ref: './engine/combat.yaml#/messages/ShipAttackCannon'
       shipAttacked:
         $ref: './engine/combat.yaml#/messages/ShipAttacked'
+      shipAttackTorpedo:
+        $ref: './engine/combat.yaml#/messages/ShipAttackTorpedo'
+      projectileLaunched:
+        $ref: './engine/combat.yaml#/messages/ProjectileLaunched'
 
 operations:
 #LOBBY
@@ -199,5 +203,14 @@ operations:
     summary: Notificar impacto o fallo de cañón.
     messages: 
       - $ref: '#/channels/main/messages/shipAttacked'
+  
+  "ship:attack:torpedo":
+    action: receive
+    channel: 
+      $ref: '#/channels/main'
+    summary: Lanzar un torpedo.
+    messages: 
+      - $ref: '#/channels/main/messages/shipAttackTorpedo'
+
 
 

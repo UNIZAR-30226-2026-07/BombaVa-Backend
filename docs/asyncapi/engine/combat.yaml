@@ -32,3 +32,26 @@ messages:
           nullable: true
           description: "Nuevo HP del objetivo si hubo impacto."
         ammoCurrent: { type: integer, example: 3 }
+
+  ShipAttackTorpedo:
+    name: 'ship:attack:torpedo'
+    contentType: application/json
+    summary: Lanzar un torpedo en la dirección actual del barco.
+    payload:
+      type: object
+      required: [matchId, shipId]
+      properties:
+        matchId: { type: string, format: uuid }
+        shipId: { type: string, format: uuid }
+
+  ProjectileLaunched:
+    name: 'projectile:launched'
+    contentType: application/json
+    summary: Notifica que un proyectil dinámico ha sido desplegado en el tablero.
+    payload:
+      type: object
+      required: [type, attackerId, ammoCurrent]
+      properties:
+        type: { type: string, enum: [TORPEDO, MINE] }
+        attackerId: { type: string, format: uuid }
+        ammoCurrent: { type: integer, example: 2 }
