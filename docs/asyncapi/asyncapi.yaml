@@ -28,8 +28,12 @@ channels:
         $ref: './game/session.yaml#/messages/GameJoin'
       gameJoined:
         $ref: './game/session.yaml#/messages/GameJoined'
-
-      #Aqui las que me he dejao
+      matchPauseRequest:
+        $ref: './game/session.yaml#/messages/MatchPauseRequest'
+      matchPauseRequested:
+        $ref: './game/session.yaml#/messages/MatchPauseRequested'
+      gameError:
+        $ref: './game/session.yaml#/messages/GameError'
       matchTurnEnd:
         $ref: './game/turns.yaml#/messages/MatchTurnEnd'
       matchTurnChanged:
@@ -97,7 +101,29 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/gameJoined'
 
-  #Aca
+  requestPause:
+    action: receive
+    channel: 
+      $ref: '#/channels/main'
+    summary: Solicitar la pausa de la partida actual.
+    messages:
+      - $ref: '#/channels/main/messages/matchPauseRequest'
+
+  notifyPauseRequested:
+    action: send
+    channel: 
+      $ref: '#/channels/main'
+    summary: Notificar al oponente que se ha solicitado una pausa.
+    messages:
+      - $ref: '#/channels/main/messages/matchPauseRequested'
+
+  sendGameError:
+    action: send
+    channel: 
+      $ref: '#/channels/main'
+    summary: Enviar un mensaje de error al cliente ante una acción inválida.
+    messages: 
+      - $ref: '#/channels/main/messages/gameError'
 
   receiveEndTurn:
     action: receive
@@ -119,6 +145,7 @@ operations:
     action: receive
     channel: 
       $ref: '#/channels/main'
+    summary: El jugador decide rendirse y abandonar la partida.
     messages: 
       - $ref: '#/channels/main/messages/matchSurrender'
   
@@ -126,5 +153,6 @@ operations:
     action: send
     channel: 
       $ref: '#/channels/main'
+    summary: Comunicar el fin de la partida a todos los jugadores.
     messages:
       - $ref: '#/channels/main/messages/matchFinished'

@@ -161,10 +161,10 @@
           },
           "x-parser-unique-object-id": "gameJoined"
         },
-        "matchTurnEnd": {
-          "name": "match:turn_end",
+        "matchPauseRequest": {
+          "name": "match:pause_request",
           "contentType": "application/json",
-          "summary": "El jugador activo solicita finalizar su turno.",
+          "summary": "Solicita pausar la partida actual. Requiere aceptación del oponente (NO IMPLEMENTADO).",
           "payload": {
             "type": "object",
             "required": [
@@ -178,6 +178,67 @@
               }
             },
             "x-parser-schema-id": "<anonymous-schema-16>"
+          },
+          "x-parser-unique-object-id": "matchPauseRequest"
+        },
+        "matchPauseRequested": {
+          "name": "match:pause_requested",
+          "contentType": "application/json",
+          "summary": "Notifica al oponente que se ha solicitado una pausa.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "from"
+            ],
+            "properties": {
+              "from": {
+                "type": "string",
+                "description": "Nombre del usuario que solicita la pausa.",
+                "example": "oscar_tester",
+                "x-parser-schema-id": "<anonymous-schema-19>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-18>"
+          },
+          "x-parser-unique-object-id": "matchPauseRequested"
+        },
+        "gameError": {
+          "name": "game:error",
+          "contentType": "application/json",
+          "summary": "Mensaje genérico de error enviado por el servidor ante acciones inválidas.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "message"
+            ],
+            "properties": {
+              "message": {
+                "type": "string",
+                "example": "No es tu turno",
+                "x-parser-schema-id": "<anonymous-schema-21>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-20>"
+          },
+          "x-parser-unique-object-id": "gameError"
+        },
+        "matchTurnEnd": {
+          "name": "match:turn_end",
+          "contentType": "application/json",
+          "summary": "El jugador activo solicita finalizar su turno.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchId"
+            ],
+            "properties": {
+              "matchId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-23>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-22>"
           },
           "x-parser-unique-object-id": "matchTurnEnd"
         },
@@ -197,13 +258,13 @@
                 "type": "string",
                 "format": "uuid",
                 "description": "ID del usuario que ahora tiene el turno.",
-                "x-parser-schema-id": "<anonymous-schema-19>"
+                "x-parser-schema-id": "<anonymous-schema-25>"
               },
               "turnNumber": {
                 "type": "integer",
                 "description": "Contador total de turnos de la partida.",
                 "example": 2,
-                "x-parser-schema-id": "<anonymous-schema-20>"
+                "x-parser-schema-id": "<anonymous-schema-26>"
               },
               "resources": {
                 "type": "object",
@@ -213,19 +274,19 @@
                     "type": "integer",
                     "description": "Puntos de movimiento (MP) acumulados.",
                     "example": 20,
-                    "x-parser-schema-id": "<anonymous-schema-22>"
+                    "x-parser-schema-id": "<anonymous-schema-28>"
                   },
                   "ammo": {
                     "type": "integer",
                     "description": "Puntos de acción (AP) reseteados.",
                     "example": 5,
-                    "x-parser-schema-id": "<anonymous-schema-23>"
+                    "x-parser-schema-id": "<anonymous-schema-29>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-21>"
+                "x-parser-schema-id": "<anonymous-schema-27>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-18>"
+            "x-parser-schema-id": "<anonymous-schema-24>"
           },
           "x-parser-unique-object-id": "matchTurnChanged"
         },
@@ -242,10 +303,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-25>"
+                "x-parser-schema-id": "<anonymous-schema-31>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-24>"
+            "x-parser-schema-id": "<anonymous-schema-30>"
           },
           "x-parser-unique-object-id": "matchSurrender"
         },
@@ -264,7 +325,7 @@
                 "type": "string",
                 "format": "uuid",
                 "description": "ID del jugador que ha ganado la partida.",
-                "x-parser-schema-id": "<anonymous-schema-27>"
+                "x-parser-schema-id": "<anonymous-schema-33>"
               },
               "reason": {
                 "type": "string",
@@ -273,10 +334,10 @@
                   "elimination"
                 ],
                 "example": "surrender",
-                "x-parser-schema-id": "<anonymous-schema-28>"
+                "x-parser-schema-id": "<anonymous-schema-34>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-26>"
+            "x-parser-schema-id": "<anonymous-schema-32>"
           },
           "x-parser-unique-object-id": "matchFinished"
         }
@@ -348,6 +409,33 @@
       ],
       "x-parser-unique-object-id": "sendGameJoined"
     },
+    "requestPause": {
+      "action": "receive",
+      "channel": "$ref:$.channels.main",
+      "summary": "Solicitar la pausa de la partida actual.",
+      "messages": [
+        "$ref:$.channels.main.messages.matchPauseRequest"
+      ],
+      "x-parser-unique-object-id": "requestPause"
+    },
+    "notifyPauseRequested": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Notificar al oponente que se ha solicitado una pausa.",
+      "messages": [
+        "$ref:$.channels.main.messages.matchPauseRequested"
+      ],
+      "x-parser-unique-object-id": "notifyPauseRequested"
+    },
+    "sendGameError": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Enviar un mensaje de error al cliente ante una acción inválida.",
+      "messages": [
+        "$ref:$.channels.main.messages.gameError"
+      ],
+      "x-parser-unique-object-id": "sendGameError"
+    },
     "receiveEndTurn": {
       "action": "receive",
       "channel": "$ref:$.channels.main",
@@ -369,6 +457,7 @@
     "surrenderMatch": {
       "action": "receive",
       "channel": "$ref:$.channels.main",
+      "summary": "El jugador decide rendirse y abandonar la partida.",
       "messages": [
         "$ref:$.channels.main.messages.matchSurrender"
       ],
@@ -377,6 +466,7 @@
     "sendMatchFinished": {
       "action": "send",
       "channel": "$ref:$.channels.main",
+      "summary": "Comunicar el fin de la partida a todos los jugadores.",
       "messages": [
         "$ref:$.channels.main.messages.matchFinished"
       ],
