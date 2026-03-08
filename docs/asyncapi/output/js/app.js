@@ -120,6 +120,46 @@
             "x-parser-schema-id": "<anonymous-schema-10>"
           },
           "x-parser-unique-object-id": "lobbyError"
+        },
+        "gameJoin": {
+          "name": "game:join",
+          "contentType": "application/json",
+          "summary": "El cliente solicita entrar en la sala de una partida específica.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchId"
+            ],
+            "properties": {
+              "matchId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-13>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-12>"
+          },
+          "x-parser-unique-object-id": "gameJoin"
+        },
+        "gameJoined": {
+          "name": "game:joined",
+          "contentType": "application/json",
+          "summary": "Confirmación de que el servidor ha unido el socket a la sala del match.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchId"
+            ],
+            "properties": {
+              "matchId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-15>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-14>"
+          },
+          "x-parser-unique-object-id": "gameJoined"
         }
       },
       "x-parser-unique-object-id": "main"
@@ -170,6 +210,24 @@
         "$ref:$.channels.main.messages.lobbyError"
       ],
       "x-parser-unique-object-id": "sendLobbyError"
+    },
+    "joinGameRoom": {
+      "action": "receive",
+      "channel": "$ref:$.channels.main",
+      "summary": "Unir el socket a la sala de una partida.",
+      "messages": [
+        "$ref:$.channels.main.messages.gameJoin"
+      ],
+      "x-parser-unique-object-id": "joinGameRoom"
+    },
+    "sendGameJoined": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Confirmar unión a la sala de juego.",
+      "messages": [
+        "$ref:$.channels.main.messages.gameJoined"
+      ],
+      "x-parser-unique-object-id": "sendGameJoined"
     }
   },
   "x-parser-spec-parsed": true,
