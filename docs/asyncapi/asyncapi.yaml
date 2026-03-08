@@ -28,6 +28,10 @@ channels:
         $ref: './game/session.yaml#/messages/GameJoin'
       gameJoined:
         $ref: './game/session.yaml#/messages/GameJoined'
+      matchTurnEnd:
+        $ref: './game/turns.yaml#/messages/MatchTurnEnd'
+      matchTurnChanged:
+        $ref: './game/turns.yaml#/messages/MatchTurnChanged'
 
 operations:
 
@@ -78,7 +82,7 @@ operations:
     summary: Unir el socket a la sala de una partida.
     messages:
       - $ref: '#/channels/main/messages/gameJoin'
-      
+
   sendGameJoined:
     action: send
     channel:
@@ -86,3 +90,19 @@ operations:
     summary: Confirmar unión a la sala de juego.
     messages:
       - $ref: '#/channels/main/messages/gameJoined'
+
+  receiveEndTurn:
+    action: receive
+    channel:
+      $ref: '#/channels/main'
+    summary: Finalizar turno actual.
+    messages:
+      - $ref: '#/channels/main/messages/matchTurnEnd'
+
+  sendTurnChanged:
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: Notificar cambio de turno y nuevos recursos.
+    messages:
+      - $ref: '#/channels/main/messages/matchTurnChanged'

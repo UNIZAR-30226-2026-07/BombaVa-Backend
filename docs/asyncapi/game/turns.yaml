@@ -1,0 +1,41 @@
+messages:
+  MatchTurnEnd:
+    name: 'match:turn_end'
+    contentType: application/json
+    summary: El jugador activo solicita finalizar su turno.
+    payload:
+      type: object
+      required: [matchId]
+      properties:
+        matchId:
+          type: string
+          format: uuid
+
+  MatchTurnChanged:
+    name: 'match:turn_changed'
+    contentType: application/json
+    summary: Notifica el cambio de turno y la regeneración de recursos para el siguiente jugador.
+    payload:
+      type: object
+      required: [nextPlayerId, turnNumber, resources]
+      properties:
+        nextPlayerId:
+          type: string
+          format: uuid
+          description: ID del usuario que ahora tiene el turno.
+        turnNumber:
+          type: integer
+          description: Contador total de turnos de la partida.
+          example: 2
+        resources:
+          type: object
+          description: Recursos regenerados para el jugador que inicia turno.
+          properties:
+            fuel:
+              type: integer
+              description: Puntos de movimiento (MP) acumulados.
+              example: 20
+            ammo:
+              type: integer
+              description: Puntos de acción (AP) reseteados.
+              example: 5
