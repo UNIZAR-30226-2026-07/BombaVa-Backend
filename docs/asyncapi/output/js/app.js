@@ -340,6 +340,96 @@
             "x-parser-schema-id": "<anonymous-schema-32>"
           },
           "x-parser-unique-object-id": "matchFinished"
+        },
+        "shipMove": {
+          "name": "ship:move",
+          "contentType": "application/json",
+          "summary": "El jugador solicita mover un barco una casilla en una dirección.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchId",
+              "shipId",
+              "direction"
+            ],
+            "properties": {
+              "matchId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-36>"
+              },
+              "shipId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "ID de la instancia del barco a mover.",
+                "x-parser-schema-id": "<anonymous-schema-37>"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "N",
+                  "S",
+                  "E",
+                  "W"
+                ],
+                "description": "Dirección del movimiento.",
+                "x-parser-schema-id": "<anonymous-schema-38>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-35>"
+          },
+          "x-parser-unique-object-id": "shipMove"
+        },
+        "shipMoved": {
+          "name": "ship:moved",
+          "contentType": "application/json",
+          "summary": "Notifica a la sala que un barco se ha movido exitosamente.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "shipId",
+              "position",
+              "fuelReserve",
+              "userId"
+            ],
+            "properties": {
+              "shipId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-40>"
+              },
+              "position": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer",
+                    "example": 5,
+                    "x-parser-schema-id": "<anonymous-schema-42>"
+                  },
+                  "y": {
+                    "type": "integer",
+                    "example": 6,
+                    "x-parser-schema-id": "<anonymous-schema-43>"
+                  }
+                },
+                "x-parser-schema-id": "<anonymous-schema-41>"
+              },
+              "fuelReserve": {
+                "type": "integer",
+                "description": "Nueva reserva de combustible (MP) del jugador tras el gasto.",
+                "example": 9,
+                "x-parser-schema-id": "<anonymous-schema-44>"
+              },
+              "userId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "ID del usuario que realizó el movimiento.",
+                "x-parser-schema-id": "<anonymous-schema-45>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-39>"
+          },
+          "x-parser-unique-object-id": "shipMoved"
         }
       },
       "x-parser-unique-object-id": "main"
@@ -471,6 +561,24 @@
         "$ref:$.channels.main.messages.matchFinished"
       ],
       "x-parser-unique-object-id": "match:finished"
+    },
+    "ship:move": {
+      "action": "receive",
+      "channel": "$ref:$.channels.main",
+      "summary": "Procesar el movimiento de un barco.",
+      "messages": [
+        "$ref:$.channels.main.messages.shipMove"
+      ],
+      "x-parser-unique-object-id": "ship:move"
+    },
+    "ship:moved": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Comunicar el movimiento exitoso a los jugadores.",
+      "messages": [
+        "$ref:$.channels.main.messages.shipMoved"
+      ],
+      "x-parser-unique-object-id": "ship:moved"
     }
   },
   "x-parser-spec-parsed": true,

@@ -42,6 +42,10 @@ channels:
         $ref: './game/turns.yaml#/messages/MatchSurrender'
       matchFinished:
         $ref: './game/turns.yaml#/messages/MatchFinished'
+      shipMove:
+        $ref: './engine/movement.yaml#/messages/ShipMove'
+      shipMoved:
+        $ref: './engine/movement.yaml#/messages/ShipMoved'
 
 operations:
 #LOBBY
@@ -159,3 +163,18 @@ operations:
     summary: Comunicar el fin de la partida a todos los jugadores.
     messages:
       - $ref: '#/channels/main/messages/matchFinished'
+
+# MOVEMENT
+  "ship:move":
+    action: receive
+    channel: { $ref: '#/channels/main' }
+    summary: Procesar el movimiento de un barco.
+    messages:
+      - $ref: '#/channels/main/messages/shipMove'
+
+  "ship:moved":
+    action: send
+    channel: { $ref: '#/channels/main' }
+    summary: Comunicar el movimiento exitoso a los jugadores.
+    messages:
+      - $ref: '#/channels/main/messages/shipMoved'
