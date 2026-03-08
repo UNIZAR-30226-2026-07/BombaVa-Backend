@@ -1,0 +1,22 @@
+messages:
+  LobbyCreate:
+    name: 'lobby:create'
+    contentType: application/json
+    summary: Solicitud de creación de sala.
+    payload:
+      type: object
+      additionalProperties: false
+      description: No requiere parámetros, se identifica al usuario por el token del socket.
+
+  LobbyCreated:
+    name: 'lobby:created'
+    contentType: application/json
+    summary: Confirmación de sala creada.
+    payload:
+      type: object
+      required: [codigo]
+      properties:
+        codigo:
+          type: string
+          pattern: '^[A-Z0-9]{6}$'
+          example: "XD6769"
