@@ -587,6 +587,47 @@
             "x-parser-schema-id": "<anonymous-schema-63>"
           },
           "x-parser-unique-object-id": "projectileLaunched"
+        },
+        "shipAttackMine": {
+          "name": "ship:attack:mine",
+          "contentType": "application/json",
+          "summary": "Colocar una mina en una casilla adyacente.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchId",
+              "shipId",
+              "target"
+            ],
+            "properties": {
+              "matchId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-68>"
+              },
+              "shipId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-69>"
+              },
+              "target": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer",
+                    "x-parser-schema-id": "<anonymous-schema-71>"
+                  },
+                  "y": {
+                    "type": "integer",
+                    "x-parser-schema-id": "<anonymous-schema-72>"
+                  }
+                },
+                "x-parser-schema-id": "<anonymous-schema-70>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-67>"
+          },
+          "x-parser-unique-object-id": "shipAttackMine"
         }
       },
       "x-parser-unique-object-id": "main"
@@ -763,6 +804,15 @@
         "$ref:$.channels.main.messages.shipAttackTorpedo"
       ],
       "x-parser-unique-object-id": "ship:attack:torpedo"
+    },
+    "ship:attack:mine": {
+      "action": "receive",
+      "channel": "$ref:$.channels.main",
+      "summary": "Desplegar una mina.",
+      "messages": [
+        "$ref:$.channels.main.messages.shipAttackMine"
+      ],
+      "x-parser-unique-object-id": "ship:attack:mine"
     }
   },
   "x-parser-spec-parsed": true,
