@@ -39,3 +39,32 @@ messages:
               type: integer
               description: Puntos de acción (AP) reseteados.
               example: 5
+
+  MatchSurrender:
+    name: 'match:surrender'
+    contentType: application/json
+    summary: El jugador decide rendirse voluntariamente.
+    payload:
+      type: object
+      required: [matchId]
+      properties:
+        matchId:
+          type: string
+          format: uuid
+
+  MatchFinished:
+    name: 'match:finished'
+    contentType: application/json
+    summary: Notifica que la partida ha terminado, indicando el ganador y el motivo.
+    payload:
+      type: object
+      required: [winnerId, reason]
+      properties:
+        winnerId:
+          type: string
+          format: uuid
+          description: ID del jugador que ha ganado la partida.
+        reason:
+          type: string
+          enum: [surrender, elimination]
+          example: "surrender"

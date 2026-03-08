@@ -228,6 +228,57 @@
             "x-parser-schema-id": "<anonymous-schema-18>"
           },
           "x-parser-unique-object-id": "matchTurnChanged"
+        },
+        "matchSurrender": {
+          "name": "match:surrender",
+          "contentType": "application/json",
+          "summary": "El jugador decide rendirse voluntariamente.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchId"
+            ],
+            "properties": {
+              "matchId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-25>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-24>"
+          },
+          "x-parser-unique-object-id": "matchSurrender"
+        },
+        "matchFinished": {
+          "name": "match:finished",
+          "contentType": "application/json",
+          "summary": "Notifica que la partida ha terminado, indicando el ganador y el motivo.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "winnerId",
+              "reason"
+            ],
+            "properties": {
+              "winnerId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "ID del jugador que ha ganado la partida.",
+                "x-parser-schema-id": "<anonymous-schema-27>"
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "surrender",
+                  "elimination"
+                ],
+                "example": "surrender",
+                "x-parser-schema-id": "<anonymous-schema-28>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-26>"
+          },
+          "x-parser-unique-object-id": "matchFinished"
         }
       },
       "x-parser-unique-object-id": "main"
@@ -314,6 +365,22 @@
         "$ref:$.channels.main.messages.matchTurnChanged"
       ],
       "x-parser-unique-object-id": "sendTurnChanged"
+    },
+    "surrenderMatch": {
+      "action": "receive",
+      "channel": "$ref:$.channels.main",
+      "messages": [
+        "$ref:$.channels.main.messages.matchSurrender"
+      ],
+      "x-parser-unique-object-id": "surrenderMatch"
+    },
+    "sendMatchFinished": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "messages": [
+        "$ref:$.channels.main.messages.matchFinished"
+      ],
+      "x-parser-unique-object-id": "sendMatchFinished"
     }
   },
   "x-parser-spec-parsed": true,

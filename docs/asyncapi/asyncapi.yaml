@@ -28,10 +28,16 @@ channels:
         $ref: './game/session.yaml#/messages/GameJoin'
       gameJoined:
         $ref: './game/session.yaml#/messages/GameJoined'
+
+      #Aqui las que me he dejao
       matchTurnEnd:
         $ref: './game/turns.yaml#/messages/MatchTurnEnd'
       matchTurnChanged:
         $ref: './game/turns.yaml#/messages/MatchTurnChanged'
+      matchSurrender:
+        $ref: './game/turns.yaml#/messages/MatchSurrender'
+      matchFinished:
+        $ref: './game/turns.yaml#/messages/MatchFinished'
 
 operations:
 
@@ -91,6 +97,8 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/gameJoined'
 
+  #Aca
+
   receiveEndTurn:
     action: receive
     channel:
@@ -106,3 +114,17 @@ operations:
     summary: Notificar cambio de turno y nuevos recursos.
     messages:
       - $ref: '#/channels/main/messages/matchTurnChanged'
+  
+  surrenderMatch:
+    action: receive
+    channel: 
+      $ref: '#/channels/main'
+    messages: 
+      - $ref: '#/channels/main/messages/matchSurrender'
+  
+  sendMatchFinished:
+    action: send
+    channel: 
+      $ref: '#/channels/main'
+    messages:
+      - $ref: '#/channels/main/messages/matchFinished'
