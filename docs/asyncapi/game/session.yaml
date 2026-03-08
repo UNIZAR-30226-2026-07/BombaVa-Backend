@@ -1,0 +1,24 @@
+messages:
+  GameJoin:
+    name: 'game:join'
+    contentType: application/json
+    summary: El cliente solicita entrar en la sala de una partida específica.
+    payload:
+      type: object
+      required: [matchId]
+      properties:
+        matchId:
+          type: string
+          format: uuid
+
+  GameJoined:
+    name: 'game:joined'
+    contentType: application/json
+    summary: Confirmación de que el servidor ha unido el socket a la sala del match.
+    payload:
+      type: object
+      required: [matchId]
+      properties:
+        matchId: #Quiza podria poner esto para no repetirlo...
+          type: string
+          format: uuid

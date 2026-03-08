@@ -24,6 +24,10 @@ channels:
         $ref: './game/lobby.yaml#/messages/MatchReady'
       lobbyError:
         $ref: './game/lobby.yaml#/messages/LobbyError'
+      gameJoin:
+        $ref: './game/session.yaml#/messages/GameJoin'
+      gameJoined:
+        $ref: './game/session.yaml#/messages/GameJoined'
 
 operations:
 
@@ -66,3 +70,19 @@ operations:
     summary: El servidor informa de un error al intentar unirse.
     messages:
       - $ref: '#/channels/main/messages/lobbyError'
+
+  joinGameRoom:
+    action: receive
+    channel:
+      $ref: '#/channels/main'
+    summary: Unir el socket a la sala de una partida.
+    messages:
+      - $ref: '#/channels/main/messages/gameJoin'
+      
+  sendGameJoined:
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: Confirmar unión a la sala de juego.
+    messages:
+      - $ref: '#/channels/main/messages/gameJoined'
