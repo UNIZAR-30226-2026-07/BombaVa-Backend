@@ -18,6 +18,12 @@ channels:
         $ref: './game/lobby.yaml#/messages/LobbyCreate'
       lobbyCreated:
         $ref: './game/lobby.yaml#/messages/LobbyCreated'
+      lobbyJoin:
+        $ref: './game/lobby.yaml#/messages/LobbyJoin'
+      matchReady:
+        $ref: './game/lobby.yaml#/messages/MatchReady'
+      lobbyError:
+        $ref: './game/lobby.yaml#/messages/LobbyError'
 
 operations:
 
@@ -36,3 +42,27 @@ operations:
     summary: Notificar creación de lobby
     messages:
       - $ref: '#/channels/main/messages/lobbyCreated'
+
+  joinLobby:
+    action: receive
+    channel:
+      $ref: '#/channels/main'
+    summary: El servidor procesa la unión de un jugador mediante un código.
+    messages:
+      - $ref: '#/channels/main/messages/lobbyJoin'
+
+  sendMatchReady:
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: El servidor comunica a la sala que la partida comienza.
+    messages:
+      - $ref: '#/channels/main/messages/matchReady'
+
+  sendLobbyError:
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: El servidor informa de un error al intentar unirse.
+    messages:
+      - $ref: '#/channels/main/messages/lobbyError'
