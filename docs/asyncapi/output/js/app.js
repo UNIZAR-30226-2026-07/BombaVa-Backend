@@ -160,6 +160,74 @@
             "x-parser-schema-id": "<anonymous-schema-14>"
           },
           "x-parser-unique-object-id": "gameJoined"
+        },
+        "matchTurnEnd": {
+          "name": "match:turn_end",
+          "contentType": "application/json",
+          "summary": "El jugador activo solicita finalizar su turno.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchId"
+            ],
+            "properties": {
+              "matchId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-17>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-16>"
+          },
+          "x-parser-unique-object-id": "matchTurnEnd"
+        },
+        "matchTurnChanged": {
+          "name": "match:turn_changed",
+          "contentType": "application/json",
+          "summary": "Notifica el cambio de turno y la regeneración de recursos para el siguiente jugador.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "nextPlayerId",
+              "turnNumber",
+              "resources"
+            ],
+            "properties": {
+              "nextPlayerId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "ID del usuario que ahora tiene el turno.",
+                "x-parser-schema-id": "<anonymous-schema-19>"
+              },
+              "turnNumber": {
+                "type": "integer",
+                "description": "Contador total de turnos de la partida.",
+                "example": 2,
+                "x-parser-schema-id": "<anonymous-schema-20>"
+              },
+              "resources": {
+                "type": "object",
+                "description": "Recursos regenerados para el jugador que inicia turno.",
+                "properties": {
+                  "fuel": {
+                    "type": "integer",
+                    "description": "Puntos de movimiento (MP) acumulados.",
+                    "example": 20,
+                    "x-parser-schema-id": "<anonymous-schema-22>"
+                  },
+                  "ammo": {
+                    "type": "integer",
+                    "description": "Puntos de acción (AP) reseteados.",
+                    "example": 5,
+                    "x-parser-schema-id": "<anonymous-schema-23>"
+                  }
+                },
+                "x-parser-schema-id": "<anonymous-schema-21>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-18>"
+          },
+          "x-parser-unique-object-id": "matchTurnChanged"
         }
       },
       "x-parser-unique-object-id": "main"
@@ -228,6 +296,24 @@
         "$ref:$.channels.main.messages.gameJoined"
       ],
       "x-parser-unique-object-id": "sendGameJoined"
+    },
+    "receiveEndTurn": {
+      "action": "receive",
+      "channel": "$ref:$.channels.main",
+      "summary": "Finalizar turno actual.",
+      "messages": [
+        "$ref:$.channels.main.messages.matchTurnEnd"
+      ],
+      "x-parser-unique-object-id": "receiveEndTurn"
+    },
+    "sendTurnChanged": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Notificar cambio de turno y nuevos recursos.",
+      "messages": [
+        "$ref:$.channels.main.messages.matchTurnChanged"
+      ],
+      "x-parser-unique-object-id": "sendTurnChanged"
     }
   },
   "x-parser-spec-parsed": true,
