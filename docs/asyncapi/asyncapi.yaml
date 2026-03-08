@@ -54,6 +54,8 @@ channels:
         $ref: './engine/combat.yaml#/messages/ShipAttackTorpedo'
       projectileLaunched:
         $ref: './engine/combat.yaml#/messages/ProjectileLaunched'
+      shipAttackMine:
+        $ref: './engine/combat.yaml#/messages/ShipAttackMine'
 
 operations:
 #LOBBY
@@ -211,6 +213,15 @@ operations:
     summary: Lanzar un torpedo.
     messages: 
       - $ref: '#/channels/main/messages/shipAttackTorpedo'
+  
+  "ship:attack:mine":
+    action: receive
+    channel: 
+      $ref: '#/channels/main'
+    summary: Desplegar una mina.
+    messages:
+      - $ref: '#/channels/main/messages/shipAttackMine'
+
 
 
 

@@ -55,3 +55,15 @@ messages:
         type: { type: string, enum: [TORPEDO, MINE] }
         attackerId: { type: string, format: uuid }
         ammoCurrent: { type: integer, example: 2 }
+
+  ShipAttackMine:
+    name: 'ship:attack:mine'
+    contentType: application/json
+    summary: Colocar una mina en una casilla adyacente.
+    payload:
+      type: object
+      required: [matchId, shipId, target]
+      properties:
+        matchId: { type: string, format: uuid }
+        shipId: { type: string, format: uuid }
+        target: { type: object, properties: { x: {type: integer}, y: {type: integer} } }
