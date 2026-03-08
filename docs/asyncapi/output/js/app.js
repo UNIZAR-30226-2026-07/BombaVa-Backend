@@ -526,6 +526,67 @@
             "x-parser-schema-id": "<anonymous-schema-52>"
           },
           "x-parser-unique-object-id": "shipAttacked"
+        },
+        "shipAttackTorpedo": {
+          "name": "ship:attack:torpedo",
+          "contentType": "application/json",
+          "summary": "Lanzar un torpedo en la dirección actual del barco.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchId",
+              "shipId"
+            ],
+            "properties": {
+              "matchId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-61>"
+              },
+              "shipId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-62>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-60>"
+          },
+          "x-parser-unique-object-id": "shipAttackTorpedo"
+        },
+        "projectileLaunched": {
+          "name": "projectile:launched",
+          "contentType": "application/json",
+          "summary": "Notifica que un proyectil dinámico ha sido desplegado en el tablero.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "type",
+              "attackerId",
+              "ammoCurrent"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "TORPEDO",
+                  "MINE"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-64>"
+              },
+              "attackerId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-65>"
+              },
+              "ammoCurrent": {
+                "type": "integer",
+                "example": 2,
+                "x-parser-schema-id": "<anonymous-schema-66>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-63>"
+          },
+          "x-parser-unique-object-id": "projectileLaunched"
         }
       },
       "x-parser-unique-object-id": "main"
@@ -693,6 +754,15 @@
         "$ref:$.channels.main.messages.shipAttacked"
       ],
       "x-parser-unique-object-id": "ship:attacked"
+    },
+    "ship:attack:torpedo": {
+      "action": "receive",
+      "channel": "$ref:$.channels.main",
+      "summary": "Lanzar un torpedo.",
+      "messages": [
+        "$ref:$.channels.main.messages.shipAttackTorpedo"
+      ],
+      "x-parser-unique-object-id": "ship:attack:torpedo"
     }
   },
   "x-parser-spec-parsed": true,
