@@ -346,131 +346,131 @@
     }
   },
   "operations": {
-    "createLobby": {
+    "lobby:create": {
       "action": "receive",
       "channel": "$ref:$.channels.main",
       "summary": "Crear un nuevo lobby privado",
       "messages": [
         "$ref:$.channels.main.messages.lobbyCreate"
       ],
-      "x-parser-unique-object-id": "createLobby"
+      "x-parser-unique-object-id": "lobby:create"
     },
-    "sendLobbyCreated": {
+    "lobby:created": {
       "action": "send",
       "channel": "$ref:$.channels.main",
       "summary": "Notificar creación de lobby",
       "messages": [
         "$ref:$.channels.main.messages.lobbyCreated"
       ],
-      "x-parser-unique-object-id": "sendLobbyCreated"
+      "x-parser-unique-object-id": "lobby:created"
     },
-    "joinLobby": {
+    "lobby:join": {
       "action": "receive",
       "channel": "$ref:$.channels.main",
       "summary": "El servidor procesa la unión de un jugador mediante un código.",
       "messages": [
         "$ref:$.channels.main.messages.lobbyJoin"
       ],
-      "x-parser-unique-object-id": "joinLobby"
+      "x-parser-unique-object-id": "lobby:join"
     },
-    "sendMatchReady": {
+    "match:ready": {
       "action": "send",
       "channel": "$ref:$.channels.main",
       "summary": "El servidor comunica a la sala que la partida comienza.",
       "messages": [
         "$ref:$.channels.main.messages.matchReady"
       ],
-      "x-parser-unique-object-id": "sendMatchReady"
+      "x-parser-unique-object-id": "match:ready"
     },
-    "sendLobbyError": {
+    "lobby:error": {
       "action": "send",
       "channel": "$ref:$.channels.main",
       "summary": "El servidor informa de un error al intentar unirse.",
       "messages": [
         "$ref:$.channels.main.messages.lobbyError"
       ],
-      "x-parser-unique-object-id": "sendLobbyError"
+      "x-parser-unique-object-id": "lobby:error"
     },
-    "joinGameRoom": {
+    "game:join": {
       "action": "receive",
       "channel": "$ref:$.channels.main",
       "summary": "Unir el socket a la sala de una partida.",
       "messages": [
         "$ref:$.channels.main.messages.gameJoin"
       ],
-      "x-parser-unique-object-id": "joinGameRoom"
+      "x-parser-unique-object-id": "game:join"
     },
-    "sendGameJoined": {
+    "game:joined": {
       "action": "send",
       "channel": "$ref:$.channels.main",
       "summary": "Confirmar unión a la sala de juego.",
       "messages": [
         "$ref:$.channels.main.messages.gameJoined"
       ],
-      "x-parser-unique-object-id": "sendGameJoined"
+      "x-parser-unique-object-id": "game:joined"
     },
-    "requestPause": {
+    "match:pause_request": {
       "action": "receive",
       "channel": "$ref:$.channels.main",
       "summary": "Solicitar la pausa de la partida actual.",
       "messages": [
         "$ref:$.channels.main.messages.matchPauseRequest"
       ],
-      "x-parser-unique-object-id": "requestPause"
+      "x-parser-unique-object-id": "match:pause_request"
     },
-    "notifyPauseRequested": {
+    "match:pause_requested": {
       "action": "send",
       "channel": "$ref:$.channels.main",
       "summary": "Notificar al oponente que se ha solicitado una pausa.",
       "messages": [
         "$ref:$.channels.main.messages.matchPauseRequested"
       ],
-      "x-parser-unique-object-id": "notifyPauseRequested"
+      "x-parser-unique-object-id": "match:pause_requested"
     },
-    "sendGameError": {
+    "game:error": {
       "action": "send",
       "channel": "$ref:$.channels.main",
       "summary": "Enviar un mensaje de error al cliente ante una acción inválida.",
       "messages": [
         "$ref:$.channels.main.messages.gameError"
       ],
-      "x-parser-unique-object-id": "sendGameError"
+      "x-parser-unique-object-id": "game:error"
     },
-    "receiveEndTurn": {
+    "match:turn_end": {
       "action": "receive",
       "channel": "$ref:$.channels.main",
       "summary": "Finalizar turno actual.",
       "messages": [
         "$ref:$.channels.main.messages.matchTurnEnd"
       ],
-      "x-parser-unique-object-id": "receiveEndTurn"
+      "x-parser-unique-object-id": "match:turn_end"
     },
-    "sendTurnChanged": {
+    "match:turn_changed": {
       "action": "send",
       "channel": "$ref:$.channels.main",
       "summary": "Notificar cambio de turno y nuevos recursos.",
       "messages": [
         "$ref:$.channels.main.messages.matchTurnChanged"
       ],
-      "x-parser-unique-object-id": "sendTurnChanged"
+      "x-parser-unique-object-id": "match:turn_changed"
     },
-    "surrenderMatch": {
+    "match:surrender": {
       "action": "receive",
       "channel": "$ref:$.channels.main",
       "summary": "El jugador decide rendirse y abandonar la partida.",
       "messages": [
         "$ref:$.channels.main.messages.matchSurrender"
       ],
-      "x-parser-unique-object-id": "surrenderMatch"
+      "x-parser-unique-object-id": "match:surrender"
     },
-    "sendMatchFinished": {
+    "match:finished": {
       "action": "send",
       "channel": "$ref:$.channels.main",
       "summary": "Comunicar el fin de la partida a todos los jugadores.",
       "messages": [
         "$ref:$.channels.main.messages.matchFinished"
       ],
-      "x-parser-unique-object-id": "sendMatchFinished"
+      "x-parser-unique-object-id": "match:finished"
     }
   },
   "x-parser-spec-parsed": true,

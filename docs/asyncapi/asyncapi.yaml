@@ -44,8 +44,8 @@ channels:
         $ref: './game/turns.yaml#/messages/MatchFinished'
 
 operations:
-
-  createLobby:
+#LOBBY
+  "lobby:create":
     action: receive
     channel:
       $ref: '#/channels/main'
@@ -53,7 +53,7 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/lobbyCreate'
 
-  sendLobbyCreated:
+  "lobby:created":
     action: send
     channel:
       $ref: '#/channels/main'
@@ -61,7 +61,7 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/lobbyCreated'
 
-  joinLobby:
+  "lobby:join":
     action: receive
     channel:
       $ref: '#/channels/main'
@@ -69,15 +69,15 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/lobbyJoin'
 
-  sendMatchReady:
+  "match:ready":
     action: send
     channel:
       $ref: '#/channels/main'
     summary: El servidor comunica a la sala que la partida comienza.
     messages:
       - $ref: '#/channels/main/messages/matchReady'
-
-  sendLobbyError:
+      
+  "lobby:error":
     action: send
     channel:
       $ref: '#/channels/main'
@@ -85,7 +85,9 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/lobbyError'
 
-  joinGameRoom:
+#SESSION
+
+  "game:join":
     action: receive
     channel:
       $ref: '#/channels/main'
@@ -93,7 +95,7 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/gameJoin'
 
-  sendGameJoined:
+  "game:joined":
     action: send
     channel:
       $ref: '#/channels/main'
@@ -101,7 +103,7 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/gameJoined'
 
-  requestPause:
+  "match:pause_request":
     action: receive
     channel: 
       $ref: '#/channels/main'
@@ -109,7 +111,7 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/matchPauseRequest'
 
-  notifyPauseRequested:
+  "match:pause_requested":
     action: send
     channel: 
       $ref: '#/channels/main'
@@ -117,7 +119,7 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/matchPauseRequested'
 
-  sendGameError:
+  "game:error":
     action: send
     channel: 
       $ref: '#/channels/main'
@@ -125,7 +127,8 @@ operations:
     messages: 
       - $ref: '#/channels/main/messages/gameError'
 
-  receiveEndTurn:
+#TURNS
+  "match:turn_end":
     action: receive
     channel:
       $ref: '#/channels/main'
@@ -133,7 +136,7 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/matchTurnEnd'
 
-  sendTurnChanged:
+  "match:turn_changed":
     action: send
     channel:
       $ref: '#/channels/main'
@@ -141,7 +144,7 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/matchTurnChanged'
   
-  surrenderMatch:
+  "match:surrender":
     action: receive
     channel: 
       $ref: '#/channels/main'
@@ -149,7 +152,7 @@ operations:
     messages: 
       - $ref: '#/channels/main/messages/matchSurrender'
   
-  sendMatchFinished:
+  "match:finished":
     action: send
     channel: 
       $ref: '#/channels/main'
