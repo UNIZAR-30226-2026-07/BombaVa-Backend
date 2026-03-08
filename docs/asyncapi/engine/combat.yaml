@@ -1,0 +1,34 @@
+messages:
+  # CANNON
+  ShipAttackCannon:
+    name: 'ship:attack:cannon'
+    contentType: application/json
+    summary: Disparar el cañón principal a una coordenada.
+    payload:
+      type: object
+      required: [matchId, shipId, target]
+      properties:
+        matchId: { type: string, format: uuid }
+        shipId: { type: string, format: uuid }
+        target:
+          type: object
+          properties:
+            x: { type: integer, example: 10 }
+            y: { type: integer, example: 5 }
+
+  ShipAttacked:
+    name: 'ship:attacked'
+    contentType: application/json
+    summary: Notifica el resultado de un ataque de cañón.
+    payload:
+      type: object
+      required: [attackerId, hit, target, ammoCurrent]
+      properties:
+        attackerId: { type: string, format: uuid }
+        hit: { type: boolean, description: "Indica si el disparo impactó en un barco." }
+        target: { type: object, properties: { x: {type: integer}, y: {type: integer} } }
+        targetHp: 
+          type: integer
+          nullable: true
+          description: "Nuevo HP del objetivo si hubo impacto."
+        ammoCurrent: { type: integer, example: 3 }

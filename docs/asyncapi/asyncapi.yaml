@@ -46,6 +46,10 @@ channels:
         $ref: './engine/movement.yaml#/messages/ShipMove'
       shipMoved:
         $ref: './engine/movement.yaml#/messages/ShipMoved'
+      shipAttackCannon:
+        $ref: './engine/combat.yaml#/messages/ShipAttackCannon'
+      shipAttacked:
+        $ref: './engine/combat.yaml#/messages/ShipAttacked'
 
 operations:
 #LOBBY
@@ -178,3 +182,22 @@ operations:
     summary: Comunicar el movimiento exitoso a los jugadores.
     messages:
       - $ref: '#/channels/main/messages/shipMoved'
+
+#COMBAT
+  "ship:attack:cannon":
+    action: receive
+    channel: 
+      $ref: '#/channels/main'
+    summary: Ejecutar ataque de cañón.
+    messages:
+      - $ref: '#/channels/main/messages/shipAttackCannon'
+
+  "ship:attacked":
+    action: send
+    channel: 
+      $ref: '#/channels/main'
+    summary: Notificar impacto o fallo de cañón.
+    messages: 
+      - $ref: '#/channels/main/messages/shipAttacked'
+
+
