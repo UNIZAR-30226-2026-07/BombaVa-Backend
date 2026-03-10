@@ -1,0 +1,63 @@
+messages:
+  LobbyCreate:
+    name: 'lobby:create'
+    contentType: application/json
+    summary: Solicitud de creación de sala.
+    payload:
+      type: object
+      additionalProperties: false
+      description: No requiere parámetros, se identifica al usuario por el token del socket.
+
+  LobbyCreated:
+    name: 'lobby:created'
+    contentType: application/json
+    summary: Confirmación de sala creada.
+    payload:
+      type: object
+      required: [codigo]
+      properties:
+        codigo:
+          type: string
+          pattern: '^[A-Z0-9]{6}$'
+          example: "XD6769"
+
+  LobbyJoin:
+    name: 'lobby:join'
+    contentType: application/json
+    summary: Solicitud para unirse a una sala existente mediante código.
+    payload:
+      type: object
+      required: [codigo]
+      properties:
+        codigo:
+          type: string
+          example: "XD6769"
+
+  LobbyError:
+    name: 'lobby:error'
+    contentType: application/json
+    summary: Informa de un fallo en la gestión del lobby (sala no encontrada o llena).
+    payload:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Lobby no encontrado"
+
+  MatchReady:
+    name: 'match:ready'
+    contentType: application/json
+    summary: Notifica a ambos jugadores que la partida ha sido creada y pueden empezar.
+    payload:
+      type: object
+      required: [matchId, status, turnNumber]
+      properties:
+        matchId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [PLAYING]
+        turnNumber:
+          type: integer
+          example: 1

@@ -1,0 +1,227 @@
+asyncapi: 3.0.0
+info:
+  title: BombaVa Real-Time API
+  version: 1.0.0
+  description: API de WebSockets para BombaVa usando Socket.io.
+
+servers:
+  dev:
+    host: localhost:3000
+    protocol: socket.io
+    description: Servidor de desarrollo
+
+channels:
+  main:
+    address: /
+    messages:
+      lobbyCreate:
+        $ref: './game/lobby.yaml#/messages/LobbyCreate'
+      lobbyCreated:
+        $ref: './game/lobby.yaml#/messages/LobbyCreated'
+      lobbyJoin:
+        $ref: './game/lobby.yaml#/messages/LobbyJoin'
+      matchReady:
+        $ref: './game/lobby.yaml#/messages/MatchReady'
+      lobbyError:
+        $ref: './game/lobby.yaml#/messages/LobbyError'
+      gameJoin:
+        $ref: './game/session.yaml#/messages/GameJoin'
+      gameJoined:
+        $ref: './game/session.yaml#/messages/GameJoined'
+      matchPauseRequest:
+        $ref: './game/session.yaml#/messages/MatchPauseRequest'
+      matchPauseRequested:
+        $ref: './game/session.yaml#/messages/MatchPauseRequested'
+      gameError:
+        $ref: './game/session.yaml#/messages/GameError'
+      matchTurnEnd:
+        $ref: './game/turns.yaml#/messages/MatchTurnEnd'
+      matchTurnChanged:
+        $ref: './game/turns.yaml#/messages/MatchTurnChanged'
+      matchSurrender:
+        $ref: './game/turns.yaml#/messages/MatchSurrender'
+      matchFinished:
+        $ref: './game/turns.yaml#/messages/MatchFinished'
+      shipMove:
+        $ref: './engine/movement.yaml#/messages/ShipMove'
+      shipMoved:
+        $ref: './engine/movement.yaml#/messages/ShipMoved'
+      shipAttackCannon:
+        $ref: './engine/combat.yaml#/messages/ShipAttackCannon'
+      shipAttacked:
+        $ref: './engine/combat.yaml#/messages/ShipAttacked'
+      shipAttackTorpedo:
+        $ref: './engine/combat.yaml#/messages/ShipAttackTorpedo'
+      projectileLaunched:
+        $ref: './engine/combat.yaml#/messages/ProjectileLaunched'
+      shipAttackMine:
+        $ref: './engine/combat.yaml#/messages/ShipAttackMine'
+
+operations:
+#LOBBY
+  "lobby:create":
+    action: receive
+    channel:
+      $ref: '#/channels/main'
+    summary: Crear un nuevo lobby privado
+    messages:
+      - $ref: '#/channels/main/messages/lobbyCreate'
+
+  "lobby:created":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: Notificar creación de lobby
+    messages:
+      - $ref: '#/channels/main/messages/lobbyCreated'
+
+  "lobby:join":
+    action: receive
+    channel:
+      $ref: '#/channels/main'
+    summary: El servidor procesa la unión de un jugador mediante un código.
+    messages:
+      - $ref: '#/channels/main/messages/lobbyJoin'
+
+  "match:ready":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: El servidor comunica a la sala que la partida comienza.
+    messages:
+      - $ref: '#/channels/main/messages/matchReady'
+      
+  "lobby:error":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: El servidor informa de un error al intentar unirse.
+    messages:
+      - $ref: '#/channels/main/messages/lobbyError'
+
+#SESSION
+
+  "game:join":
+    action: receive
+    channel:
+      $ref: '#/channels/main'
+    summary: Unir el socket a la sala de una partida.
+    messages:
+      - $ref: '#/channels/main/messages/gameJoin'
+
+  "game:joined":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: Confirmar unión a la sala de juego.
+    messages:
+      - $ref: '#/channels/main/messages/gameJoined'
+
+  "match:pause_request":
+    action: receive
+    channel: 
+      $ref: '#/channels/main'
+    summary: Solicitar la pausa de la partida actual.
+    messages:
+      - $ref: '#/channels/main/messages/matchPauseRequest'
+
+  "match:pause_requested":
+    action: send
+    channel: 
+      $ref: '#/channels/main'
+    summary: Notificar al oponente que se ha solicitado una pausa.
+    messages:
+      - $ref: '#/channels/main/messages/matchPauseRequested'
+
+  "game:error":
+    action: send
+    channel: 
+      $ref: '#/channels/main'
+    summary: Enviar un mensaje de error al cliente ante una acción inválida.
+    messages: 
+      - $ref: '#/channels/main/messages/gameError'
+
+#TURNS
+  "match:turn_end":
+    action: receive
+    channel:
+      $ref: '#/channels/main'
+    summary: Finalizar turno actual.
+    messages:
+      - $ref: '#/channels/main/messages/matchTurnEnd'
+
+  "match:turn_changed":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: Notificar cambio de turno y nuevos recursos.
+    messages:
+      - $ref: '#/channels/main/messages/matchTurnChanged'
+  
+  "match:surrender":
+    action: receive
+    channel: 
+      $ref: '#/channels/main'
+    summary: El jugador decide rendirse y abandonar la partida.
+    messages: 
+      - $ref: '#/channels/main/messages/matchSurrender'
+  
+  "match:finished":
+    action: send
+    channel: 
+      $ref: '#/channels/main'
+    summary: Comunicar el fin de la partida a todos los jugadores.
+    messages:
+      - $ref: '#/channels/main/messages/matchFinished'
+
+# MOVEMENT
+  "ship:move":
+    action: receive
+    channel: { $ref: '#/channels/main' }
+    summary: Procesar el movimiento de un barco.
+    messages:
+      - $ref: '#/channels/main/messages/shipMove'
+
+  "ship:moved":
+    action: send
+    channel: { $ref: '#/channels/main' }
+    summary: Comunicar el movimiento exitoso a los jugadores.
+    messages:
+      - $ref: '#/channels/main/messages/shipMoved'
+
+#COMBAT
+  "ship:attack:cannon":
+    action: receive
+    channel: 
+      $ref: '#/channels/main'
+    summary: Ejecutar ataque de cañón.
+    messages:
+      - $ref: '#/channels/main/messages/shipAttackCannon'
+
+  "ship:attacked":
+    action: send
+    channel: 
+      $ref: '#/channels/main'
+    summary: Notificar impacto o fallo de cañón.
+    messages: 
+      - $ref: '#/channels/main/messages/shipAttacked'
+  
+  "ship:attack:torpedo":
+    action: receive
+    channel: 
+      $ref: '#/channels/main'
+    summary: Lanzar un torpedo.
+    messages: 
+      - $ref: '#/channels/main/messages/shipAttackTorpedo'
+  
+  "ship:attack:mine":
+    action: receive
+    channel: 
+      $ref: '#/channels/main'
+    summary: Desplegar una mina.
+    messages:
+      - $ref: '#/channels/main/messages/shipAttackMine'
+
+
+
+

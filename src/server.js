@@ -41,7 +41,11 @@ const startServer = async () => {
     await syncModels();
     await initDefaults();
     if (process.env.NODE_ENV === 'development') await runSeeder();
-    server.listen(PORT, () => console.log(`SERVIDOR BOMBA-VA V1 - PUERTO: ${PORT}`));
+    server.listen(PORT, () => {
+        console.log(`SERVIDOR BOMBA-VA V1 - PUERTO: ${PORT}`);
+        console.log(`REST API Docs:    http://localhost:${PORT}/openapi-docs`);
+        console.log(`WebSocket Docs:   http://localhost:${PORT}/asyncapi-docs`);
+    });
 };
 
 startServer();

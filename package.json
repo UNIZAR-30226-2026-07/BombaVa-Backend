@@ -12,7 +12,8 @@
     "test:int": "cross-env NODE_OPTIONS=--experimental-vm-modules npx jest --testMatch='**/*.int.test.js' --runInBand",
     "infra:up": "docker-compose -f .infrastructure/docker-compose.yml up -d",
     "infra:down": "docker-compose -f .infrastructure/docker-compose.yml down",
-    "infra:logs": "docker-compose -f .infrastructure/docker-compose.yml logs -f"
+    "infra:logs": "docker-compose -f .infrastructure/docker-compose.yml logs -f",
+    "doc:async": "cd docs/asyncapi && asyncapi generate fromTemplate asyncapi.yaml @asyncapi/html-template -o output --force-write"
   },
   "repository": {
     "type": "git",

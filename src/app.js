@@ -32,7 +32,9 @@ const swaggerOptions = {
     url: '/docs/openapi/openapi.yaml',
   },
 };
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, swaggerOptions));
+app.use('/openapi-docs', swaggerUi.serve, swaggerUi.setup(null, swaggerOptions));
+
+app.use('/asyncapi-docs', express.static(path.join(__dirname, '../docs/asyncapi/output')));
 
 
 app.get('/', (req, res) => {

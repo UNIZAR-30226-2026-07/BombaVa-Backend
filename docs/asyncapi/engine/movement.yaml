@@ -1,0 +1,45 @@
+messages:
+  ShipMove:
+    name: 'ship:move'
+    contentType: application/json
+    summary: El jugador solicita mover un barco una casilla en una dirección.
+    payload:
+      type: object
+      required: [matchId, shipId, direction]
+      properties:
+        matchId:
+          type: string
+          format: uuid
+        shipId:
+          type: string
+          format: uuid
+          description: ID de la instancia del barco a mover.
+        direction:
+          type: string
+          enum: [N, S, E, W]
+          description: Dirección del movimiento.
+
+  ShipMoved:
+    name: 'ship:moved'
+    contentType: application/json
+    summary: Notifica a la sala que un barco se ha movido exitosamente.
+    payload:
+      type: object
+      required: [shipId, position, fuelReserve, userId]
+      properties:
+        shipId:
+          type: string
+          format: uuid
+        position:
+          type: object
+          properties:
+            x: { type: integer, example: 5 }
+            y: { type: integer, example: 6 }
+        fuelReserve:
+          type: integer
+          description: Nueva reserva de combustible (MP) del jugador tras el gasto.
+          example: 9
+        userId:
+          type: string
+          format: uuid
+          description: ID del usuario que realizó el movimiento.

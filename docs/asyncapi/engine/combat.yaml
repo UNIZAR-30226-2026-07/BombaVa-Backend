@@ -1,0 +1,69 @@
+messages:
+  # CANNON
+  ShipAttackCannon:
+    name: 'ship:attack:cannon'
+    contentType: application/json
+    summary: Disparar el cañón principal a una coordenada.
+    payload:
+      type: object
+      required: [matchId, shipId, target]
+      properties:
+        matchId: { type: string, format: uuid }
+        shipId: { type: string, format: uuid }
+        target:
+          type: object
+          properties:
+            x: { type: integer, example: 10 }
+            y: { type: integer, example: 5 }
+
+  ShipAttacked:
+    name: 'ship:attacked'
+    contentType: application/json
+    summary: Notifica el resultado de un ataque de cañón.
+    payload:
+      type: object
+      required: [attackerId, hit, target, ammoCurrent]
+      properties:
+        attackerId: { type: string, format: uuid }
+        hit: { type: boolean, description: "Indica si el disparo impactó en un barco." }
+        target: { type: object, properties: { x: {type: integer}, y: {type: integer} } }
+        targetHp: 
+          type: integer
+          nullable: true
+          description: "Nuevo HP del objetivo si hubo impacto."
+        ammoCurrent: { type: integer, example: 3 }
+
+  ShipAttackTorpedo:
+    name: 'ship:attack:torpedo'
+    contentType: application/json
+    summary: Lanzar un torpedo en la dirección actual del barco.
+    payload:
+      type: object
+      required: [matchId, shipId]
+      properties:
+        matchId: { type: string, format: uuid }
+        shipId: { type: string, format: uuid }
+
+  ProjectileLaunched:
+    name: 'projectile:launched'
+    contentType: application/json
+    summary: Notifica que un proyectil dinámico ha sido desplegado en el tablero.
+    payload:
+      type: object
+      required: [type, attackerId, ammoCurrent]
+      properties:
+        type: { type: string, enum: [TORPEDO, MINE] }
+        attackerId: { type: string, format: uuid }
+        ammoCurrent: { type: integer, example: 2 }
+
+  ShipAttackMine:
+    name: 'ship:attack:mine'
+    contentType: application/json
+    summary: Colocar una mina en una casilla adyacente.
+    payload:
+      type: object
+      required: [matchId, shipId, target]
+      properties:
+        matchId: { type: string, format: uuid }
+        shipId: { type: string, format: uuid }
+        target: { type: object, properties: { x: {type: integer}, y: {type: integer} } }

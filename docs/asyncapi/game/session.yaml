@@ -1,0 +1,61 @@
+messages:
+  GameJoin:
+    name: 'game:join'
+    contentType: application/json
+    summary: El cliente solicita entrar en la sala de una partida específica.
+    payload:
+      type: object
+      required: [matchId]
+      properties:
+        matchId:
+          type: string
+          format: uuid
+
+  GameJoined:
+    name: 'game:joined'
+    contentType: application/json
+    summary: Confirmación de que el servidor ha unido el socket a la sala del match.
+    payload:
+      type: object
+      required: [matchId]
+      properties:
+        matchId: #Quiza podria poner esto para no repetirlo...
+          type: string
+          format: uuid
+
+  MatchPauseRequest:
+    name: 'match:pause_request'
+    contentType: application/json
+    summary: Solicita pausar la partida actual. Requiere aceptación del oponente (NO IMPLEMENTADO).
+    payload:
+      type: object
+      required: [matchId]
+      properties:
+        matchId:
+          type: string
+          format: uuid
+
+  MatchPauseRequested:
+    name: 'match:pause_requested'
+    contentType: application/json
+    summary: Notifica al oponente que se ha solicitado una pausa.
+    payload:
+      type: object
+      required: [from]
+      properties:
+        from:
+          type: string
+          description: Nombre del usuario que solicita la pausa.
+          example: "oscar_tester"
+
+  GameError:
+    name: 'game:error'
+    contentType: application/json
+    summary: Mensaje genérico de error enviado por el servidor ante acciones inválidas.
+    payload:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: "No es tu turno"
