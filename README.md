@@ -29,6 +29,27 @@ El proyecto utiliza **Tests Colocalizados** para mantener la documentación téc
 
 > **Nota Técnica**: Para ejecutar tests locales contra la base de datos en contenedor, el sistema inyecta automáticamente `DB_HOST=localhost`.
 
+## Documentación
+
+El proyecto cuenta con documentación técnica detallada para sus dos capas de comunicación.
+
+### Ver la documentación (Servidor activo)
+Una vez arrancado el servidor con `npm run dev`, puedes acceder a:
+
+*   **API REST (Swagger):** [http://localhost:3000/openapi-docs](http://localhost:3000/openapi-docs)
+  >  ***Nota:** Se actualiza automáticamente al editar los archivos YAML en `docs/openapi/`.*
+*   **WebSockets (AsyncAPI):** [http://localhost:3000/asyncapi-docs](http://localhost:3000/asyncapi-docs)
+
+### Generar documentación de Sockets
+A diferencia de REST, la documentación de WebSockets es estática y debe regenerarse si se realizan cambios en los archivos de `docs/asyncapi/`.
+
+**Requisito:** Tener instalado el CLI de AsyncAPI (`npm install -g @asyncapi/cli`).
+
+**Comando:**
+```bash
+npm run doc:async
+```
+
 ## Estructura del Módulo
 
 - `src/modules/auth`: Gestión de identidad, cifrado y JWT.
