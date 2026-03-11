@@ -7,6 +7,7 @@ import { sequelize } from '../../../config/db.js';
 import FleetDeck from '../models/FleetDeck.js';
 import ShipTemplate from '../models/ShipTemplate.js';
 import UserShip from '../models/UserShip.js';
+import WeaponTemplate from '../models/WeaponTemplate.js';
 
 class InventoryDao {
     /**
@@ -113,6 +114,47 @@ class InventoryDao {
             if (transaccion) await transaccion.rollback();
             throw error;
         }
+    }
+
+    /**
+     * Busca barcos de un usuario incluyendo sus armas equipadas
+     */
+    async findUserShipsWithWeapons(userId) {
+        return await UserShip.findAll({
+            where: { userId },
+            include: [
+                { model: ShipTemplate },
+                { model: WeaponTemplate } // Sequelize lo llamará WeaponTemplates por defecto
+            ]
+        });
+    }
+
+    /**
+     * Añade un arma al arsenal de un barco
+     * @param {Object} shipInstance - Instancia de UserShip
+     * @param {string} weaponSlug - Slug del arma
+     */
+    async addWeaponToShip(shipInstance, weaponSlug) {
+        // El método .addWeaponTemplate es creado por Sequelize 
+        // debido a la relación belongsToMany definida en shared/models/index.js
+        return await shipInstance.addWeaponTemplate(weaponSlug);
+    }
+
+    /**
+     * Elimina un arma del arsenal de un barco
+     */
+    async removeWeaponFromShip(shipInstance, weaponSlug) {
+        return await shipInstance.removeWeaponTemplate(weaponSlug);
+    }
+
+    /**
+     * Busca un barco específico con sus armas
+     */
+    async findByIdWithWeapons(shipId, userId) {
+        return await UserShip.findOne({
+            where: { id: shipId, userId },
+            include: [WeaponTemplate]
+        });
     }
 }
 
