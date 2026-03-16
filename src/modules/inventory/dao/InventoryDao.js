@@ -114,6 +114,21 @@ class InventoryDao {
             throw error;
         }
     }
+
+    /**
+     * Obtiene la vida (HP) de un barco de usuario específico.
+     * @param {string} userShipId - El UUID del UserShip.
+     * @returns {Promise<Integer>} Un entero con el valor de la vida total.
+     */
+    async getUserShipHp(userShipId){
+        const userShip = await UserShip.findByPk(userShipId, {
+            include: [{
+                model: ShipTemplate,
+                attributes: ['baseMaxHp']
+            }]
+        });
+        return userShip.ShipTemplate.baseMaxHp;
+    }
 }
 
 export default new InventoryDao();

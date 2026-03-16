@@ -1,6 +1,6 @@
 
 
-import ShipInstance from "../models/ShipInstance";
+import {ShipInstance} from "../models/index.js";
 
 class EngineDao{
 

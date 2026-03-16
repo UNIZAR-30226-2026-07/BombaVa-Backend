@@ -3,8 +3,9 @@
  * Orquesta la creación, recuperación de estados y lógica de recursos.
  */
 import { GAME_RULES } from '../../../config/gameRules.js';
-import { FleetDeck, Match, MatchPlayer, Projectile, ShipInstance, ShipTemplate, UserShip } from '../../../shared/models/index.js';
-
+import { FleetDeck, Match, MatchPlayer, Projectile, ShipInstance, ShipTemplate, User, UserShip } from '../../../shared/models/index.js';
+import {EngineDao} from '../../engine/dao/index.js';
+import {InventoryDao} from '../../inventory/dao/index.js';
 /**
  * Traduce coordenadas relativas del puerto a absolutas del mapa de batalla
  * @param {Object} pos 
@@ -22,22 +23,25 @@ export const traducirPosicionTablero = (pos, bando) => {
  * @param {Array} configuracionMazo 
  */
 export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configuracionMazo) => {
+    const shipList = [];
     for (const shipCfg of configuracionMazo) {
-        const userShip = await UserShip.findByPk(shipCfg.userShipId, {
-            include: [ShipTemplate]
-        });
-        const posAbs = traducirPosicionTablero(shipCfg.position, bando);
+        const userShip = await InventoryDao.findByIdAndUser(shipCfg.userShipId, playerId);
+        const posAbs =  traducirPosicionTablero(shipCfg.position, bando);
         const orientation = (bando === 'NORTH') ? shipCfg.orientation : 'S';
 
-        await ShipInstance.create({
-            matchId, playerId, userShipId: userShip.id,
+        shipList.push({
+            matchId: matchId, 
+            playerId: playerId, 
+            userShipId: userShip.id,
             x: posAbs.x,
             y: posAbs.y,
             orientation,
-            currentHp: userShip.ShipTemplate.baseMaxHp,
+            currentHp: await InventoryDao.getUserShipHp(userShip.id),
             isSunk: false
         });
+        
     }
+    EngineDao.createFleet(shipList);
 };
 
 /**
