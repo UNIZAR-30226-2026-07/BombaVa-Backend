@@ -1,13 +1,25 @@
+/**
+ * Test de Integración: DAO de Engine
+ * Valida la lógica de negocio del motor de juego con la factoría.
+ */
+import { sequelize } from '../../../config/db.js';
 import EngineDao from '../../../modules/engine/dao/EngineDao.js';
 import { createCompleteMatch, createMatchWithInstance } from '../../../shared/models/testFactory.js';
 describe('EngineDao', () => {
     let matchContext;
 
     beforeAll(async () => {
+        await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
+        await sequelize.sync({ force: true });
         matchContext = await createCompleteMatch(
             { username: 'player1', email: 'p1@test.com' },
             { username: 'player2', email: 'p2@test.com' }
         );
+        
+    });
+
+    afterAll(async () => {
+            await sequelize.close();
     });
 
     describe('Busquedas', () => {
