@@ -69,6 +69,17 @@ class InventoryDao {
     }
 
     /**
+     * Obtiene el mazo configurados por un usuario activo
+     * @param {string} userId - UUID del usuario
+     * @returns {Promise<Object>} Mazo del usuario activo
+     */
+    async findUserActiveDecks(userId) {
+        return await FleetDeck.findOne({
+            where: { userId: userId, isActive: true }
+        });
+    }
+
+    /**
      * Crea un nuevo mazo en la base de datos
      * @param {Object} deckData - Datos del mazo
      * @returns {Promise<Object>} Mazo creado

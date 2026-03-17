@@ -1,7 +1,7 @@
 
 
 import MatchDao from './MatchDao.js';
-import { createCompleteMatch } from '../../../shared/models/testFactory.js'; 
+import { createCompleteMatch, createUser } from '../../../shared/models/testFactory.js'; 
 import { sequelize } from '../../../config/db.js';
 
 describe('MatchDao', () => {
@@ -21,12 +21,12 @@ describe('MatchDao', () => {
     });
 
     describe('Creacion', () => {
-        it('debe crear una nueva partida en estado WAITING', async () => {
+        it('debe crear una nueva partida en estado PLAYING', async () => {
             const mapTerrain = { size: 15, obstacles: [] };
             const newMatch = await MatchDao.createMatch();
             
             expect(newMatch).not.toBeNull();
-            expect(newMatch.status).toBe('WAITING');
+            expect(newMatch.status).toBe('PLAYING');
             expect(newMatch.mapTerrain).toEqual(mapTerrain);
             expect(newMatch.turnNumber).toBe(1);
         });
@@ -40,16 +40,6 @@ describe('MatchDao', () => {
             expect(foundMatch).not.toBeNull();
             expect(foundMatch.id).toBe(match.id);
             expect(foundMatch.status).toBe('PLAYING');
-        });
-
-        it('debe encontrar partidas que están esperando jugadores', async () => {
-
-            await MatchDao.createMatch();
-            
-            const waitingMatches = await MatchDao.findWaitingMatches();
-            console.log(waitingMatches);
-            expect(waitingMatches.length).toBeGreaterThan(0);
-            expect(waitingMatches[0].status).toBe('WAITING');
         });
     });
 
@@ -76,4 +66,67 @@ describe('MatchDao', () => {
             expect(updatedMatch.currentTurnPlayerId).toBe(guest.user.id);
         });
     });
+
+    describe('Busquedas', () => {
+            it('debe obtener todos los jugadores de una partida', async () => {
+                const { match } = matchContext;
+                
+                const players = await MatchDao.findPlayersByMatch(match.id);
+                
+                expect(players.length).toBe(2);
+                const sides = players.map(p => p.side);
+                expect(sides).toContain('NORTH');
+                expect(sides).toContain('SOUTH');
+            });
+    
+            it('debe obtener la información de un jugador concreto usando su userId', async () => {
+                const { match, host } = matchContext;
+                
+                const player = await MatchDao.findMatchPlayer(match.id, host.user.id);
+                
+                expect(player).not.toBeNull();
+                expect(player.userId).toBe(host.user.id);
+                expect(player.side).toBe('NORTH');
+            });
+        });
+    
+        describe('Actualizaciones', () => {
+            it('debe actualizar los recursos de un jugador (combustible y munición)', async () => {
+                const { match, host } = matchContext;
+                
+                const player = await MatchDao.findMatchPlayer(match.id, host.user.id);
+                
+                const newFuel = player.fuelReserve - 10;
+                const newAmmo = player.ammoCurrent - 2;
+                const updatedPlayer = await MatchDao.updateResources(player.id, newFuel, newAmmo);
+                
+                expect(updatedPlayer.fuelReserve).toBe(newFuel);
+                expect(updatedPlayer.ammoCurrent).toBe(newAmmo);
+            });
+        });
+    
+        describe('Creacion', () => {
+            it('debe añadir un jugador a una nueva partida con su mazo', async () => {
+                const newMatch = await MatchDao.createMatch({ size: 15 });
+                
+                const newUser = await createUser('lonely_player', 'lonely@test.com');
+                
+                const deckSnapshot = { name: "Mazo Destructor", ships: [] };
+    
+                const newMatchPlayer = await MatchDao.createPlayer(
+                    newMatch.id,
+                    newUser.id,
+                    'SOUTH',
+                    deckSnapshot
+                );
+    
+                expect(newMatchPlayer).not.toBeNull();
+                expect(newMatchPlayer.matchId).toBe(newMatch.id);
+                expect(newMatchPlayer.userId).toBe(newUser.id);
+                expect(newMatchPlayer.side).toBe('SOUTH');
+                expect(newMatchPlayer.deckSnapshot).toEqual(deckSnapshot);
+                expect(newMatchPlayer.fuelReserve).toBeDefined();
+                expect(newMatchPlayer.ammoCurrent).toBeDefined();
+            });
+        });
 });

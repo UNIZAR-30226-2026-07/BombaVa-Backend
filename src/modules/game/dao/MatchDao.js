@@ -2,17 +2,17 @@
  * DAO de Match
  * Acceso directo a la BBDD para los matches
  */
-import {Match} from '../models/index.js';
+import {Match, MatchPlayer} from '../models/index.js';
 
 class MatchDao {
 
     /**
-     * Crea una nueva partida en estado 'WAITING'.
+     * Crea una nueva partida en estado 'PLAYING'.
      * @returns {Promise<Object>} La partida creada.
      */
     async createMatch() {
         return await Match.create({
-            status: 'WAITING',
+            status: 'PLAYING',
             mapTerrain: { size: 15, obstacles: [] },
             turnNumber: 1
         });
@@ -23,22 +23,12 @@ class MatchDao {
      * @param {UUID} id Id de la partida.
      */
     async findById(id) {
-        return await Match.findByPk(id);
+        return await Match.findByPk(id, { include: [MatchPlayer] });
     }
 
-    /**
-     * Busca partidas que estén esperando un segundo jugador.
-     * Muy útil para tu sistema de Matchmaking.
-     */
-    async findWaitingMatches() {
-        return await Match.findAll({
-            where: { status: 'WAITING' },
-            order: [['created_at', 'ASC']] // Las más antiguas primero
-        });
-    }
 
     /**
-     * Actualiza el estado de la partida (WAITING -> PLAYING -> FINISHED).
+     * Actualiza el estado de la partida.
      * @param {UUID} id Id de la partida.
      * @param {String} status Nuevo estado.
      */
@@ -68,6 +58,60 @@ class MatchDao {
             returning: true
         });
         return updatedMatch;
+    }
+
+    /**
+     * Añade un jugador a una partida.
+     * @param {UUID} matchId Id de la partida.
+     * @param {UUID} userId Id del usuario.
+     * @param {String} side Lado del tablero.
+     * @param {Object} deckSnapshot Foto del mazo con el que entró a jugar.
+     */
+    async createPlayer(matchId, userId, side, deckSnapshot = null) {
+        return await MatchPlayer.create({
+            matchId,
+            userId,
+            side,
+            deckSnapshot
+        });
+    }
+    /**
+     * Obtiene todos los jugadores de una partida específica (deberían ser 2).
+     * @param {UUID} matchId Id de la partida.
+     */
+    async findPlayersByMatch(matchId) {
+        return await MatchPlayer.findAll({
+            where: { matchId }
+        });
+    }
+
+    /**
+     * Obtiene la información de un jugador concreto en una partida.
+     * @param {UUID} matchId Id de la partida.
+     * @param {UUID} userId Id del usuario.
+     */
+    async findMatchPlayer(matchId, userId) {
+        return await MatchPlayer.findOne({
+            where: { matchId, userId }
+        });
+    }
+
+    /**
+     * Actualiza los recursos de un jugador.
+     * Se usa al inicio del turno (para recargar) o después de moverse/atacar (para gastar).
+     * @param {UUID} id Id del registro MatchPlayer (NO el userId).
+     * @param {Integer} fuel Nueva cantidad de combustible.
+     * @param {Integer} ammo Nueva cantidad de munición.
+     */
+    async updateResources(id, fuel, ammo) {
+        const [updatedRows, [updatedPlayer]] = await MatchPlayer.update({
+            fuelReserve: fuel,
+            ammoCurrent: ammo
+        }, {
+            where: { id },
+            returning: true
+        });
+        return updatedPlayer;
     }
 }
 

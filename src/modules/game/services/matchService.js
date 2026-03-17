@@ -6,6 +6,7 @@ import { GAME_RULES } from '../../../config/gameRules.js';
 import { FleetDeck, Match, MatchPlayer, Projectile, ShipInstance, ShipTemplate, User, UserShip } from '../../../shared/models/index.js';
 import {EngineDao} from '../../engine/dao/index.js';
 import {InventoryDao} from '../../inventory/dao/index.js';
+import {MatchDao} from '../dao/index.js';
 /**
  * Traduce coordenadas relativas del puerto a absolutas del mapa de batalla
  * @param {Object} pos 
@@ -49,27 +50,15 @@ export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configu
  * @param {Array} usuarios 
  */
 export const iniciarPartidaOrquestada = async (usuarios) => {
-    const nuevaPartida = await Match.create({
-        status: 'PLAYING',
-        mapTerrain: { size: GAME_RULES.MAP.SIZE, obstacles: [] },
-        turnNumber: 1,
-        currentTurnPlayerId: usuarios[0].id
-    });
+
+    const nuevaPartida = await MatchDao.createMatch();
 
     for (let i = 0; i < usuarios.length; i++) {
         const user = usuarios[i];
-        const mazo = await FleetDeck.findOne({ where: { userId: user.id, isActive: true } });
+        const mazo = await InventoryDao.findUserActiveDecks(user.id);
         const bando = (i === 0) ? 'NORTH' : 'SOUTH';
 
-        await MatchPlayer.create({
-            matchId: nuevaPartida.id,
-            userId: user.id,
-            side: bando,
-            fuelReserve: GAME_RULES.RESOURCES.MAX_FUEL / 3,
-            ammoCurrent: GAME_RULES.RESOURCES.RESET_AMMO,
-            deckSnapshot: mazo ? mazo.shipIds : []
-        });
-
+        await MatchDao.createPlayer(nuevaPartida.id, user.id, bando, mazo ? mazo.shipIds : []);
         if (mazo && mazo.shipIds) {
             await instanciarFlotaEnPartida(nuevaPartida.id, user.id, bando, mazo.shipIds);
         }
