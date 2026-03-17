@@ -26,6 +26,13 @@ class MatchDao {
         return await Match.findByPk(id, { include: [MatchPlayer] });
     }
 
+    /**
+     * Busca una partida por su ID, pero sin la informacion de los juagdores en la partida
+     * @param {UUID} id Id de la partida.
+     */
+    async findByIdNoInfo(id) {
+        return await Match.findByPk(id);
+    }
 
     /**
      * Actualiza el estado de la partida.
@@ -58,6 +65,18 @@ class MatchDao {
             returning: true
         });
         return updatedMatch;
+    }
+
+    /**
+     * Obtiene un listado de todas las partidas de un usuario
+     * @param {UUID} userId Id del usuario
+     * @return {Promise<Array>} Listado de todos las partidas de un usuario, con las mas nuevas primero
+     */
+    async searchAllMatchesFromUser(userId){
+        return await Match.findAll({
+            include: [{ model: MatchPlayer, where: { userId } }],
+            order: [['created_at', 'DESC']]
+        })
     }
 
     /**

@@ -80,12 +80,21 @@ export const calcularRegeneracionTurno = (recursosActuales) => {
 
 /**
  * Recupera el estado completo de una partida
- * @param {string} matchId 
+ * @param {UUID} matchId El id de la partid
+ * @param {UUID} userId El id del usuario
  */
-export const obtenerEstadoCompletoPartida = async (matchId) => {
-    return await Match.findByPk(matchId, {
-        include: [{ model: MatchPlayer }, { model: ShipInstance }, { model: Projectile }]
-    });
+export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
+    const match = await MatchDao.findByIdNoInfo(matchId);
+    console.log(match);
+    console.log(userId);
+    const matchInfo = await EngineDao.findByMatchAndPlayer(matchId, userId);
+    console.log(matchInfo);
+    const payload = {
+        matchInfo: match,
+        playerFleet: matchInfo
+    };
+    console.log(payload);
+    return payload;
 };
 
 /**
@@ -93,8 +102,5 @@ export const obtenerEstadoCompletoPartida = async (matchId) => {
  * @param {string} userId 
  */
 export const obtenerHistorialUsuario = async (userId) => {
-    return await Match.findAll({
-        include: [{ model: MatchPlayer, where: { userId } }],
-        order: [['created_at', 'DESC']]
-    });
+    return await MatchDao.searchAllMatchesFromUser(userId);
 };
