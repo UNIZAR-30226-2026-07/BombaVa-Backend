@@ -27,14 +27,6 @@ class MatchDao {
     }
 
     /**
-     * Busca una partida por su ID, pero sin la informacion de los juagdores en la partida
-     * @param {UUID} id Id de la partida.
-     */
-    async findByIdNoInfo(id) {
-        return await Match.findByPk(id);
-    }
-
-    /**
      * Actualiza el estado de la partida.
      * @param {UUID} id Id de la partida.
      * @param {String} status Nuevo estado.
