@@ -85,15 +85,11 @@ export const calcularRegeneracionTurno = (recursosActuales) => {
  */
 export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
     const match = await MatchDao.findByIdNoInfo(matchId);
-    console.log(match);
-    console.log(userId);
     const matchInfo = await EngineDao.findByMatchAndPlayer(matchId, userId);
-    console.log(matchInfo);
     const payload = {
         matchInfo: match,
         playerFleet: matchInfo
     };
-    console.log(payload);
     return payload;
 };
 
