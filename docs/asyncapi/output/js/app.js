@@ -104,6 +104,156 @@
           },
           "x-parser-unique-object-id": "matchReady"
         },
+        "matchStartInfo": {
+          "name": "match:startInfo",
+          "contentType": "application/json",
+          "summary": "Contiene el estado general de la partida y la información privada de los barcos del jugador.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchInfo",
+              "playerFleet"
+            ],
+            "properties": {
+              "matchInfo": {
+                "type": "object",
+                "required": [
+                  "matchId",
+                  "status",
+                  "turnNumber",
+                  "mapTerrain"
+                ],
+                "properties": {
+                  "matchId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "x-parser-schema-id": "<anonymous-schema-12>"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "WAITING",
+                      "PLAYING",
+                      "FINISHED"
+                    ],
+                    "x-parser-schema-id": "<anonymous-schema-13>"
+                  },
+                  "currentTurnPlayer": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uuid",
+                    "x-parser-schema-id": "<anonymous-schema-14>"
+                  },
+                  "turnNumber": {
+                    "type": "integer",
+                    "example": 1,
+                    "x-parser-schema-id": "<anonymous-schema-15>"
+                  },
+                  "mapTerrain": {
+                    "type": "object",
+                    "required": [
+                      "size",
+                      "obstacles"
+                    ],
+                    "properties": {
+                      "size": {
+                        "type": "integer",
+                        "example": 15,
+                        "x-parser-schema-id": "<anonymous-schema-17>"
+                      },
+                      "obstacles": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "x-parser-schema-id": "<anonymous-schema-19>"
+                        },
+                        "x-parser-schema-id": "<anonymous-schema-18>"
+                      }
+                    },
+                    "x-parser-schema-id": "<anonymous-schema-16>"
+                  }
+                },
+                "x-parser-schema-id": "<anonymous-schema-11>"
+              },
+              "playerFleet": {
+                "type": "array",
+                "description": "Lista de barcos del jugador (traducida a su perspectiva Sur).",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "x",
+                    "y",
+                    "orientation",
+                    "currentHp",
+                    "hitCells",
+                    "isSunk"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "x-parser-schema-id": "<anonymous-schema-22>"
+                    },
+                    "x": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "x-parser-schema-id": "<anonymous-schema-23>"
+                    },
+                    "y": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "x-parser-schema-id": "<anonymous-schema-24>"
+                    },
+                    "orientation": {
+                      "type": "string",
+                      "enum": [
+                        "N",
+                        "S",
+                        "E",
+                        "W"
+                      ],
+                      "x-parser-schema-id": "<anonymous-schema-25>"
+                    },
+                    "currentHp": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "x-parser-schema-id": "<anonymous-schema-26>"
+                    },
+                    "hitCells": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "integer",
+                            "x-parser-schema-id": "<anonymous-schema-29>"
+                          },
+                          "y": {
+                            "type": "integer",
+                            "x-parser-schema-id": "<anonymous-schema-30>"
+                          }
+                        },
+                        "x-parser-schema-id": "<anonymous-schema-28>"
+                      },
+                      "x-parser-schema-id": "<anonymous-schema-27>"
+                    },
+                    "isSunk": {
+                      "type": "boolean",
+                      "x-parser-schema-id": "<anonymous-schema-31>"
+                    }
+                  },
+                  "x-parser-schema-id": "<anonymous-schema-21>"
+                },
+                "x-parser-schema-id": "<anonymous-schema-20>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-10>"
+          },
+          "x-parser-unique-object-id": "matchStartInfo"
+        },
         "lobbyError": {
           "name": "lobby:error",
           "contentType": "application/json",
@@ -114,10 +264,10 @@
               "message": {
                 "type": "string",
                 "example": "Lobby no encontrado",
-                "x-parser-schema-id": "<anonymous-schema-11>"
+                "x-parser-schema-id": "<anonymous-schema-33>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-10>"
+            "x-parser-schema-id": "<anonymous-schema-32>"
           },
           "x-parser-unique-object-id": "lobbyError"
         },
@@ -134,10 +284,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-13>"
+                "x-parser-schema-id": "<anonymous-schema-35>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-12>"
+            "x-parser-schema-id": "<anonymous-schema-34>"
           },
           "x-parser-unique-object-id": "gameJoin"
         },
@@ -154,10 +304,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-15>"
+                "x-parser-schema-id": "<anonymous-schema-37>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-14>"
+            "x-parser-schema-id": "<anonymous-schema-36>"
           },
           "x-parser-unique-object-id": "gameJoined"
         },
@@ -174,10 +324,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-17>"
+                "x-parser-schema-id": "<anonymous-schema-39>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-16>"
+            "x-parser-schema-id": "<anonymous-schema-38>"
           },
           "x-parser-unique-object-id": "matchPauseRequest"
         },
@@ -195,10 +345,10 @@
                 "type": "string",
                 "description": "Nombre del usuario que solicita la pausa.",
                 "example": "oscar_tester",
-                "x-parser-schema-id": "<anonymous-schema-19>"
+                "x-parser-schema-id": "<anonymous-schema-41>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-18>"
+            "x-parser-schema-id": "<anonymous-schema-40>"
           },
           "x-parser-unique-object-id": "matchPauseRequested"
         },
@@ -215,10 +365,10 @@
               "message": {
                 "type": "string",
                 "example": "No es tu turno",
-                "x-parser-schema-id": "<anonymous-schema-21>"
+                "x-parser-schema-id": "<anonymous-schema-43>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-20>"
+            "x-parser-schema-id": "<anonymous-schema-42>"
           },
           "x-parser-unique-object-id": "gameError"
         },
@@ -235,10 +385,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-23>"
+                "x-parser-schema-id": "<anonymous-schema-45>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-22>"
+            "x-parser-schema-id": "<anonymous-schema-44>"
           },
           "x-parser-unique-object-id": "matchTurnEnd"
         },
@@ -258,13 +408,13 @@
                 "type": "string",
                 "format": "uuid",
                 "description": "ID del usuario que ahora tiene el turno.",
-                "x-parser-schema-id": "<anonymous-schema-25>"
+                "x-parser-schema-id": "<anonymous-schema-47>"
               },
               "turnNumber": {
                 "type": "integer",
                 "description": "Contador total de turnos de la partida.",
                 "example": 2,
-                "x-parser-schema-id": "<anonymous-schema-26>"
+                "x-parser-schema-id": "<anonymous-schema-48>"
               },
               "resources": {
                 "type": "object",
@@ -274,19 +424,19 @@
                     "type": "integer",
                     "description": "Puntos de movimiento (MP) acumulados.",
                     "example": 20,
-                    "x-parser-schema-id": "<anonymous-schema-28>"
+                    "x-parser-schema-id": "<anonymous-schema-50>"
                   },
                   "ammo": {
                     "type": "integer",
                     "description": "Puntos de acción (AP) reseteados.",
                     "example": 5,
-                    "x-parser-schema-id": "<anonymous-schema-29>"
+                    "x-parser-schema-id": "<anonymous-schema-51>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-27>"
+                "x-parser-schema-id": "<anonymous-schema-49>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-24>"
+            "x-parser-schema-id": "<anonymous-schema-46>"
           },
           "x-parser-unique-object-id": "matchTurnChanged"
         },
@@ -303,10 +453,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-31>"
+                "x-parser-schema-id": "<anonymous-schema-53>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-30>"
+            "x-parser-schema-id": "<anonymous-schema-52>"
           },
           "x-parser-unique-object-id": "matchSurrender"
         },
@@ -325,7 +475,7 @@
                 "type": "string",
                 "format": "uuid",
                 "description": "ID del jugador que ha ganado la partida.",
-                "x-parser-schema-id": "<anonymous-schema-33>"
+                "x-parser-schema-id": "<anonymous-schema-55>"
               },
               "reason": {
                 "type": "string",
@@ -334,10 +484,10 @@
                   "elimination"
                 ],
                 "example": "surrender",
-                "x-parser-schema-id": "<anonymous-schema-34>"
+                "x-parser-schema-id": "<anonymous-schema-56>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-32>"
+            "x-parser-schema-id": "<anonymous-schema-54>"
           },
           "x-parser-unique-object-id": "matchFinished"
         },
@@ -356,13 +506,13 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-36>"
+                "x-parser-schema-id": "<anonymous-schema-58>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
                 "description": "ID de la instancia del barco a mover.",
-                "x-parser-schema-id": "<anonymous-schema-37>"
+                "x-parser-schema-id": "<anonymous-schema-59>"
               },
               "direction": {
                 "type": "string",
@@ -373,10 +523,10 @@
                   "W"
                 ],
                 "description": "Dirección del movimiento.",
-                "x-parser-schema-id": "<anonymous-schema-38>"
+                "x-parser-schema-id": "<anonymous-schema-60>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-35>"
+            "x-parser-schema-id": "<anonymous-schema-57>"
           },
           "x-parser-unique-object-id": "shipMove"
         },
@@ -396,7 +546,7 @@
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-40>"
+                "x-parser-schema-id": "<anonymous-schema-62>"
               },
               "position": {
                 "type": "object",
@@ -404,30 +554,30 @@
                   "x": {
                     "type": "integer",
                     "example": 5,
-                    "x-parser-schema-id": "<anonymous-schema-42>"
+                    "x-parser-schema-id": "<anonymous-schema-64>"
                   },
                   "y": {
                     "type": "integer",
                     "example": 6,
-                    "x-parser-schema-id": "<anonymous-schema-43>"
+                    "x-parser-schema-id": "<anonymous-schema-65>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-41>"
+                "x-parser-schema-id": "<anonymous-schema-63>"
               },
               "fuelReserve": {
                 "type": "integer",
                 "description": "Nueva reserva de combustible (MP) del jugador tras el gasto.",
                 "example": 9,
-                "x-parser-schema-id": "<anonymous-schema-44>"
+                "x-parser-schema-id": "<anonymous-schema-66>"
               },
               "userId": {
                 "type": "string",
                 "format": "uuid",
                 "description": "ID del usuario que realizó el movimiento.",
-                "x-parser-schema-id": "<anonymous-schema-45>"
+                "x-parser-schema-id": "<anonymous-schema-67>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-39>"
+            "x-parser-schema-id": "<anonymous-schema-61>"
           },
           "x-parser-unique-object-id": "shipMoved"
         },
@@ -446,12 +596,12 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-47>"
+                "x-parser-schema-id": "<anonymous-schema-69>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-48>"
+                "x-parser-schema-id": "<anonymous-schema-70>"
               },
               "target": {
                 "type": "object",
@@ -459,18 +609,18 @@
                   "x": {
                     "type": "integer",
                     "example": 10,
-                    "x-parser-schema-id": "<anonymous-schema-50>"
+                    "x-parser-schema-id": "<anonymous-schema-72>"
                   },
                   "y": {
                     "type": "integer",
                     "example": 5,
-                    "x-parser-schema-id": "<anonymous-schema-51>"
+                    "x-parser-schema-id": "<anonymous-schema-73>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-49>"
+                "x-parser-schema-id": "<anonymous-schema-71>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-46>"
+            "x-parser-schema-id": "<anonymous-schema-68>"
           },
           "x-parser-unique-object-id": "shipAttackCannon"
         },
@@ -490,40 +640,40 @@
               "attackerId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-53>"
+                "x-parser-schema-id": "<anonymous-schema-75>"
               },
               "hit": {
                 "type": "boolean",
                 "description": "Indica si el disparo impactó en un barco.",
-                "x-parser-schema-id": "<anonymous-schema-54>"
+                "x-parser-schema-id": "<anonymous-schema-76>"
               },
               "target": {
                 "type": "object",
                 "properties": {
                   "x": {
                     "type": "integer",
-                    "x-parser-schema-id": "<anonymous-schema-56>"
+                    "x-parser-schema-id": "<anonymous-schema-78>"
                   },
                   "y": {
                     "type": "integer",
-                    "x-parser-schema-id": "<anonymous-schema-57>"
+                    "x-parser-schema-id": "<anonymous-schema-79>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-55>"
+                "x-parser-schema-id": "<anonymous-schema-77>"
               },
               "targetHp": {
                 "type": "integer",
                 "nullable": true,
                 "description": "Nuevo HP del objetivo si hubo impacto.",
-                "x-parser-schema-id": "<anonymous-schema-58>"
+                "x-parser-schema-id": "<anonymous-schema-80>"
               },
               "ammoCurrent": {
                 "type": "integer",
                 "example": 3,
-                "x-parser-schema-id": "<anonymous-schema-59>"
+                "x-parser-schema-id": "<anonymous-schema-81>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-52>"
+            "x-parser-schema-id": "<anonymous-schema-74>"
           },
           "x-parser-unique-object-id": "shipAttacked"
         },
@@ -541,15 +691,15 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-61>"
+                "x-parser-schema-id": "<anonymous-schema-83>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-62>"
+                "x-parser-schema-id": "<anonymous-schema-84>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-60>"
+            "x-parser-schema-id": "<anonymous-schema-82>"
           },
           "x-parser-unique-object-id": "shipAttackTorpedo"
         },
@@ -571,20 +721,20 @@
                   "TORPEDO",
                   "MINE"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-64>"
+                "x-parser-schema-id": "<anonymous-schema-86>"
               },
               "attackerId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-65>"
+                "x-parser-schema-id": "<anonymous-schema-87>"
               },
               "ammoCurrent": {
                 "type": "integer",
                 "example": 2,
-                "x-parser-schema-id": "<anonymous-schema-66>"
+                "x-parser-schema-id": "<anonymous-schema-88>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-63>"
+            "x-parser-schema-id": "<anonymous-schema-85>"
           },
           "x-parser-unique-object-id": "projectileLaunched"
         },
@@ -603,29 +753,29 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-68>"
+                "x-parser-schema-id": "<anonymous-schema-90>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-69>"
+                "x-parser-schema-id": "<anonymous-schema-91>"
               },
               "target": {
                 "type": "object",
                 "properties": {
                   "x": {
                     "type": "integer",
-                    "x-parser-schema-id": "<anonymous-schema-71>"
+                    "x-parser-schema-id": "<anonymous-schema-93>"
                   },
                   "y": {
                     "type": "integer",
-                    "x-parser-schema-id": "<anonymous-schema-72>"
+                    "x-parser-schema-id": "<anonymous-schema-94>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-70>"
+                "x-parser-schema-id": "<anonymous-schema-92>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-67>"
+            "x-parser-schema-id": "<anonymous-schema-89>"
           },
           "x-parser-unique-object-id": "shipAttackMine"
         }
@@ -669,6 +819,15 @@
         "$ref:$.channels.main.messages.matchReady"
       ],
       "x-parser-unique-object-id": "match:ready"
+    },
+    "match:startInfo": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "El servidor envía el estado inicial de la partida y la flota privada a un jugador específico.",
+      "messages": [
+        "$ref:$.channels.main.messages.matchStartInfo"
+      ],
+      "x-parser-unique-object-id": "match:startInfo"
     },
     "lobby:error": {
       "action": "send",
