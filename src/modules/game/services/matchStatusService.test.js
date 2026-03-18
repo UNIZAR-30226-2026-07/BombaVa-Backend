@@ -2,47 +2,76 @@
  * Test Unitario: Servicio de Estado de Partida
  * Valida la lógica de victoria y derrota aislando los modelos.
  */
-import { jest } from '@jest/globals';
+import * as matchStatusService from '../../../modules/game/services/matchStatusService.js';
+import MatchDao from '../../../modules/game/dao/MatchDao.js';
+import EngineDao from '../../../modules/engine/dao/EngineDao.js';
+import { createCompleteMatch } from '../../../shared/models/testFactory.js'; 
+import { sequelize } from '../../../config/db.js';
 
-const countMock = jest.fn();
+describe('MatchStatusService', () => {
+    let matchContext;
 
-jest.unstable_mockModule('../../../shared/models/index.js', () => ({
-    ShipInstance: { count: countMock },
-    Match: { update: jest.fn(), findByPk: jest.fn() },
-    MatchPlayer: { findOne: jest.fn() },
-    Projectile: {},
-    User: {},
-    UserShip: {},
-    ShipTemplate: {},
-    FleetDeck: {},
-    sequelize: {},
-    syncModels: jest.fn()
-}));
-
-const { verificarDerrotaJugador } = await import('./matchStatusService.js');
-
-describe('MatchStatusService Unit Tests', () => {
-
-    beforeEach(() => {
-        jest.clearAllMocks();
+    beforeAll(async () => {
+        await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
+        await sequelize.sync({ force: true });
+        matchContext = await createCompleteMatch(
+            { username: 'hero_player', email: 'hero@test.com' },
+            { username: 'villain_player', email: 'villain@test.com' }
+        );
     });
 
-    it('verificarDerrotaJugador - Debe devolver true si count es 0', async () => {
-        countMock.mockResolvedValue(0);
-
-        const result = await verificarDerrotaJugador('m1', 'p1');
-
-        expect(result).toBe(true);
-        expect(countMock).toHaveBeenCalledWith(expect.objectContaining({
-            where: expect.objectContaining({ isSunk: false })
-        }));
+    afterAll(async () => {
+        await sequelize.close();
     });
 
-    it('verificarDerrotaJugador - Debe devolver false si hay barcos vivos', async () => {
-        countMock.mockResolvedValue(2);
+    describe('verificarDerrotaJugador', () => {
+        it('debe devolver false si al jugador le quedan barcos vivos', async () => {
+            const { match, host } = matchContext;
+            
+            const estaDerrotado = await matchStatusService.verificarDerrotaJugador(match.id, host.user.id);
+            
+            expect(estaDerrotado).toBe(false);
+        });
 
-        const result = await verificarDerrotaJugador('m1', 'p1');
+        it('debe devolver true si el jugador NO tiene barcos vivos', async () => {
+            const { match, guest, shipG } = matchContext;
+            
+            await EngineDao.registerHit(shipG.id, 0, [{x: 5, y: 7}], true);
+            
+            const estaDerrotado = await matchStatusService.verificarDerrotaJugador(match.id, guest.user.id);
+            
+            expect(estaDerrotado).toBe(true);
+        });
+    });
 
-        expect(result).toBe(false);
+    describe('registrarVictoria', () => {
+        it('debe procesar el ELO real en la BD y finalizar la partida', async () => {
+            const { match, host } = matchContext;
+            const winnerId = host.user.id;
+
+            await matchStatusService.registrarVictoria(match.id, winnerId);
+
+            const partidaActualizada = await MatchDao.findById(match.id);
+            expect(partidaActualizada.status).toBe('FINISHED');
+            
+        });
+
+        it('no debe romper la ejecución si la partida no existe', async () => {
+            const fakeMatchId = '00000000-0000-0000-0000-000000000000';
+            
+            await expect(matchStatusService.registrarVictoria(fakeMatchId, 'fake-winner-id'))
+                .resolves.not.toThrow();
+        });
+    });
+
+    describe('finalizarPartida', () => {
+        it('debe no fallar ni alterar el estado si se intenta finalizar una partida que ya está FINISHED', async () => {
+            const { match } = matchContext;
+            
+            await matchStatusService.finalizarPartida(match.id);
+            
+            const partidaActualizada = await MatchDao.findById(match.id);
+            expect(partidaActualizada.status).toBe('FINISHED');
+        });
     });
 });

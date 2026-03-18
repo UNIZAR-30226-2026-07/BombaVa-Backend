@@ -61,3 +61,74 @@ messages:
         turnNumber:
           type: integer
           example: 1
+
+  MatchStartInfo:
+    name: 'match:startInfo'
+    contentType: application/json
+    summary: Contiene el estado general de la partida y la información privada de los barcos del jugador.
+    payload:
+      type: object
+      required:
+        - matchInfo
+        - playerFleet
+      properties:
+        matchInfo:
+          type: object
+          required: [matchId, status, turnNumber, mapTerrain]
+          properties:
+            matchId:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [WAITING, PLAYING, FINISHED]
+            currentTurnPlayer:
+              type: ["string", "null"]
+              format: uuid
+            turnNumber:
+              type: integer
+              example: 1
+            mapTerrain:
+              type: object
+              required: [size, obstacles]
+              properties:
+                size:
+                  type: integer
+                  example: 15
+                obstacles:
+                  type: array
+                  items:
+                    type: object
+        playerFleet:
+          type: array
+          description: Lista de barcos del jugador (traducida a su perspectiva Sur).
+          items:
+            type: object
+            required: [id, x, y, orientation, currentHp, hitCells, isSunk]
+            properties:
+              id:
+                type: string
+                format: uuid
+              x:
+                type: integer
+                minimum: 0
+              y:
+                type: integer
+                minimum: 0
+              orientation:
+                type: string
+                enum: [N, S, E, W]
+              currentHp:
+                type: integer
+                minimum: 0
+              hitCells:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    x:
+                      type: integer
+                    y:
+                      type: integer
+              isSunk:
+                type: boolean

@@ -2,8 +2,9 @@
  * Servicio de Estado de Partida
  * Gestiona el ciclo de vida final: victorias, derrotas y cierre de sesiones.
  */
-import { Match, MatchPlayer, ShipInstance } from '../../../shared/models/index.js';
 import * as userService from '../../auth/services/userService.js';
+import {MatchDao} from '../dao/index.js';
+import {EngineDao} from '../../engine/dao/index.js';
 
 /**
  * Comprueba si al jugador le quedan unidades a flote
@@ -12,9 +13,7 @@ import * as userService from '../../auth/services/userService.js';
  * @returns {Promise<boolean>} True si no le quedan barcos
  */
 export const verificarDerrotaJugador = async (matchId, playerId) => {
-    const unidadesVivas = await ShipInstance.count({
-        where: { matchId, playerId, isSunk: false }
-    });
+    const unidadesVivas = await EngineDao.countAliveShips(matchId, playerId);
     return unidadesVivas === 0;
 };
 
@@ -23,10 +22,9 @@ export const verificarDerrotaJugador = async (matchId, playerId) => {
  * @param {string} matchId - ID de la partida
  */
 export const finalizarPartida = async (matchId) => {
-    const partida = await Match.findByPk(matchId, { include: [MatchPlayer] });
+    const partida = await MatchDao.findById(matchId);
     if (!partida || partida.status === 'FINISHED') return;
-
-    await partida.update({ status: 'FINISHED' });
+    await MatchDao.updateStatus(matchId, 'FINISHED');
 };
 
 /**
@@ -35,10 +33,12 @@ export const finalizarPartida = async (matchId) => {
  * @param {string} winnerId - ID del usuario ganador
  */
 export const registrarVictoria = async (matchId, winnerId) => {
-    const partida = await Match.findByPk(matchId, { include: [MatchPlayer] });
+    const partida = await MatchDao.findById(matchId);
     if (!partida) return;
 
-    const oponente = partida.MatchPlayers.find(p => p.userId !== winnerId);
+    const jugadores = await MatchDao.findPlayersByMatch(matchId);
+    // Buscamos al oponente en el listado
+    const oponente = jugadores.find(p => p.userId !== winnerId);
 
     if (oponente) {
         await userService.procesarResultadoElo(winnerId, oponente.userId);
