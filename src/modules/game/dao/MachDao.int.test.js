@@ -23,7 +23,7 @@ describe('MatchDao', () => {
     describe('Creacion', () => {
         it('debe crear una nueva partida en estado PLAYING', async () => {
             const mapTerrain = { size: 15, obstacles: [] };
-            const newMatch = await MatchDao.createMatch();
+            const newMatch = await MatchDao.createMatch("f7cdd8ee-c849-4681-a684-2050f56957be");
             
             expect(newMatch).not.toBeNull();
             expect(newMatch.status).toBe('PLAYING');
@@ -72,7 +72,6 @@ describe('MatchDao', () => {
                 const { match } = matchContext;
                 
                 const players = await MatchDao.findPlayersByMatch(match.id);
-                
                 expect(players.length).toBe(2);
                 const sides = players.map(p => p.side);
                 expect(sides).toContain('NORTH');
@@ -107,7 +106,7 @@ describe('MatchDao', () => {
     
         describe('Creacion', () => {
             it('debe añadir un jugador a una nueva partida con su mazo', async () => {
-                const newMatch = await MatchDao.createMatch({ size: 15 });
+                const newMatch = await MatchDao.createMatch("f7cdd8ee-c849-4681-a684-2050f56957be");
                 
                 const newUser = await createUser('lonely_player', 'lonely@test.com');
                 

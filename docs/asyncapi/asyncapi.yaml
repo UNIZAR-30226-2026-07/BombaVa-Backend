@@ -93,7 +93,7 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/matchReady'
 
-  "match:startInfo":                                      # <--- AÑADE ESTE BLOQUE
+  "match:startInfo":
     action: send
     channel:
       $ref: '#/channels/main'
