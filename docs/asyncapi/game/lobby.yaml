@@ -71,10 +71,12 @@ messages:
       required:
         - matchInfo
         - playerFleet
+        - ammo
+        - fuel
       properties:
         matchInfo:
           type: object
-          required: [matchId, status, turnNumber, mapTerrain]
+          required: [matchId, status, currentTurnPlayer, turnNumber, mapTerrain, yourId]
           properties:
             matchId:
               type: string
@@ -83,8 +85,13 @@ messages:
               type: string
               enum: [WAITING, PLAYING, FINISHED]
             currentTurnPlayer:
-              type: ["string", "null"]
+              type: string
               format: uuid
+              description: id del usuario que empieza a jugar
+            yourId:
+              type: string
+              format: uuid
+              description: id del ususario actual
             turnNumber:
               type: integer
               example: 1
@@ -99,6 +106,12 @@ messages:
                   type: array
                   items:
                     type: object
+        ammo:
+          type: integer
+          example: 5
+        fuel:
+          type: integer
+          example: 10
         playerFleet:
           type: array
           description: Lista de barcos del jugador (traducida a su perspectiva Sur).

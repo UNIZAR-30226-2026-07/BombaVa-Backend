@@ -8,13 +8,15 @@ class MatchDao {
 
     /**
      * Crea una nueva partida en estado 'PLAYING'.
+     * @param {UUID} userId Id del ususario quien empieza como primero
      * @returns {Promise<Object>} La partida creada.
      */
-    async createMatch() {
+    async createMatch(userId) {
         return await Match.create({
             status: 'PLAYING',
             mapTerrain: { size: 15, obstacles: [] },
-            turnNumber: 1
+            turnNumber: 1,
+            currentTurnPlayerId: userId
         });
     }
 

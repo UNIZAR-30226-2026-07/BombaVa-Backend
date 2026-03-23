@@ -62,8 +62,7 @@ export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configu
  */
 export const iniciarPartidaOrquestada = async (usuarios) => {
 
-    const nuevaPartida = await MatchDao.createMatch();
-
+    const nuevaPartida = await MatchDao.createMatch(usuarios[0].id);
     for (let i = 0; i < usuarios.length; i++) {
         const user = usuarios[i];
         const mazo = await InventoryDao.findUserActiveDecks(user.id);
@@ -122,11 +121,14 @@ export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
         matchId: match.id,
         status: match.status,
         currentTurnPlayer: match.currentTurnPlayerId,
+        yourId: userId,
         turnNumber: match.turnNumber,
         mapTerrain: match.mapTerrain
     });
     const payload = {
         matchInfo: partidaLimpio,
+        ammo: jugador.ammoCurrent,
+        fuel: jugador.fuelReserve,
         playerFleet: barcosLimpios
     };
     return payload;
