@@ -28,17 +28,20 @@ export const registerLobbyHandlers = (io, socket) => {
             const userId = socket.data.user.id;
 
             const lobby = lobbyService.intentarUnirseALobby(codigo, userId, socket.id);
-
             socket.join(codigo);
 
             if (lobby.length === 2) {
                 const partida = await lobbyService.ejecutarInicioPartida(codigo, lobby);
-
                 io.to(codigo).emit('match:ready', {
                     matchId: partida.id,
                     status: partida.status,
                     turnNumber: partida.turnNumber
                 });
+                //Manda a cada juador por privado info de la partida y de su flota
+                for (const jugador of lobby) {
+                    const infoJugador = await lobbyService.obtenerInfoJugador(partida.id, jugador.id);
+                    io.to(jugador.socketId).emit('match:startInfo', infoJugador);
+                }
             }
         } catch (error) {
             socket.emit('lobby:error', { message: error.message });
