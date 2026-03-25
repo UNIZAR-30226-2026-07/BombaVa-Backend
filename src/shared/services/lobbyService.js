@@ -36,3 +36,7 @@ export const ejecutarInicioPartida = async (codigo, lobby) => {
     lobbiesActivos.delete(codigo);
     return partida;
 };
+
+export const obtenerInfoJugador = async (matchId, userId) =>{
+    return await matchService.obtenerEstadoCompletoPartida(matchId, userId);
+}

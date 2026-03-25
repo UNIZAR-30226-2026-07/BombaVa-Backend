@@ -22,6 +22,8 @@ channels:
         $ref: './game/lobby.yaml#/messages/LobbyJoin'
       matchReady:
         $ref: './game/lobby.yaml#/messages/MatchReady'
+      matchStartInfo:
+        $ref: './game/lobby.yaml#/messages/MatchStartInfo'
       lobbyError:
         $ref: './game/lobby.yaml#/messages/LobbyError'
       gameJoin:
@@ -90,6 +92,14 @@ operations:
     summary: El servidor comunica a la sala que la partida comienza.
     messages:
       - $ref: '#/channels/main/messages/matchReady'
+
+  "match:startInfo":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: El servidor envía el estado inicial de la partida y la flota privada a un jugador específico.
+    messages:
+      - $ref: '#/channels/main/messages/matchStartInfo'
       
   "lobby:error":
     action: send
