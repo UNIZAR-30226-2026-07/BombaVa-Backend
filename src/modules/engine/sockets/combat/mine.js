@@ -1,26 +1,29 @@
 /**
  * Manejador de Socket para la colocación de minas.
  */
-import { GAME_RULES } from '../../../../config/gameRules.js';
-import { Match, MatchPlayer, Projectile, sequelize, ShipInstance } from '../../../../shared/models/index.js';
+import EngineDao from '../../dao/EngineDao.js';
+import MatchDao from '../../../game/dao/MatchDao.js';
+import ProjectileDao from '../../dao/ProjectileDao.js';
 import * as combatService from '../../services/combatService.js';
 
 export const handleMineDrop = async (io, socket, data) => {
     const { matchId, shipId, target } = data;
     const userId = socket.data.user.id;
-    const transaction = await sequelize.transaction();
 
     try {
-        const costes = combatService.obtenerCostesCombate();
-        const partida = await Match.findByPk(matchId, { transaction });
-        const barco = await ShipInstance.findByPk(shipId, { transaction });
-        const jugador = await MatchPlayer.findOne({ where: { matchId, userId }, transaction });
+        const partida = await MatchDao.findById(matchId);
+        const barco = await EngineDao.findById(shipId);
+        const jugador = await MatchDao.findMatchPlayer(matchId, userId);
 
         if (!barco || !jugador || !partida) {
             throw new Error('No se han encontrado las entidades necesarias para colocar la mina');
         }
+        const mina = barco.UserShip?.WeaponTemplates?.find(w => w.type === 'MINE');
+        if (!mina) {
+            throw new Error('El barco no tiene equipadas minas');
+        }
 
-        if (jugador.ammoCurrent < costes.MINE) {
+        if (jugador.ammoCurrent < mina.apCost) {
             throw new Error('Munición insuficiente para mina');
         }
 
@@ -28,28 +31,25 @@ export const handleMineDrop = async (io, socket, data) => {
             throw new Error('La posición de la mina está fuera de rango');
         }
 
-        await Projectile.create({
+        await ProjectileDao.createProjectile({
             matchId,
             ownerId: userId,
             type: 'MINE',
             x: target.x,
             y: target.y,
-            lifeDistance: GAME_RULES.COMBAT.MINE_LIFE
-        }, { transaction });
+            lifeDistance: mina.lifeDistance
+        });
 
-        jugador.ammoCurrent -= costes.MINE;
-        barco.lastAttackTurn = partida.turnNumber;
-
-        await Promise.all([barco.save({ transaction }), jugador.save({ transaction })]);
-        await transaction.commit();
+        const nuevaMunicion = jugador.ammoCurrent - mina.apCost;
+        await MatchDao.updateResources(jugador.id, jugador.fuelReserve, nuevaMunicion);
+        await EngineDao.updateLastAttackTurn(barco.id, partida.turnNumber);
 
         io.to(matchId).emit('projectile:launched', {
             type: 'MINE',
             attackerId: userId,
-            ammoCurrent: jugador.ammoCurrent
+            ammoCurrent: nuevaMunicion
         });
     } catch (error) {
-        if (transaction) await transaction.rollback();
         socket.emit('game:error', { message: error.message });
     }
 };

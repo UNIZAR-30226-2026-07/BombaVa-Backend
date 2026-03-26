@@ -38,7 +38,7 @@ describe('Weapon & Inventory DAO Integration', () => {
 
         const shipWithWeapons = await InventoryDao.findByIdWithWeapons(ship.id, setup.user.id);
         
-        expect(shipWithWeapons.WeaponTemplates).toHaveLength(2);
+        expect(shipWithWeapons.WeaponTemplates).toHaveLength(5);
         const slugs = shipWithWeapons.WeaponTemplates.map(w => w.slug);
         expect(slugs).toContain('cannon-base');
         expect(slugs).toContain('torpedo-v1');

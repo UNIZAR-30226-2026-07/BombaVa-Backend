@@ -3,7 +3,7 @@
  * Acceso 
  */
 
-import {ShipInstance} from "../models/index.js";
+import { ShipInstance, UserShip, WeaponTemplate } from '../../../shared/models/index.js';
 
 class EngineDao{
 
@@ -30,12 +30,21 @@ class EngineDao{
     }
 
     /**
-     * Obtiene un barco específico por su ID.
+     * Obtiene un barco específico por su ID
      * @param {UUID} id Id del barco que se quiere buscar
-     * @returns {Promise<Array>} Listado de barcos
+     * @param {Object} options Opciones extra de Sequelize (ej. { transaction })
+     * @returns {Promise<Object>} Instancia del barco con su UserShip y WeaponTemplates
      */
     async findById(id) {
-        return await ShipInstance.findByPk(id);
+        return await ShipInstance.findByPk(id, {
+            include: [{
+                model: UserShip,
+                include: [{
+                    model: WeaponTemplate,
+                    as: 'WeaponTemplates'
+                }]
+            }]
+        });
     }
 
     /**
@@ -104,6 +113,19 @@ class EngineDao{
     async deleteByMatchId(matchId) {
         return await ShipInstance.destroy({
             where: { matchId }
+        });
+    }
+
+    /**
+     * Busca un barco vivo en unas coordenadas específicas de la partida.
+     * @param {UUID} matchId Id de la partida
+     * @param {Integer} x Coordenada X objetivo
+     * @param {Integer} y Coordenada Y objetivo
+     * @returns {Promise<Object|null>} Instancia del barco objetivo o null si no hay ninguno
+     */
+    async findTargetAtCoordinates(matchId, x, y) {
+        return await ShipInstance.findOne({
+            where: { matchId, x, y, isSunk: false }
         });
     }
 }

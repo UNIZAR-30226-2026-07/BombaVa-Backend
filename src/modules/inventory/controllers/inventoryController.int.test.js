@@ -91,10 +91,9 @@ describe('InventoryController Unit Tests (Mocks)', () => {
         });
     });
 
-    // --- NUEVOS TESTS PARA BORRAR ARMAS ---
     describe('removeWeaponFromShip', () => {
         it('Debe devolver 404 si el barco no existe al intentar desequipar', async () => {
-            req.params = { shipId: 's99', weaponSlug: 'cannon-base' }; // Ambos en params según estándar REST
+            req.params = { shipId: 's99', weaponSlug: 'cannon-base' };
             InventoryDao.findByIdAndUser.mockResolvedValue(null);
 
             await removeWeaponFromShip(req, res, next);
@@ -121,7 +120,7 @@ describe('InventoryController Unit Tests (Mocks)', () => {
 
         it('Debe devolver 200 y el barco actualizado tras remover el arma con éxito', async () => {
             const ship = { id: 's1' };
-            const shipWithoutWeapon = { id: 's1', WeaponTemplates: [] }; // Simula que ya no tiene el arma
+            const shipWithoutWeapon = { id: 's1', WeaponTemplates: [] };
             
             req.params = { shipId: 's1', weaponSlug: 'cannon-base' };
 

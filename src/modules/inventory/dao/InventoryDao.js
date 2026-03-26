@@ -136,7 +136,7 @@ class InventoryDao {
             where: { userId },
             include: [
                 { model: ShipTemplate },
-                { model: WeaponTemplate } // Sequelize lo llamará WeaponTemplates por defecto
+                { model: WeaponTemplate }
             ]
         });
     }
@@ -147,8 +147,6 @@ class InventoryDao {
      * @param {string} weaponSlug - Slug del arma
      */
     async addWeaponToShip(shipInstance, weaponSlug) {
-        // El método .addWeaponTemplate es creado por Sequelize 
-        // debido a la relación belongsToMany definida en shared/models/index.js
         return await shipInstance.addWeaponTemplate(weaponSlug);
     }
 
