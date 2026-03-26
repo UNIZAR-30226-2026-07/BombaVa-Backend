@@ -26,6 +26,8 @@ paths:
   /api/auth/ranking:
     $ref: './auth/ranking.yaml'
   #inventory
+  /api/inventory/weapons:
+      $ref: './inventory/show_weapons.yaml'
   /api/inventory/ships:
       $ref: './inventory/get_ships.yaml'
   /api/inventory/ships/{shipId}/equip:

@@ -3,6 +3,7 @@
  */
 import { validationResult } from 'express-validator';
 import InventoryDao from '../dao/InventoryDao.js';
+import WeaponTemplateDao from '../dao/WeaponTemplateDao.js';
 
 export const getMyShips = async (req, res, next) => {
     try {
@@ -35,3 +36,12 @@ export const equipWeapon = async (req, res, next) => {
         next(error);
     }
 };
+
+export const showAllWeapons = async (req, res, next) =>{
+    try{
+        const weapons = await WeaponTemplateDao.findAll();
+        res.json(weapons);
+    } catch (error) {
+        next(error);
+    }
+}

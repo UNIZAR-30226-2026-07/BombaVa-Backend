@@ -2,11 +2,13 @@ import { Router } from 'express';
 import { body, param } from 'express-validator';
 import { protect } from '../../../shared/middlewares/authMiddleware.js';
 import { createDeck, getMyDecks, setActiveDeck } from '../controllers/deckController.js';
-import { equipWeapon, getMyShips } from '../controllers/inventoryController.js';
+import { equipWeapon, getMyShips, showAllWeapons } from '../controllers/inventoryController.js';
 
 const router = Router();
 
 router.use(protect);
+
+router.get('/weapons', showAllWeapons);
 
 router.get('/ships', getMyShips);
 

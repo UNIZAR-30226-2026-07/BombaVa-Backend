@@ -15,6 +15,7 @@ import WeaponTemplate from '../../modules/inventory/models/WeaponTemplate.js';
 
 
 const UserShipWeapon = sequelize.define('UserShipWeapon', {}, { tableName: 'user_ship_weapons', timestamps: false });
+const ShipInstanceWeapon = sequelize.define('ShipInstanceWeapon', {}, { tableName: 'ship_instance_weapons', timestamps: false });
 
 // Un barco de usuario puede tener muchas armas y un arma puede estar en muchos barcos
 UserShip.belongsToMany(WeaponTemplate, { 
@@ -26,6 +27,19 @@ WeaponTemplate.belongsToMany(UserShip, {
     through: UserShipWeapon, 
     foreignKey: 'weapon_slug', 
     otherKey: 'user_ship_id' 
+});
+
+//Lo mismo que antes, pero ahora instanciado
+ShipInstance.belongsToMany(WeaponTemplate, {
+    through: ShipInstanceWeapon,
+    foreignKey: 'ship_instance_id',
+    otherKey: 'weapon_slug',
+    as: 'CombatWeapons' 
+});
+WeaponTemplate.belongsToMany(ShipInstance, {
+    through: ShipInstanceWeapon,
+    foreignKey: 'weapon_slug',
+    otherKey: 'ship_instance_id'
 });
 
 User.hasMany(UserShip, { foreignKey: 'userId' });
@@ -85,5 +99,6 @@ export {
     User,
     UserShip,
     WeaponTemplate,
-    UserShipWeapon
+    UserShipWeapon,
+    ShipInstanceWeapon
 };
