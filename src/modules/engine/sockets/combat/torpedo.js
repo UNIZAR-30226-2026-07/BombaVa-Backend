@@ -1,49 +1,54 @@
 /**
  * Lógica de Socket para el lanzamiento de torpedos.
  */
-import { GAME_RULES } from '../../../../config/gameRules.js';
-import { Match, MatchPlayer, Projectile, sequelize, ShipInstance } from '../../../../shared/models/index.js';
+import EngineDao from '../../dao/EngineDao.js';
+import MatchDao from '../../../game/dao/MatchDao.js';
+import ProjectileDao from '../../dao/ProjectileDao.js';
 import * as combatService from '../../services/combatService.js';
 
 export const handleTorpedoLaunch = async (io, socket, data) => {
     const { matchId, shipId } = data;
     const userId = socket.data.user.id;
-    const transaction = await sequelize.transaction();
 
     try {
-        const costes = combatService.obtenerCostesCombate();
-        const partida = await Match.findByPk(matchId, { transaction });
-        const barco = await ShipInstance.findByPk(shipId, { transaction });
-        const jugador = await MatchPlayer.findOne({ where: { matchId, userId }, transaction });
+        const partida = await MatchDao.findById(matchId);
+        const barco = await EngineDao.findById(shipId);
+        const jugador = await MatchDao.findMatchPlayer(matchId, userId);
 
         if (!partida || !barco || !jugador) {
             throw new Error('No se han encontrado las entidades necesarias');
         }
 
-        if (jugador.ammoCurrent < costes.TORPEDO) {
+        const torpedo = barco.UserShip?.WeaponTemplates?.find(w => w.type === 'TORPEDO');
+        if (!torpedo) {
+            throw new Error('El barco no tiene equipados torpedos');
+        }
+
+        if (jugador.ammoCurrent < torpedo.apCost) {
             throw new Error('Munición insuficiente para torpedo');
         }
 
         const vector = combatService.calcularVectorProyectil(barco.orientation);
 
-        await Projectile.create({
-            matchId, ownerId: userId, type: 'TORPEDO',
-            x: barco.x + vector.vx, y: barco.y + vector.vy,
-            vectorX: vector.vx, vectorY: vector.vy,
-            lifeDistance: GAME_RULES.COMBAT.TORPEDO_LIFE
-        }, { transaction });
+        await ProjectileDao.createProjectile({
+            matchId, 
+            ownerId: userId, 
+            type: 'TORPEDO',
+            x: barco.x + vector.vx, 
+            y: barco.y + vector.vy,
+            vectorX: vector.vx, 
+            vectorY: vector.vy,
+            lifeDistance: torpedo.lifeDistance
+        })
 
-        jugador.ammoCurrent -= costes.TORPEDO;
-        barco.lastAttackTurn = partida.turnNumber;
-
-        await Promise.all([barco.save({ transaction }), jugador.save({ transaction })]);
-        await transaction.commit();
+        const nuevaMunicion = jugador.ammoCurrent - torpedo.apCost;
+        await MatchDao.updateResources(jugador.id, jugador.fuelReserve, nuevaMunicion);
+        await EngineDao.updateLastAttackTurn(barco.id, partida.turnNumber);
 
         io.to(matchId).emit('projectile:launched', {
-            type: 'TORPEDO', attackerId: userId, ammoCurrent: jugador.ammoCurrent
+            type: 'TORPEDO', attackerId: userId, ammoCurrent: nuevaMunicion
         });
     } catch (error) {
-        if (transaction) await transaction.rollback();
         socket.emit('game:error', { message: error.message });
     }
 };

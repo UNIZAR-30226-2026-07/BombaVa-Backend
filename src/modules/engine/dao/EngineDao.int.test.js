@@ -42,13 +42,14 @@ describe('EngineDao', () => {
             expect(ships[0].matchId).toBe(match.id);
         });
 
-        it('debe encontrar un barco específico por su ID', async () => {
-            const { shipH } = matchContext;
+        it('debe obtener un barco específico por su ID y traer sus armas', async () => {
+            const { host, shipH } = matchContext;
             
-            const foundShip = await EngineDao.findById(shipH.id);
-            
-            expect(foundShip).not.toBeNull();
-            expect(foundShip.id).toBe(shipH.id);
+            const ship = await EngineDao.findById(shipH.id);
+            expect(ship).toBeDefined();
+            expect(ship.id).toBe(shipH.id);
+            expect(ship.UserShip).toBeDefined();
+            expect(Array.isArray(ship.UserShip.Weapons)).toBeDefined(); 
         });
 
         it('debe contar los barcos vivos de un jugador', async () => {

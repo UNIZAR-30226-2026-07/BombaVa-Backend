@@ -1,10 +1,10 @@
-#ACTUALIZAR
-patch:
+
+delete:
   tags:
     - Inventory
-  summary: Equipar un arma en un barco
-  description: Actualiza el equipamiento del barco especificado. El cambio se guarda en el campo `customStats`.
-  operationId: equipWeapon
+  summary: Desequipar un arma de un barco
+  description: Elimina un arma específica del arsenal de un barco. Validará que tanto el barco como el arma existan y pertenezcan al usuario.
+  operationId: removeWeaponFromShip
   security:
     - bearerAuth: []
   parameters:
@@ -15,21 +15,15 @@ patch:
       schema:
         type: string
         format: uuid
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          type: object
-          required: [weaponSlug]
-          properties:
-            weaponSlug:
-              type: string
-              example: "cannon-base"
-              description: Identificador del arma a equipar.
+    - name: weaponSlug
+      in: path
+      required: true
+      description: Identificador del arma a desequipar.
+      schema:
+        type: string
   responses:
     '200':
-      description: Arma equipada exitosamente
+      description: Arma desequipada exitosamente. Devuelve el barco actualizado.
       content:
         application/json:
           schema:
@@ -41,7 +35,7 @@ patch:
           schema:
             $ref: '../shared/schemas.yaml#/ValidationError'
     '404':
-      description: El barco no existe o no pertenece al usuario
+      description: El barco no existe, no pertenece al usuario, o el arma no se encuentra.
       content:
         application/json:
           schema:
@@ -50,5 +44,3 @@ patch:
               message:
                 type: string
                 example: "Barco no encontrado"
-    '401':
-      description: No autorizado

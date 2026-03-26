@@ -1,7 +1,7 @@
 /**
  * Función que genera todo los datos por defecto que debe tener la BBDD
  */
-import { ShipTemplate } from './index.js';
+import { ShipTemplate, WeaponTemplate } from './index.js';
 
 const templatesData = [
     {
@@ -30,6 +30,39 @@ const templatesData = [
     }
 ];
 
+const weaponsData = [
+    {
+        slug: 'cannon-base',
+        name: 'Cañón Estándar',
+        description: 'Arma de fuego directo.',
+        type: 'CANNON',
+        damage: 10,
+        apCost: 2,
+        range: 4
+    },
+    {
+        slug: 'torpedo-v1',
+        name: 'Lanzatorpedos',
+        description: 'Lanza proyectiles lentos que se desplazan por el tablero.',
+        type: 'TORPEDO',
+        damage: 20,
+        apCost: 3,
+        lifeDistance: 6
+    },
+    {
+        slug: 'mine-v1',
+        name: 'Desplegador de Minas',
+        description: 'Coloca minas estáticas en el agua.',
+        type: 'MINE',
+        damage: 25,
+        apCost: 2,
+        lifeDistance: 10
+    }
+];
+
+
+
+
 /**
  * Garantiza que los elementos esenciales del juego existan.
  * @throws {Error} Si ocurre una violación de integridad o error de base de datos.
@@ -40,6 +73,12 @@ export const initDefaults = async () => {
             await ShipTemplate.findOrCreate({
                 where: { slug: t.slug },
                 defaults: t
+            });
+        }
+        for (const w of weaponsData) {
+            await WeaponTemplate.findOrCreate({
+                where: { slug: w.slug },
+                defaults: w
             });
         }
     } catch (error) {

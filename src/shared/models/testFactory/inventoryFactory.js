@@ -4,8 +4,28 @@
 import FleetDeck from '../../../modules/inventory/models/FleetDeck.js';
 import ShipTemplate from '../../../modules/inventory/models/ShipTemplate.js';
 import UserShip from '../../../modules/inventory/models/UserShip.js';
+import WeaponTemplate from '../../../modules/inventory/models/WeaponTemplate.js'
 import { createUser } from './authFactory.js';
 import { initDefaults } from '../bootstrap.js';
+
+export const createDefaultWeapons = async () => {
+    const [cannon] = await WeaponTemplate.findOrCreate({
+        where: { slug: 'test-cannon' },
+        defaults: { name: 'Cañón de Prueba', type: 'CANNON', damage: 10, apCost: 2, range: 4, lifeDistance: 0 }
+    });
+
+    const [mine] = await WeaponTemplate.findOrCreate({
+        where: { slug: 'test-mine' },
+        defaults: { name: 'Mina de Prueba', type: 'MINE', damage: 15, apCost: 3, range: 0, lifeDistance: 5 }
+    });
+
+    const [torpedo] = await WeaponTemplate.findOrCreate({
+        where: { slug: 'test-torpedo' },
+        defaults: { name: 'Torpedo de Prueba', type: 'TORPEDO', damage: 20, apCost: 4, range: 0, lifeDistance: 10 }
+    });
+
+    return [cannon, mine, torpedo];
+};
 
 /**
  * Crea o recupera una plantilla de barco.
@@ -33,6 +53,9 @@ export const createFullInventoryContext = async (user) => {
         defaults: { level: 1 }
     });
 
+    const weapons = await createDefaultWeapons();
+    await uShip.addWeaponTemplates(weapons);
+    
     const [deck] = await FleetDeck.findOrCreate({
         where: { userId: user.id, deckName: 'Mazo Inicial' },
         defaults: {

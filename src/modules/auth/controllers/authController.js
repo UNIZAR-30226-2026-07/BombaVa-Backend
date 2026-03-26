@@ -22,6 +22,9 @@ export const registerUser = async (req, res, next) => {
     const barco1 = await InventoryDao.associateShip(usuarioCreado.id, 'lancha');
     const barco2 = await InventoryDao.associateShip(usuarioCreado.id, 'fragata');
     const barco3 = await InventoryDao.associateShip(usuarioCreado.id, 'acorazado');
+    await InventoryDao.addWeaponToShip(barco1, 'cannon-base');
+    await InventoryDao.addWeaponToShip(barco2, 'cannon-base');
+    await InventoryDao.addWeaponToShip(barco3, 'cannon-base');
     const listBarcos = [
       { userShipId: barco1.id,
         position: { x: 1, y: 1 },

@@ -1,0 +1,25 @@
+get:
+  tags:
+    - Inventory
+  summary: Muestra todas las armas disponibles
+  description: Muestra un listado con todas las armas disponibles para equipar a un barco. Se muestra toda información de estas.
+  operationId: weapons
+  security:
+    - bearerAuth: []
+  responses:
+    '200':
+      description: Lista de barcos obtenida con éxito
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../shared/schemas.yaml#/WeaponTemplate'
+    '401':
+      description: No autorizado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string }

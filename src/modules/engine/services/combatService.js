@@ -35,33 +35,19 @@ export const validarAdyacencia = (pos1, pos2) => {
 
 /**
  * Procesa el impacto de un arma sobre un objetivo
- * @param {Object} objetivo - Instancia de ShipInstance
- * @param {string} tipoArma - 'CANNON', 'TORPEDO', 'MINE'
+ * @param {Object} objetivo - Instancia de ShipInstance que recibe el daño
+ * @param {number} danioDelArma - Cantidad de daño puro
+ * @param {Object} transaccion - Transacción de Sequelize
  */
-export const aplicarDañoImpacto = async (objetivo, tipoArma, transaccion) => {
-    const DAÑOS = {
-        'CANNON': 10,
-        'TORPEDO': 20,
-        'MINE': 25
-    };
+export const aplicarDañoImpacto = async (objetivo, danioDelArma, transaccion) => {
+    let newHp = objetivo.currentHp - danioDelArma;
+    if (newHp < 0) newHp = 0;
 
-    const dañoFinal = DAÑOS[tipoArma] || 0;
-    objetivo.currentHp = Math.max(0, objetivo.currentHp - dañoFinal);
+    const isSunk = newHp === 0;
+    await objetivo.update({
+        currentHp: newHp,
+        isSunk: isSunk
+    }, { transaccion });
 
-    if (objetivo.currentHp === 0) {
-        objetivo.isSunk = true;
-    }
-
-    return await objetivo.save({ transaction: transaccion });
-};
-
-/**
- * Devuelve los costes de munición de la V1
- */
-export const obtenerCostesCombate = () => {
-    return {
-        CANNON: 2,
-        TORPEDO: 3,
-        MINE: 2
-    };
+    return { newHp, isSunk };
 };

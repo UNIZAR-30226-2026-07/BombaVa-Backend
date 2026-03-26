@@ -31,6 +31,27 @@ erDiagram
         jsonb base_stats "Movimiento, visión, capacidad"
     }
 
+    USER_SHIP ||--o{ USER_SHIP_WEAPON : equipped_with
+    WEAPON_TEMPLATE ||--o{ USER_SHIP_WEAPON : installed_on
+    
+    WEAPON_TEMPLATE {
+        string slug PK "cannon-base, torpedo-v1, mine-v1"
+        string name
+        string description
+        enum type "CANNON, TORPEDO, MINE"
+        int damage
+        int ap_cost
+        int range "Nullable"
+        int life_distance "Nullable"
+    }
+
+    USER_SHIP_WEAPON {
+        uuid user_ship_id FK
+        string weapon_slug FK
+    }
+
+    SHIP_INSTANCE ||--o{ WEAPON_TEMPLATE : uses_for_combat
+
     USER_SHIP {
         uuid id PK
         uuid user_id FK "Relación con USER"

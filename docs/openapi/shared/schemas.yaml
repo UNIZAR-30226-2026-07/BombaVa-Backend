@@ -48,15 +48,31 @@ ShipTemplate:
     supplyCost: { type: integer, example: 10 }
     baseStats: { type: object }
 
+UserShipWeapon:
+  type: object
+  properties:
+    user_ship_id: { type: string, format: uuid }
+    weapon_slug: { type: string, example: "cannon-base" }
+
 UserShip:
   type: object
   properties:
     id: { type: string, format: uuid }
-    templateSlug: { type: string }
+    userId: { type: string, format: uuid }
+    templateSlug: { type: string, example: "lancha" }
     level: { type: integer, example: 1 }
     customStats: { type: object }
     ShipTemplate: 
       $ref: '#/ShipTemplate'
+    WeaponTemplates:
+      type: array
+      items:
+        allOf:
+          - $ref: '#/WeaponTemplate'
+          - type: object
+            properties:
+              UserShipWeapon:
+                $ref: '#/UserShipWeapon'
 
 FleetDeck:
   type: object
@@ -109,3 +125,15 @@ Match:
           fuel_reserve: { type: integer }
           ammo_current: { type: integer }
           user_id: { type: string, format: uuid }
+
+WeaponTemplate:
+  type: object
+  properties:
+    slug: { type: string, example: "cannon-base" }
+    name: { type: string, example: "Cañón Estándar" }
+    description: { type: string, example: "Arma de fuego directo fiable." }
+    type: { type: string, enum: [CANNON, TORPEDO, MINE] }
+    damage: { type: integer, example: 10 }
+    apCost: { type: integer, example: 2 }
+    range: { type: integer, example: 4, nullable: true }
+    lifeDistance: { type: integer, example: 0, nullable: true }
