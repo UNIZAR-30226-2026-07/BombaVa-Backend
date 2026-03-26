@@ -48,11 +48,18 @@ ShipTemplate:
     supplyCost: { type: integer, example: 10 }
     baseStats: { type: object }
 
+UserShipWeapon:
+  type: object
+  properties:
+    user_ship_id: { type: string, format: uuid }
+    weapon_slug: { type: string, example: "cannon-base" }
+
 UserShip:
   type: object
   properties:
     id: { type: string, format: uuid }
-    templateSlug: { type: string }
+    userId: { type: string, format: uuid }
+    templateSlug: { type: string, example: "lancha" }
     level: { type: integer, example: 1 }
     customStats: { type: object }
     ShipTemplate: 
@@ -60,7 +67,12 @@ UserShip:
     WeaponTemplates:
       type: array
       items:
-        $ref: '#/WeaponTemplate'
+        allOf:
+          - $ref: '#/WeaponTemplate'
+          - type: object
+            properties:
+              UserShipWeapon:
+                $ref: '#/UserShipWeapon'
 
 FleetDeck:
   type: object

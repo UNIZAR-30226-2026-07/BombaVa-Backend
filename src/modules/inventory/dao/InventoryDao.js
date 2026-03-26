@@ -18,7 +18,8 @@ class InventoryDao {
     async findUserShips(userId) {
         return await UserShip.findAll({
             where: { userId },
-            include: [{ model: ShipTemplate }]
+            include: [{ model: ShipTemplate }, { model: WeaponTemplate }]
+            
         });
     }
 

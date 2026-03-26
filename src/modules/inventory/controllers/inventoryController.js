@@ -23,13 +23,15 @@ export const equipWeapon = async (req, res, next) => {
         const { weaponSlug } = req.body;
 
         const ship = await InventoryDao.findByIdAndUser(shipId, req.user.id);
-
         if (!ship) {
             return res.status(404).json({ message: 'Barco no encontrado' });
         }
-
-        const updatedStats = { ...ship.customStats, equippedWeapon: weaponSlug };
-        const updatedShip = await InventoryDao.updateShipStats(ship, updatedStats);
+        const weapon = await WeaponTemplateDao.findBySlug(weaponSlug);
+        if (!weapon) {
+            return res.status(404).json({ message: 'Arma no encontrada' });
+        }
+        await InventoryDao.addWeaponToShip(ship, weaponSlug);
+        const updatedShip = await InventoryDao.findByIdWithWeapons(shipId, req.user.id);
 
         res.json(updatedShip);
     } catch (error) {

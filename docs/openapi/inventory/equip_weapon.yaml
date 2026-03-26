@@ -25,7 +25,7 @@ patch:
           properties:
             weaponSlug:
               type: string
-              example: "cannon-v1"
+              example: "cannon-base"
               description: Identificador del arma a equipar.
   responses:
     '200':

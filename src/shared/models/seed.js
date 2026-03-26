@@ -12,7 +12,6 @@ import { FleetDeck, ShipTemplate, User, UserShip } from './index.js';
  */
 const runSeeder = async () => {
     try {
-        console.log('Poblando la Base de Datos de desarrollo...');
 
         const hashedPass = await authService.cifrarContrasena('admin123');
 
@@ -52,8 +51,6 @@ const runSeeder = async () => {
                 ]
             }
         });
-
-        console.log('Seeding completado con éxito.');
     } catch (error) {
         console.error('Error crítico en el Seeding:', error.message);
         throw error;
