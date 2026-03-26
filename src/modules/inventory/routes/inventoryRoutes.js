@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { body, param } from 'express-validator';
 import { protect } from '../../../shared/middlewares/authMiddleware.js';
 import { createDeck, getMyDecks, setActiveDeck } from '../controllers/deckController.js';
-import { equipWeapon, getMyShips, showAllWeapons } from '../controllers/inventoryController.js';
+import { equipWeapon, getMyShips, removeWeaponFromShip, showAllWeapons } from '../controllers/inventoryController.js';
 
 const router = Router();
 
@@ -16,6 +16,11 @@ router.patch('/ships/:shipId/equip', [
     param('shipId').isUUID().withMessage('Identificador de barco inválido'),
     body('weaponSlug').notEmpty().withMessage('El identificador del arma es obligatorio')
 ], equipWeapon);
+
+router.delete('/ships/:shipId/weapons/:weaponSlug', [
+    param('shipId').isUUID().withMessage('Identificador de barco inválido'),
+    param('weaponSlug').notEmpty().withMessage('El identificador del arma es obligatorio')
+], removeWeaponFromShip);
 
 router.get('/decks', getMyDecks);
 

@@ -1,0 +1,46 @@
+
+delete:
+  tags:
+    - Inventory
+  summary: Desequipar un arma de un barco
+  description: Elimina un arma específica del arsenal de un barco. Validará que tanto el barco como el arma existan y pertenezcan al usuario.
+  operationId: removeWeaponFromShip
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: shipId
+      in: path
+      required: true
+      description: UUID del barco obtenido de /api/inventory/ships
+      schema:
+        type: string
+        format: uuid
+    - name: weaponSlug
+      in: path
+      required: true
+      description: Identificador del arma a desequipar.
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Arma desequipada exitosamente. Devuelve el barco actualizado.
+      content:
+        application/json:
+          schema:
+            $ref: '../shared/schemas.yaml#/UserShip'
+    '400':
+      description: Error de validación (formato de UUID inválido o falta weaponSlug)
+      content:
+        application/json:
+          schema:
+            $ref: '../shared/schemas.yaml#/ValidationError'
+    '404':
+      description: El barco no existe, no pertenece al usuario, o el arma no se encuentra.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Barco no encontrado"
