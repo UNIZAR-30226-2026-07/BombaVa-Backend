@@ -72,7 +72,7 @@ messages:
           type: array
           items:
             type: object
-            required:[id, x, y, orientation, currentHp, hitCells, isSunk]
+            required: [id, x, y, orientation, currentHp, hitCells, isSunk]
             properties:
               id: { type: string, format: uuid }
               x: { type: integer, minimum: 0 }
@@ -86,7 +86,7 @@ messages:
           items:
             type: object
             # Mismas propiedades que myFleet (el cliente usa el mismo esquema para renderizarlos)
-            required:[id, x, y, orientation, currentHp, hitCells, isSunk]
+            required: [id, x, y, orientation, currentHp, hitCells, isSunk]
             properties:
               id: { type: string, format: uuid }
               x: { type: integer, minimum: 0 }
