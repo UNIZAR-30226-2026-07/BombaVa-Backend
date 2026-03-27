@@ -48,6 +48,9 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
         io.to(matchId).emit('projectile:launched', {
             type: 'TORPEDO', attackerId: userId, ammoCurrent: nuevaMunicion
         });
+
+        await matchService.notificarVisionSala(io, matchId);
+        
     } catch (error) {
         socket.emit('game:error', { message: error.message });
     }

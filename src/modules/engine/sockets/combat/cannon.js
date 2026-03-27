@@ -47,6 +47,9 @@ export const handleCannonAttack = async (io, socket, data) => {
         io.to(matchId).emit('ship:attacked', {
             attackerId: userId, hit: !!objetivo, target, targetHp, ammoCurrent: nuevaMunicion
         });
+
+        await matchService.notificarVisionSala(io, matchId);
+        
     } catch (error) {
         socket.emit('game:error', { message: error.message });
     }

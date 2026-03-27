@@ -175,3 +175,17 @@ export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
 export const obtenerHistorialUsuario = async (userId) => {
     return await MatchDao.searchAllMatchesFromUser(userId);
 };
+
+
+/**
+ * Notifica a todos los jugadores de la sala su visión actualizada.
+ * Útil tras movimientos, rotaciones o eventos de combate que cambien la visión.
+ */
+export const notificarVisionSala = async (io, matchId) => {
+    const socketsEnSala = await io.in(matchId).fetchSockets();
+    for (const s of socketsEnSala) {
+        const targetUserId = s.data.user.id;
+        const vision = await generarSnapshotVision(matchId, targetUserId);
+        s.emit('match:vision_update', vision);
+    }
+};
