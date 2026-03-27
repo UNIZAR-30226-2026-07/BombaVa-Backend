@@ -59,3 +59,39 @@ messages:
         message:
           type: string
           example: "No es tu turno"
+
+  MatchVisionUpdate:
+    name: 'match:vision_update'
+    contentType: application/json
+    summary: Envía a un jugador su visión actualizada del tablero de forma individual.
+    payload:
+      type: object
+      required: [myFleet, visibleEnemyFleet]
+      properties:
+        myFleet:
+          type: array
+          items:
+            type: object
+            required: [id, x, y, orientation, currentHp, hitCells, isSunk]
+            properties:
+              id: { type: string, format: uuid }
+              x: { type: integer, minimum: 0 }
+              y: { type: integer, minimum: 0 }
+              orientation: { type: string, enum:[N, S, E, W] }
+              currentHp: { type: integer, minimum: 0 }
+              hitCells: { type: array, items: { type: object, properties: { x: { type: integer }, y: { type: integer } } } }
+              isSunk: { type: boolean }
+        visibleEnemyFleet:
+          type: array
+          items:
+            type: object
+            # Mismas propiedades que myFleet (el cliente usa el mismo esquema para renderizarlos)
+            required: [id, x, y, orientation, currentHp, hitCells, isSunk]
+            properties:
+              id: { type: string, format: uuid }
+              x: { type: integer, minimum: 0 }
+              y: { type: integer, minimum: 0 }
+              orientation: { type: string, enum: [N, S, E, W] }
+              currentHp: { type: integer, minimum: 0 }
+              hitCells: { type: array, items: { type: object, properties: { x: { type: integer }, y: { type: integer } } } }
+              isSunk: { type: boolean }

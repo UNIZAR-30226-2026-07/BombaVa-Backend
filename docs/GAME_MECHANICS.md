@@ -292,6 +292,7 @@ Representa la capacidad de fuego inmediata y la preparación de los sistemas de 
 
 ## 2.3. Protocolo de Sincronización y Transmisión de Datos (V1, Propuesta) {#2.3.-protocolo-de-sincronización-y-transmisión-de-datos-(v1,-propuesta)}
 
+**NO IMPLEMENTADA, pero sirve de referencia, para la implementación, leer a continuacion**
 Para garantizar la integridad de la Niebla de Guerra y optimizar el tráfico de red, la información se transmitirá mediante un sistema de **Cambios (Deltas)**. **El cliente** nunca tendrá el mapa completo, sino una **caché local** que irá poblando con los mensajes del servidor.
 
 Propuesta (Sujeta a cambios):
@@ -331,6 +332,30 @@ El flujo de información en un ataque debe garantizar que ambos jugadores estén
 
 * Los obstáculos (rocas, minas, terreno) se tratan exactamente como los barcos enemigos: el cliente **no conoce su ubicación** al inicio de la partida.  
 * La información del terreno se descarga dinámicamente en el array de "Casillas Descubiertas" mencionado en el punto A. Una vez que el cliente conoce una roca, esta queda guardada en su caché local (a menos que el motor de juego decida que los obstáculos también pueden cambiar).
+
+## 2.3. Protocolo de Sincronización y Transmisión de Datos (V1 - Implementación)
+
+El sistema utiliza una arquitectura de **"Fotografías de Estado" (State Snapshots)**. En lugar de enviar incrementos (deltas) o cambios a nivel de casilla, el servidor envía el estado completo de las flotas visibles a cada jugador después de cada acción significativa.
+
+Este enfoque garantiza la consistencia del cliente frente a pérdidas de paquetes y simplifica la lógica de renderizado del lado del frontend.
+
+#### A. Mecánica de Visión
+*   **Asimetría:** Cada jugador recibe una actualización individual (`match:vision_update`). El servidor procesa la visión de forma asimétrica; el Host y el Guest pueden recibir datos diferentes en la misma fase de la partida.
+*   **Nivel de Objeto:** La visión no se procesa por casillas, sino por **barcos completos**. Si un jugador tiene capacidad de ver una sola parte de un barco enemigo, el servidor revela el registro completo de ese barco (incluyendo su HP, posición y orientación).
+*   **Perspectiva:** Los datos recibidos están pre-traducidos a la perspectiva del jugador (los jugadores del bando SOUTH reciben coordenadas y orientaciones invertidas para que el tablero siempre se dibuje con su zona de inicio abajo).
+
+#### B. Protocolo de Actualización
+Tras cada acción que altere el estado del tablero (movimiento, rotación, disparo o impacto), el servidor ejecuta el siguiente flujo:
+1.  **Ejecución de la Acción:** Se valida el coste de recursos y se actualiza la Base de Datos.
+2.  **Cálculo de Visión:** El servidor calcula qué barcos enemigos están dentro del radio de alcance de la flota del jugador.
+    *   *Nota V1:* El cálculo está configurado actualmente como un **MOCK** que devuelve todos los barcos enemigos como visibles.
+3.  **Emisión Privada:** Se emite el evento `match:vision_update` a cada socket individual con dos arrays:
+    *   `myFleet`: Información completa de los barcos propios.
+    *   `visibleEnemyFleet`: Información de los barcos enemigos detectados.
+
+#### C. Integridad y Seguridad
+*   **Validación Backend:** El cliente nunca tiene el mapa completo de antemano. Al realizar una acción, el servidor calcula de nuevo la visión antes de responder, evitando que clientes modificados puedan "leer" barcos fuera de su rango de visión real.
+*   **Sincronización:** Al recibir el snapshot, el frontend debe sobreescribir su caché local de posiciones con los datos recibidos, eliminando la necesidad de gestionar estados intermedios complejos.
 
 ## 2.4. Lógica de Interacción con la API y BBDD (Propuesta) {#2.4.-lógica-de-interacción-con-la-api-y-bbdd-(propuesta)}
 

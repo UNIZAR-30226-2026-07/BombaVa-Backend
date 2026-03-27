@@ -266,6 +266,78 @@
                   "x-parser-schema-id": "<anonymous-schema-24>"
                 },
                 "x-parser-schema-id": "<anonymous-schema-23>"
+              },
+              "enemyFleet": {
+                "type": "array",
+                "description": "Lista de barcos enemigos visibles inicialmente.",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "x",
+                    "y",
+                    "orientation",
+                    "currentHp",
+                    "hitCells",
+                    "isSunk"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "x-parser-schema-id": "<anonymous-schema-37>"
+                    },
+                    "x": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "x-parser-schema-id": "<anonymous-schema-38>"
+                    },
+                    "y": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "x-parser-schema-id": "<anonymous-schema-39>"
+                    },
+                    "orientation": {
+                      "type": "string",
+                      "enum": [
+                        "N",
+                        "S",
+                        "E",
+                        "W"
+                      ],
+                      "x-parser-schema-id": "<anonymous-schema-40>"
+                    },
+                    "currentHp": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "x-parser-schema-id": "<anonymous-schema-41>"
+                    },
+                    "hitCells": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "integer",
+                            "x-parser-schema-id": "<anonymous-schema-44>"
+                          },
+                          "y": {
+                            "type": "integer",
+                            "x-parser-schema-id": "<anonymous-schema-45>"
+                          }
+                        },
+                        "x-parser-schema-id": "<anonymous-schema-43>"
+                      },
+                      "x-parser-schema-id": "<anonymous-schema-42>"
+                    },
+                    "isSunk": {
+                      "type": "boolean",
+                      "x-parser-schema-id": "<anonymous-schema-46>"
+                    }
+                  },
+                  "x-parser-schema-id": "<anonymous-schema-36>"
+                },
+                "x-parser-schema-id": "<anonymous-schema-35>"
               }
             },
             "x-parser-schema-id": "<anonymous-schema-10>"
@@ -282,10 +354,10 @@
               "message": {
                 "type": "string",
                 "example": "Lobby no encontrado",
-                "x-parser-schema-id": "<anonymous-schema-36>"
+                "x-parser-schema-id": "<anonymous-schema-48>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-35>"
+            "x-parser-schema-id": "<anonymous-schema-47>"
           },
           "x-parser-unique-object-id": "lobbyError"
         },
@@ -302,10 +374,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-38>"
+                "x-parser-schema-id": "<anonymous-schema-50>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-37>"
+            "x-parser-schema-id": "<anonymous-schema-49>"
           },
           "x-parser-unique-object-id": "gameJoin"
         },
@@ -322,10 +394,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-40>"
+                "x-parser-schema-id": "<anonymous-schema-52>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-39>"
+            "x-parser-schema-id": "<anonymous-schema-51>"
           },
           "x-parser-unique-object-id": "gameJoined"
         },
@@ -342,10 +414,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-42>"
+                "x-parser-schema-id": "<anonymous-schema-54>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-41>"
+            "x-parser-schema-id": "<anonymous-schema-53>"
           },
           "x-parser-unique-object-id": "matchPauseRequest"
         },
@@ -363,10 +435,10 @@
                 "type": "string",
                 "description": "Nombre del usuario que solicita la pausa.",
                 "example": "oscar_tester",
-                "x-parser-schema-id": "<anonymous-schema-44>"
+                "x-parser-schema-id": "<anonymous-schema-56>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-43>"
+            "x-parser-schema-id": "<anonymous-schema-55>"
           },
           "x-parser-unique-object-id": "matchPauseRequested"
         },
@@ -383,10 +455,10 @@
               "message": {
                 "type": "string",
                 "example": "No es tu turno",
-                "x-parser-schema-id": "<anonymous-schema-46>"
+                "x-parser-schema-id": "<anonymous-schema-58>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-45>"
+            "x-parser-schema-id": "<anonymous-schema-57>"
           },
           "x-parser-unique-object-id": "gameError"
         },
@@ -403,10 +475,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-48>"
+                "x-parser-schema-id": "<anonymous-schema-60>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-47>"
+            "x-parser-schema-id": "<anonymous-schema-59>"
           },
           "x-parser-unique-object-id": "matchTurnEnd"
         },
@@ -426,13 +498,13 @@
                 "type": "string",
                 "format": "uuid",
                 "description": "ID del usuario que ahora tiene el turno.",
-                "x-parser-schema-id": "<anonymous-schema-50>"
+                "x-parser-schema-id": "<anonymous-schema-62>"
               },
               "turnNumber": {
                 "type": "integer",
                 "description": "Contador total de turnos de la partida.",
                 "example": 2,
-                "x-parser-schema-id": "<anonymous-schema-51>"
+                "x-parser-schema-id": "<anonymous-schema-63>"
               },
               "resources": {
                 "type": "object",
@@ -442,19 +514,19 @@
                     "type": "integer",
                     "description": "Puntos de movimiento (MP) acumulados.",
                     "example": 20,
-                    "x-parser-schema-id": "<anonymous-schema-53>"
+                    "x-parser-schema-id": "<anonymous-schema-65>"
                   },
                   "ammo": {
                     "type": "integer",
                     "description": "Puntos de acción (AP) reseteados.",
                     "example": 5,
-                    "x-parser-schema-id": "<anonymous-schema-54>"
+                    "x-parser-schema-id": "<anonymous-schema-66>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-52>"
+                "x-parser-schema-id": "<anonymous-schema-64>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-49>"
+            "x-parser-schema-id": "<anonymous-schema-61>"
           },
           "x-parser-unique-object-id": "matchTurnChanged"
         },
@@ -471,10 +543,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-56>"
+                "x-parser-schema-id": "<anonymous-schema-68>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-55>"
+            "x-parser-schema-id": "<anonymous-schema-67>"
           },
           "x-parser-unique-object-id": "matchSurrender"
         },
@@ -493,7 +565,7 @@
                 "type": "string",
                 "format": "uuid",
                 "description": "ID del jugador que ha ganado la partida.",
-                "x-parser-schema-id": "<anonymous-schema-58>"
+                "x-parser-schema-id": "<anonymous-schema-70>"
               },
               "reason": {
                 "type": "string",
@@ -502,10 +574,10 @@
                   "elimination"
                 ],
                 "example": "surrender",
-                "x-parser-schema-id": "<anonymous-schema-59>"
+                "x-parser-schema-id": "<anonymous-schema-71>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-57>"
+            "x-parser-schema-id": "<anonymous-schema-69>"
           },
           "x-parser-unique-object-id": "matchFinished"
         },
@@ -524,13 +596,13 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-61>"
+                "x-parser-schema-id": "<anonymous-schema-73>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
                 "description": "ID de la instancia del barco a mover.",
-                "x-parser-schema-id": "<anonymous-schema-62>"
+                "x-parser-schema-id": "<anonymous-schema-74>"
               },
               "direction": {
                 "type": "string",
@@ -541,10 +613,10 @@
                   "W"
                 ],
                 "description": "Dirección del movimiento.",
-                "x-parser-schema-id": "<anonymous-schema-63>"
+                "x-parser-schema-id": "<anonymous-schema-75>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-60>"
+            "x-parser-schema-id": "<anonymous-schema-72>"
           },
           "x-parser-unique-object-id": "shipMove"
         },
@@ -564,7 +636,7 @@
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-65>"
+                "x-parser-schema-id": "<anonymous-schema-77>"
               },
               "position": {
                 "type": "object",
@@ -572,30 +644,30 @@
                   "x": {
                     "type": "integer",
                     "example": 5,
-                    "x-parser-schema-id": "<anonymous-schema-67>"
+                    "x-parser-schema-id": "<anonymous-schema-79>"
                   },
                   "y": {
                     "type": "integer",
                     "example": 6,
-                    "x-parser-schema-id": "<anonymous-schema-68>"
+                    "x-parser-schema-id": "<anonymous-schema-80>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-66>"
+                "x-parser-schema-id": "<anonymous-schema-78>"
               },
               "fuelReserve": {
                 "type": "integer",
                 "description": "Nueva reserva de combustible (MP) del jugador tras el gasto.",
                 "example": 9,
-                "x-parser-schema-id": "<anonymous-schema-69>"
+                "x-parser-schema-id": "<anonymous-schema-81>"
               },
               "userId": {
                 "type": "string",
                 "format": "uuid",
                 "description": "ID del usuario que realizó el movimiento.",
-                "x-parser-schema-id": "<anonymous-schema-70>"
+                "x-parser-schema-id": "<anonymous-schema-82>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-64>"
+            "x-parser-schema-id": "<anonymous-schema-76>"
           },
           "x-parser-unique-object-id": "shipMoved"
         },
@@ -614,12 +686,12 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-72>"
+                "x-parser-schema-id": "<anonymous-schema-84>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-73>"
+                "x-parser-schema-id": "<anonymous-schema-85>"
               },
               "target": {
                 "type": "object",
@@ -627,18 +699,18 @@
                   "x": {
                     "type": "integer",
                     "example": 10,
-                    "x-parser-schema-id": "<anonymous-schema-75>"
+                    "x-parser-schema-id": "<anonymous-schema-87>"
                   },
                   "y": {
                     "type": "integer",
                     "example": 5,
-                    "x-parser-schema-id": "<anonymous-schema-76>"
+                    "x-parser-schema-id": "<anonymous-schema-88>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-74>"
+                "x-parser-schema-id": "<anonymous-schema-86>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-71>"
+            "x-parser-schema-id": "<anonymous-schema-83>"
           },
           "x-parser-unique-object-id": "shipAttackCannon"
         },
@@ -658,40 +730,40 @@
               "attackerId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-78>"
+                "x-parser-schema-id": "<anonymous-schema-90>"
               },
               "hit": {
                 "type": "boolean",
                 "description": "Indica si el disparo impactó en un barco.",
-                "x-parser-schema-id": "<anonymous-schema-79>"
+                "x-parser-schema-id": "<anonymous-schema-91>"
               },
               "target": {
                 "type": "object",
                 "properties": {
                   "x": {
                     "type": "integer",
-                    "x-parser-schema-id": "<anonymous-schema-81>"
+                    "x-parser-schema-id": "<anonymous-schema-93>"
                   },
                   "y": {
                     "type": "integer",
-                    "x-parser-schema-id": "<anonymous-schema-82>"
+                    "x-parser-schema-id": "<anonymous-schema-94>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-80>"
+                "x-parser-schema-id": "<anonymous-schema-92>"
               },
               "targetHp": {
                 "type": "integer",
                 "nullable": true,
                 "description": "Nuevo HP del objetivo si hubo impacto.",
-                "x-parser-schema-id": "<anonymous-schema-83>"
+                "x-parser-schema-id": "<anonymous-schema-95>"
               },
               "ammoCurrent": {
                 "type": "integer",
                 "example": 3,
-                "x-parser-schema-id": "<anonymous-schema-84>"
+                "x-parser-schema-id": "<anonymous-schema-96>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-77>"
+            "x-parser-schema-id": "<anonymous-schema-89>"
           },
           "x-parser-unique-object-id": "shipAttacked"
         },
@@ -709,15 +781,15 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-86>"
+                "x-parser-schema-id": "<anonymous-schema-98>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-87>"
+                "x-parser-schema-id": "<anonymous-schema-99>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-85>"
+            "x-parser-schema-id": "<anonymous-schema-97>"
           },
           "x-parser-unique-object-id": "shipAttackTorpedo"
         },
@@ -739,20 +811,20 @@
                   "TORPEDO",
                   "MINE"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-89>"
+                "x-parser-schema-id": "<anonymous-schema-101>"
               },
               "attackerId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-90>"
+                "x-parser-schema-id": "<anonymous-schema-102>"
               },
               "ammoCurrent": {
                 "type": "integer",
                 "example": 2,
-                "x-parser-schema-id": "<anonymous-schema-91>"
+                "x-parser-schema-id": "<anonymous-schema-103>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-88>"
+            "x-parser-schema-id": "<anonymous-schema-100>"
           },
           "x-parser-unique-object-id": "projectileLaunched"
         },
@@ -771,29 +843,29 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-93>"
+                "x-parser-schema-id": "<anonymous-schema-105>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-94>"
+                "x-parser-schema-id": "<anonymous-schema-106>"
               },
               "target": {
                 "type": "object",
                 "properties": {
                   "x": {
                     "type": "integer",
-                    "x-parser-schema-id": "<anonymous-schema-96>"
+                    "x-parser-schema-id": "<anonymous-schema-108>"
                   },
                   "y": {
                     "type": "integer",
-                    "x-parser-schema-id": "<anonymous-schema-97>"
+                    "x-parser-schema-id": "<anonymous-schema-109>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-95>"
+                "x-parser-schema-id": "<anonymous-schema-107>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-92>"
+            "x-parser-schema-id": "<anonymous-schema-104>"
           },
           "x-parser-unique-object-id": "shipAttackMine"
         },
@@ -812,13 +884,13 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-99>"
+                "x-parser-schema-id": "<anonymous-schema-111>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
                 "description": "ID de la instancia del barco a rotar.",
-                "x-parser-schema-id": "<anonymous-schema-100>"
+                "x-parser-schema-id": "<anonymous-schema-112>"
               },
               "degrees": {
                 "type": "integer",
@@ -827,10 +899,10 @@
                   -90
                 ],
                 "description": "Grados de rotación (90 a la derecha, -90 a la izquierda).",
-                "x-parser-schema-id": "<anonymous-schema-101>"
+                "x-parser-schema-id": "<anonymous-schema-113>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-98>"
+            "x-parser-schema-id": "<anonymous-schema-110>"
           },
           "x-parser-unique-object-id": "shipRotate"
         },
@@ -850,7 +922,7 @@
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-103>"
+                "x-parser-schema-id": "<anonymous-schema-115>"
               },
               "orientation": {
                 "type": "string",
@@ -860,22 +932,180 @@
                   "E",
                   "W"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-104>"
+                "x-parser-schema-id": "<anonymous-schema-116>"
               },
               "fuelReserve": {
                 "type": "integer",
                 "description": "Nueva reserva de combustible tras gastar MP.",
-                "x-parser-schema-id": "<anonymous-schema-105>"
+                "x-parser-schema-id": "<anonymous-schema-117>"
               },
               "userId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-106>"
+                "x-parser-schema-id": "<anonymous-schema-118>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-102>"
+            "x-parser-schema-id": "<anonymous-schema-114>"
           },
           "x-parser-unique-object-id": "shipRotated"
+        },
+        "matchVisionUpdate": {
+          "name": "match:vision_update",
+          "contentType": "application/json",
+          "summary": "Envía a un jugador su visión actualizada del tablero de forma individual.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "myFleet",
+              "visibleEnemyFleet"
+            ],
+            "properties": {
+              "myFleet": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "x",
+                    "y",
+                    "orientation",
+                    "currentHp",
+                    "hitCells",
+                    "isSunk"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "x-parser-schema-id": "<anonymous-schema-122>"
+                    },
+                    "x": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "x-parser-schema-id": "<anonymous-schema-123>"
+                    },
+                    "y": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "x-parser-schema-id": "<anonymous-schema-124>"
+                    },
+                    "orientation": {
+                      "type": "string",
+                      "enum": [
+                        "N",
+                        "S",
+                        "E",
+                        "W"
+                      ],
+                      "x-parser-schema-id": "<anonymous-schema-125>"
+                    },
+                    "currentHp": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "x-parser-schema-id": "<anonymous-schema-126>"
+                    },
+                    "hitCells": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "integer",
+                            "x-parser-schema-id": "<anonymous-schema-129>"
+                          },
+                          "y": {
+                            "type": "integer",
+                            "x-parser-schema-id": "<anonymous-schema-130>"
+                          }
+                        },
+                        "x-parser-schema-id": "<anonymous-schema-128>"
+                      },
+                      "x-parser-schema-id": "<anonymous-schema-127>"
+                    },
+                    "isSunk": {
+                      "type": "boolean",
+                      "x-parser-schema-id": "<anonymous-schema-131>"
+                    }
+                  },
+                  "x-parser-schema-id": "<anonymous-schema-121>"
+                },
+                "x-parser-schema-id": "<anonymous-schema-120>"
+              },
+              "visibleEnemyFleet": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "x",
+                    "y",
+                    "orientation",
+                    "currentHp",
+                    "hitCells",
+                    "isSunk"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "x-parser-schema-id": "<anonymous-schema-134>"
+                    },
+                    "x": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "x-parser-schema-id": "<anonymous-schema-135>"
+                    },
+                    "y": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "x-parser-schema-id": "<anonymous-schema-136>"
+                    },
+                    "orientation": {
+                      "type": "string",
+                      "enum": [
+                        "N",
+                        "S",
+                        "E",
+                        "W"
+                      ],
+                      "x-parser-schema-id": "<anonymous-schema-137>"
+                    },
+                    "currentHp": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "x-parser-schema-id": "<anonymous-schema-138>"
+                    },
+                    "hitCells": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "integer",
+                            "x-parser-schema-id": "<anonymous-schema-141>"
+                          },
+                          "y": {
+                            "type": "integer",
+                            "x-parser-schema-id": "<anonymous-schema-142>"
+                          }
+                        },
+                        "x-parser-schema-id": "<anonymous-schema-140>"
+                      },
+                      "x-parser-schema-id": "<anonymous-schema-139>"
+                    },
+                    "isSunk": {
+                      "type": "boolean",
+                      "x-parser-schema-id": "<anonymous-schema-143>"
+                    }
+                  },
+                  "x-parser-schema-id": "<anonymous-schema-133>"
+                },
+                "x-parser-schema-id": "<anonymous-schema-132>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-119>"
+          },
+          "x-parser-unique-object-id": "matchVisionUpdate"
         }
       },
       "x-parser-unique-object-id": "main"
@@ -980,6 +1210,15 @@
         "$ref:$.channels.main.messages.gameError"
       ],
       "x-parser-unique-object-id": "game:error"
+    },
+    "match:vision_update": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "El servidor actualiza la Niebla de Guerra de un jugador enviándole su flota y los enemigos que es capaz de ver en ese instante.",
+      "messages": [
+        "$ref:$.channels.main.messages.matchVisionUpdate"
+      ],
+      "x-parser-unique-object-id": "match:vision_update"
     },
     "match:turn_end": {
       "action": "receive",

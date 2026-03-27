@@ -145,3 +145,36 @@ messages:
                       type: integer
               isSunk:
                 type: boolean
+        enemyFleet:
+          type: array
+          description: Lista de barcos enemigos visibles inicialmente.
+          items:
+            type: object
+            required: [id, x, y, orientation, currentHp, hitCells, isSunk]
+            properties:
+              id:
+                type: string
+                format: uuid
+              x:
+                type: integer
+                minimum: 0
+              y:
+                type: integer
+                minimum: 0
+              orientation:
+                type: string
+                enum: [N, S, E, W]
+              currentHp:
+                type: integer
+                minimum: 0
+              hitCells:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    x:
+                      type: integer
+                    y:
+                      type: integer
+              isSunk:
+                type: boolean

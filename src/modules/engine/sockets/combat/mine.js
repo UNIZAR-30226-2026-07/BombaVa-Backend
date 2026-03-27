@@ -49,6 +49,9 @@ export const handleMineDrop = async (io, socket, data) => {
             attackerId: userId,
             ammoCurrent: nuevaMunicion
         });
+
+        await matchService.notificarVisionSala(io, matchId);
+        
     } catch (error) {
         socket.emit('game:error', { message: error.message });
     }

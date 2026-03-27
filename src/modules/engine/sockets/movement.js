@@ -3,6 +3,7 @@
  */
 import { Match, MatchPlayer, ShipInstance, sequelize } from '../../../shared/models/index.js';
 import { engineService } from '../index.js';
+import { matchService } from '../../game/index.js';
 
 export const registerMovementHandlers = (io, socket) => {
 
@@ -49,12 +50,22 @@ export const registerMovementHandlers = (io, socket) => {
 
             await transaction.commit();
 
+            //NOTA: QUIZA ESTOS CAMBIARLOS POR MENSAJES INDIVIDUALES
             io.to(matchId).emit('ship:moved', {
                 shipId,
                 position: nuevaPos,
                 fuelReserve: jugador.fuelReserve,
                 userId
             });
+
+            //Actualización de Visión
+            //No cambiar aqui para V2, cambiar generarSnapshotVision
+            const socketsEnSala = await io.in(matchId).fetchSockets();
+            for (const s of socketsEnSala) {
+                const targetUserId = s.data.user.id;
+                const vision = await matchService.generarSnapshotVision(matchId, targetUserId);
+                s.emit('match:vision_update', vision); // Emitimos solo a este socket
+            }
         } catch (error) {
             if (transaction) await transaction.rollback();
             socket.emit('game:error', { message: error.message });
@@ -109,6 +120,15 @@ export const registerMovementHandlers = (io, socket) => {
                 fuelReserve: jugador.fuelReserve,
                 userId
             });
+
+            //Actualización de Visión
+            //Misma notas que antes, no cambiar para V2
+            const socketsEnSala = await io.in(matchId).fetchSockets();
+            for (const s of socketsEnSala) {
+                const targetUserId = s.data.user.id;
+                const vision = await matchService.generarSnapshotVision(matchId, targetUserId);
+                s.emit('match:vision_update', vision); // Emitimos solo a este socket
+            }
         } catch (error) {
             if (transaction) await transaction.rollback();
             socket.emit('game:error', { message: error.message });

@@ -30,6 +30,8 @@ export const registerTurnHandlers = (io, socket) => {
                 ammo: oponente.ammoCurrent
             });
 
+
+            // Resolucion de proyectiles antes que esto
             oponente.fuelReserve = nuevosRecursos.fuel;
             oponente.ammoCurrent = nuevosRecursos.ammo;
             partida.currentTurnPlayerId = oponente.userId;
