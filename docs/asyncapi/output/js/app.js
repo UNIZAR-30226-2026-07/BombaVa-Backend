@@ -796,6 +796,86 @@
             "x-parser-schema-id": "<anonymous-schema-92>"
           },
           "x-parser-unique-object-id": "shipAttackMine"
+        },
+        "shipRotate": {
+          "name": "ship:rotate",
+          "contentType": "application/json",
+          "summary": "El jugador solicita rotar un barco 90 grados (horario o antihorario).",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchId",
+              "shipId",
+              "degrees"
+            ],
+            "properties": {
+              "matchId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-99>"
+              },
+              "shipId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "ID de la instancia del barco a rotar.",
+                "x-parser-schema-id": "<anonymous-schema-100>"
+              },
+              "degrees": {
+                "type": "integer",
+                "enum": [
+                  90,
+                  -90
+                ],
+                "description": "Grados de rotación (90 a la derecha, -90 a la izquierda).",
+                "x-parser-schema-id": "<anonymous-schema-101>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-98>"
+          },
+          "x-parser-unique-object-id": "shipRotate"
+        },
+        "shipRotated": {
+          "name": "ship:rotated",
+          "contentType": "application/json",
+          "summary": "Notifica a la sala que un barco ha rotado exitosamente.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "shipId",
+              "orientation",
+              "fuelReserve",
+              "userId"
+            ],
+            "properties": {
+              "shipId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-103>"
+              },
+              "orientation": {
+                "type": "string",
+                "enum": [
+                  "N",
+                  "S",
+                  "E",
+                  "W"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-104>"
+              },
+              "fuelReserve": {
+                "type": "integer",
+                "description": "Nueva reserva de combustible tras gastar MP.",
+                "x-parser-schema-id": "<anonymous-schema-105>"
+              },
+              "userId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-106>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-102>"
+          },
+          "x-parser-unique-object-id": "shipRotated"
         }
       },
       "x-parser-unique-object-id": "main"
@@ -954,6 +1034,24 @@
         "$ref:$.channels.main.messages.shipMoved"
       ],
       "x-parser-unique-object-id": "ship:moved"
+    },
+    "ship:rotate": {
+      "action": "receive",
+      "channel": "$ref:$.channels.main",
+      "summary": "Procesar la rotación de un barco.",
+      "messages": [
+        "$ref:$.channels.main.messages.shipRotate"
+      ],
+      "x-parser-unique-object-id": "ship:rotate"
+    },
+    "ship:rotated": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Comunicar la rotación exitosa a los jugadores.",
+      "messages": [
+        "$ref:$.channels.main.messages.shipRotated"
+      ],
+      "x-parser-unique-object-id": "ship:rotated"
     },
     "ship:attack:cannon": {
       "action": "receive",
