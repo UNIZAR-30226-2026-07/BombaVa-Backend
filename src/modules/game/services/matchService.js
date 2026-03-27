@@ -89,23 +89,30 @@ export const calcularRegeneracionTurno = (recursosActuales) => {
 };
 
 /**
- * Recupera el estado completo de una partida
- * @param {UUID} matchId El id de la partid
- * @param {UUID} userId El id del usuario
+ * Genera la visión actual del tablero para un jugador.
+ * MOCK V1: Devuelve todos los barcos enemigos como visibles.
  */
-export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
-    const match = await MatchDao.findById(matchId);
-    const matchInfo = await EngineDao.findByMatchAndPlayer(matchId, userId);
+export const generarSnapshotVision = async (matchId, userId) => {
     const jugador = await MatchDao.findMatchPlayer(matchId, userId);
     const bando = jugador.side;
-    //Borrar elementos que no sirve para el cliente
-    const barcosLimpios = matchInfo.map(barco => {
-        // Traducir info del juagdor si es del bando norte para que tenga vista desde sur
+    
+    // Obtenemos todos los barcos del tablero
+    const todosLosBarcos = await EngineDao.findByMatchId(matchId);
+
+    const misBarcosRaw = todosLosBarcos.filter(b => b.playerId === userId);
+    const enemigosRaw = todosLosBarcos.filter(b => b.playerId !== userId);
+
+    // TODO (V2): Aquí irá la función que calcula el tablero visible: calcularVision(misBarcosRaw, enemigosRaw)
+    // Para la V1, el MOCK asume que todos los enemigos son visibles
+    const enemigosVisiblesRaw = enemigosRaw; 
+
+    // Función auxiliar para traducir la visión al bando del jugador
+    const limpiarYTraducir = (barcos) => barcos.map(barco => {
         const posTraducida = traducirPosicionTablero({ x: barco.x, y: barco.y }, bando);
         const orientacionTraducida = traducirOrientacion(barco.orientation, bando);
         const hitCellsTraducidas = barco.hitCells 
             ? barco.hitCells.map(hit => traducirPosicionTablero(hit, bando))
-            : [];
+            :[];
 
         return {
             id: barco.id,
@@ -117,6 +124,31 @@ export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
             isSunk: barco.isSunk
         };
     });
+
+    return {
+        myFleet: limpiarYTraducir(misBarcosRaw),
+        visibleEnemyFleet: limpiarYTraducir(enemigosVisiblesRaw)
+    };
+};
+
+
+/**
+ * Recupera el estado completo de una partida
+ * @param {UUID} matchId El id de la partid
+ * @param {UUID} userId El id del usuario
+ */
+/**
+ * Recupera el estado completo de una partida
+ * @param {UUID} matchId El id de la partida
+ * @param {UUID} userId El id del usuario
+ */
+export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
+    const match = await MatchDao.findById(matchId);
+    const jugador = await MatchDao.findMatchPlayer(matchId, userId);
+    
+    // Usamos el nuevo sistema de visión para obtener las flotas
+    const vision = await generarSnapshotVision(matchId, userId);
+
     const partidaLimpio = ({
         matchId: match.id,
         status: match.status,
@@ -125,11 +157,13 @@ export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
         turnNumber: match.turnNumber,
         mapTerrain: match.mapTerrain
     });
+    
     const payload = {
         matchInfo: partidaLimpio,
         ammo: jugador.ammoCurrent,
         fuel: jugador.fuelReserve,
-        playerFleet: barcosLimpios
+        playerFleet: vision.myFleet,
+        enemyFleet: vision.visibleEnemyFleet // Añadido para que el cliente vea al enemigo al entrar
     };
     return payload;
 };

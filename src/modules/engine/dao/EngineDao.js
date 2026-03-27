@@ -128,6 +128,18 @@ class EngineDao{
             where: { matchId, x, y, isSunk: false }
         });
     }
+
+    /**
+     * Busca todos los barcos de una partida (de ambos jugadores).
+     * @param {UUID} matchId Id de la partida
+     * @returns {Promise<Array>} Listado de todos los barcos
+     */
+    async findByMatchId(matchId) {
+        return await ShipInstance.findAll({
+            where: { matchId }
+        });
+    }
+
 }
 
 export default new EngineDao();
