@@ -43,3 +43,28 @@ messages:
           type: string
           format: uuid
           description: ID del usuario que realizó el movimiento.
+
+  ShipRotate:
+    name: 'ship:rotate'
+    contentType: application/json
+    summary: El jugador solicita rotar un barco 90 grados (horario o antihorario).
+    payload:
+      type: object
+      required: [matchId, shipId, degrees]
+      properties:
+        matchId: { type: string, format: uuid }
+        shipId: { type: string, format: uuid, description: ID de la instancia del barco a rotar. }
+        degrees: { type: integer, enum:[90, -90], description: "Grados de rotación (90 a la derecha, -90 a la izquierda)." }
+
+  ShipRotated:
+    name: 'ship:rotated'
+    contentType: application/json
+    summary: Notifica a la sala que un barco ha rotado exitosamente.
+    payload:
+      type: object
+      required: [shipId, orientation, fuelReserve, userId]
+      properties:
+        shipId: { type: string, format: uuid }
+        orientation: { type: string, enum: [N, S, E, W] }
+        fuelReserve: { type: integer, description: "Nueva reserva de combustible tras gastar MP." }
+        userId: { type: string, format: uuid }
