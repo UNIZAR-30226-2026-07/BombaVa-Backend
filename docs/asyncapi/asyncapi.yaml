@@ -62,6 +62,8 @@ channels:
         $ref: './engine/movement.yaml#/messages/ShipRotate'
       shipRotated:
         $ref: './engine/movement.yaml#/messages/ShipRotated'
+      matchVisionUpdate:
+        $ref: './game/session.yaml#/messages/MatchVisionUpdate'
 
 operations:
 #LOBBY
@@ -154,6 +156,14 @@ operations:
     summary: Enviar un mensaje de error al cliente ante una acción inválida.
     messages: 
       - $ref: '#/channels/main/messages/gameError'
+
+  "match:vision_update":
+    action: send
+    channel: 
+      $ref: '#/channels/main'
+    summary: El servidor actualiza la Niebla de Guerra de un jugador enviándole su flota y los enemigos que es capaz de ver en ese instante.
+    messages:
+      - $ref: '#/channels/main/messages/matchVisionUpdate'
 
 #TURNS
   "match:turn_end":
