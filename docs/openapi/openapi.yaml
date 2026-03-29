@@ -5,8 +5,8 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:3000
-    description: Servidor de desarrollo local
+  - url: /
+    description: Servidor actual
 
 components:
   securitySchemes:
