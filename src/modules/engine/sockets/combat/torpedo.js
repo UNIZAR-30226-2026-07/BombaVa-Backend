@@ -5,6 +5,7 @@ import EngineDao from '../../dao/EngineDao.js';
 import MatchDao from '../../../game/dao/MatchDao.js';
 import ProjectileDao from '../../dao/ProjectileDao.js';
 import * as combatService from '../../services/combatService.js';
+import { matchService } from '../../../game/index.js';
 
 export const handleTorpedoLaunch = async (io, socket, data) => {
     const { matchId, shipId } = data;
