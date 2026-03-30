@@ -14,7 +14,7 @@ export const handleCannonAttack = async (io, socket, data) => {
         const partida = await MatchDao.findById(matchId);
         const barco = await EngineDao.findById(shipId);
         const jugador = await MatchDao.findMatchPlayer(matchId, userId);
-
+        const targetTraducido =  matchService.traducirPosicionTablero(target, jugador.side);
         if (!partida || !barco || !jugador) {
             throw new Error('No se han encontrado las entidades necesarias');
         }
@@ -25,12 +25,11 @@ export const handleCannonAttack = async (io, socket, data) => {
         if (barco.lastAttackTurn === partida.turnNumber || jugador.ammoCurrent < cañon.apCost) {
             throw new Error('Ataque no disponible o munición insuficiente');
         }
-        if (!combatService.validarRangoAtaque({ x: barco.x, y: barco.y }, target, cañon.range)) {
+        if (!combatService.validarRangoAtaque({ x: barco.x, y: barco.y }, targetTraducido, cañon.range)) {
             throw new Error('Objetivo fuera de rango');
         }
 
-        const objetivo = await EngineDao.findTargetAtCoordinates(matchId, target.x, target.y);
-
+        const objetivo = await EngineDao.findTargetAtCoordinates(matchId, targetTraducido.x, targetTraducido.y);
         let targetHp = null;
         if (objetivo) {
             const newHp = Math.max(0, objetivo.currentHp - cañon.damage);

@@ -15,7 +15,7 @@ export const handleMineDrop = async (io, socket, data) => {
         const partida = await MatchDao.findById(matchId);
         const barco = await EngineDao.findById(shipId);
         const jugador = await MatchDao.findMatchPlayer(matchId, userId);
-
+        const targetTraducido =  matchService.traducirPosicionTablero(target, jugador.side);
         if (!barco || !jugador || !partida) {
             throw new Error('No se han encontrado las entidades necesarias para colocar la mina');
         }
@@ -28,7 +28,7 @@ export const handleMineDrop = async (io, socket, data) => {
             throw new Error('Munición insuficiente para mina');
         }
 
-        if (!combatService.validarAdyacencia({ x: barco.x, y: barco.y }, target)) {
+        if (!combatService.validarAdyacencia({ x: barco.x, y: barco.y }, targetTraducido)) {
             throw new Error('La posición de la mina está fuera de rango');
         }
 
@@ -36,8 +36,8 @@ export const handleMineDrop = async (io, socket, data) => {
             matchId,
             ownerId: userId,
             type: 'MINE',
-            x: target.x,
-            y: target.y,
+            x: targetTraducido.x,
+            y: targetTraducido.y,
             lifeDistance: mina.lifeDistance
         });
 
