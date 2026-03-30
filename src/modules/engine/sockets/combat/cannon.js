@@ -3,8 +3,8 @@
  */
 import EngineDao from '../../dao/EngineDao.js';
 import MatchDao from '../../../game/dao/MatchDao.js';
-import { ShipInstance } from '../../../../shared/models/index.js';
 import * as combatService from '../../services/combatService.js';
+import { matchService } from '../../../game/index.js';
 
 export const handleCannonAttack = async (io, socket, data) => {
     const { matchId, shipId, target } = data;
