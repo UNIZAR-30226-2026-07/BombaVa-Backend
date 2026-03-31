@@ -2,13 +2,12 @@
  * Manejador interno de eventos de turno y rendición.
  */
 import { Match, MatchPlayer, sequelize } from '../../../shared/models/index.js';
-import { combatService } from '../../engine/index.js';
 import { matchService, statusService } from '../index.js';
 
 export const registerTurnHandlers = (io, socket) => {
 
     /**
-     * Finaliza el turno del jugador actual y procesa proyectiles.
+     * Finaliza el turno del jugador actual.
      */
     socket.on('match:turn_end', async (data) => {
         const { matchId } = data;
@@ -25,14 +24,14 @@ export const registerTurnHandlers = (io, socket) => {
                 throw new Error('No es tu turno');
             }
 
-            const impactos = await combatService.resolverProyectiles(matchId, transaction);
-
             const oponente = partida.MatchPlayers.find(p => p.userId !== userId);
             const nuevosRecursos = matchService.calcularRegeneracionTurno({
                 fuel: oponente.fuelReserve,
                 ammo: oponente.ammoCurrent
             });
 
+
+            // Resolucion de proyectiles antes que esto
             oponente.fuelReserve = nuevosRecursos.fuel;
             oponente.ammoCurrent = nuevosRecursos.ammo;
             partida.currentTurnPlayerId = oponente.userId;
@@ -45,22 +44,13 @@ export const registerTurnHandlers = (io, socket) => {
 
             await transaction.commit();
 
-            if (impactos.length > 0) {
-                io.to(matchId).emit('match:explosions', { impacts: impactos });
-            }
-
             io.to(matchId).emit('match:turn_changed', {
                 nextPlayerId: partida.currentTurnPlayerId,
                 turnNumber: partida.turnNumber,
                 resources: nuevosRecursos
             });
-
-            await matchService.notificarVisionSala(io, matchId);
-
         } catch (error) {
-            if (transaction && !transaction.finished) {
-                await transaction.rollback();
-            }
+            if (transaction) await transaction.rollback();
             socket.emit('game:error', { message: error.message });
         }
     });
