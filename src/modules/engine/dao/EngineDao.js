@@ -140,6 +140,41 @@ class EngineDao{
         });
     }
 
+    /**
+     * Actualiza la posición (X, Y) de un barco en el tablero.
+     * @param {UUID} id Id del barco
+     * @param {Integer} x Nueva coordenada X
+     * @param {Integer} y Nueva coordenada Y
+     * @returns {Promise<Object>} El barco actualizado
+     */
+    async updateShipPosition(id, x, y) {
+        const [updatedRows, [updatedShip]] = await ShipInstance.update(
+            { x, y },
+            { 
+                where: { id },
+                returning: true 
+            }
+        );
+        return updatedShip;
+    }
+
+    /**
+     * Actualiza la orientación de un barco en el tablero.
+     * @param {UUID} id Id del barco
+     * @param {String} orientation Nueva orientación ('N', 'S', 'E', 'W')
+     * @returns {Promise<Object>} El barco actualizado
+     */
+    async updateShipOrientation(id, orientation) {
+        const [updatedRows, [updatedShip]] = await ShipInstance.update(
+            { orientation },
+            { 
+                where: { id },
+                returning: true 
+            }
+        );
+        return updatedShip;
+    }
+
 }
 
 export default new EngineDao();
