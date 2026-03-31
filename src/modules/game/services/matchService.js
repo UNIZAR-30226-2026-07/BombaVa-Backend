@@ -1,45 +1,20 @@
 /**
  * Servicio de Gestión de Partidas
- * Orquesta la creación, recuperación de estados y lógica de recursos.
  */
 import { GAME_RULES } from '../../../config/gameRules.js';
-import {InventoryDao} from '../../inventory/dao/index.js';
-import {MatchDao} from '../dao/index.js';
-import {EngineDao} from '../../engine/dao/index.js';
-/**
- * Traduce coordenadas relativas del puerto a absolutas del mapa de batalla
- * @param {Object} pos 
- * @param {string} bando 
- */
-export const traducirPosicionTablero = (pos, bando) => {
-    return bando === 'NORTH' ? pos : { x: pos.x, y: (GAME_RULES.MAP.SIZE - 1) - pos.y };
-};
+import { EngineDao } from '../../engine/dao/index.js';
+import { InventoryDao } from '../../inventory/dao/index.js';
+import { MatchDao } from '../dao/index.js';
+import { generarSnapshotVision } from './visionService.js';
 
-/**
- * Traduce la direccion que apunta un barco dependiendo de su bando
- * @param {string} orientacion 
- * @param {string} bando 
- * @returns {string} La nueva orentacion traducida
- */
-export const traducirOrientacion = (orientacion, bando) => {
-    if (bando === 'NORTH') return orientacion;
-    const opuestos = { 'N': 'S', 'S': 'N', 'E': 'E', 'W': 'W' };
-    return opuestos[orientacion] || orientacion;
-};
+export { traducirOrientacion, traducirPosicionTablero } from './boardUtils.js';
 
-/**
- * Crea las instancias físicas de los barcos en el tablero
- * @param {string} matchId 
- * @param {string} playerId 
- * @param {string} bando 
- * @param {Array} configuracionMazo 
- */
 export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configuracionMazo) => {
     const shipList = [];
     for (const shipCfg of configuracionMazo) {
         const userShip = await InventoryDao.findByIdAndUser(shipCfg.userShipId, playerId);
-        const posAbs =  traducirPosicionTablero(shipCfg.position, bando);
-        const orientation = (bando === 'NORTH') ? shipCfg.orientation : 'S';
+        const posAbs = bando === 'NORTH' ? shipCfg.position : { x: shipCfg.position.x, y: (GAME_RULES.MAP.SIZE - 1) - shipCfg.position.y };
+        const orientation = bando === 'NORTH' ? shipCfg.orientation : 'S';
 
         shipList.push({
             matchId: matchId, 
@@ -51,17 +26,12 @@ export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configu
             currentHp: await InventoryDao.getUserShipHp(userShip.id),
             isSunk: false
         });
-        
     }
-    EngineDao.createFleet(shipList);
+    await EngineDao.createFleet(shipList);
 };
 
-/**
- * Orquestador principal para iniciar una partida desde cero
- * @param {Array} usuarios 
- */
-export const iniciarPartidaOrquestada = async (usuarios) => {
 
+export const iniciarPartidaOrquestada = async (usuarios) => {
     const nuevaPartida = await MatchDao.createMatch(usuarios[0].id);
     for (let i = 0; i < usuarios.length; i++) {
         const user = usuarios[i];
@@ -73,7 +43,6 @@ export const iniciarPartidaOrquestada = async (usuarios) => {
             await instanciarFlotaEnPartida(nuevaPartida.id, user.id, bando, mazo.shipIds);
         }
     }
-
     return nuevaPartida;
 };
 
@@ -83,89 +52,33 @@ export const iniciarPartidaOrquestada = async (usuarios) => {
  */
 export const calcularRegeneracionTurno = (recursosActuales) => {
     return {
-        fuel: Math.min(GAME_RULES.RESOURCES.MAX_FUEL, recursosActuales.fuel + GAME_RULES.RESOURCES.REGEN_FUEL),
+        fuel: GAME_RULES.RESOURCES.RESET_FUEL,
         ammo: GAME_RULES.RESOURCES.RESET_AMMO
     };
 };
 
 /**
  * Genera la visión actual del tablero para un jugador.
- * MOCK V1: Devuelve todos los barcos enemigos como visibles.
- */
-export const generarSnapshotVision = async (matchId, userId) => {
-    const jugador = await MatchDao.findMatchPlayer(matchId, userId);
-    const bando = jugador.side;
-    
-    // Obtenemos todos los barcos del tablero
-    const todosLosBarcos = await EngineDao.findByMatchId(matchId);
-
-    const misBarcosRaw = todosLosBarcos.filter(b => b.playerId === userId);
-    const enemigosRaw = todosLosBarcos.filter(b => b.playerId !== userId);
-
-    // TODO (V2): Aquí irá la función que calcula el tablero visible: calcularVision(misBarcosRaw, enemigosRaw)
-    // Para la V1, el MOCK asume que todos los enemigos son visibles
-    const enemigosVisiblesRaw = enemigosRaw; 
-
-    // Función auxiliar para traducir la visión al bando del jugador
-    const limpiarYTraducir = (barcos) => barcos.map(barco => {
-        const posTraducida = traducirPosicionTablero({ x: barco.x, y: barco.y }, bando);
-        const orientacionTraducida = traducirOrientacion(barco.orientation, bando);
-        const hitCellsTraducidas = barco.hitCells 
-            ? barco.hitCells.map(hit => traducirPosicionTablero(hit, bando))
-            :[];
-
-        return {
-            id: barco.id,
-            x: posTraducida.x,
-            y: posTraducida.y,
-            orientation: orientacionTraducida,
-            currentHp: barco.currentHp,
-            hitCells: hitCellsTraducidas,
-            isSunk: barco.isSunk
-        };
-    });
-
-    return {
-        myFleet: limpiarYTraducir(misBarcosRaw),
-        visibleEnemyFleet: limpiarYTraducir(enemigosVisiblesRaw)
-    };
-};
-
-
-/**
- * Recupera el estado completo de una partida
- * @param {UUID} matchId El id de la partid
- * @param {UUID} userId El id del usuario
- */
-/**
- * Recupera el estado completo de una partida
- * @param {UUID} matchId El id de la partida
- * @param {UUID} userId El id del usuario
  */
 export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
     const match = await MatchDao.findById(matchId);
     const jugador = await MatchDao.findMatchPlayer(matchId, userId);
-    
-    // Usamos el nuevo sistema de visión para obtener las flotas
     const vision = await generarSnapshotVision(matchId, userId);
 
-    const partidaLimpio = ({
-        matchId: match.id,
-        status: match.status,
-        currentTurnPlayer: match.currentTurnPlayerId,
-        yourId: userId,
-        turnNumber: match.turnNumber,
-        mapTerrain: match.mapTerrain
-    });
-    
-    const payload = {
-        matchInfo: partidaLimpio,
+    return {
+        matchInfo: {
+            matchId: match.id,
+            status: match.status,
+            currentTurnPlayer: match.currentTurnPlayerId,
+            yourId: userId,
+            turnNumber: match.turnNumber,
+            mapTerrain: match.mapTerrain
+        },
         ammo: jugador.ammoCurrent,
         fuel: jugador.fuelReserve,
         playerFleet: vision.myFleet,
-        enemyFleet: vision.visibleEnemyFleet // Añadido para que el cliente vea al enemigo al entrar
+        enemyFleet: vision.visibleEnemyFleet 
     };
-    return payload;
 };
 
 /**
@@ -176,16 +89,14 @@ export const obtenerHistorialUsuario = async (userId) => {
     return await MatchDao.searchAllMatchesFromUser(userId);
 };
 
-
 /**
- * Notifica a todos los jugadores de la sala su visión actualizada.
- * Útil tras movimientos, rotaciones o eventos de combate que cambien la visión.
+ * Notifica a todos los jugadores de la sala su visión actualizada de forma asíncrona
  */
 export const notificarVisionSala = async (io, matchId) => {
     const socketsEnSala = await io.in(matchId).fetchSockets();
-    for (const s of socketsEnSala) {
-        const targetUserId = s.data.user.id;
-        const vision = await generarSnapshotVision(matchId, targetUserId);
+    const promesas = socketsEnSala.map(async (s) => {
+        const vision = await generarSnapshotVision(matchId, s.data.user.id);
         s.emit('match:vision_update', vision);
-    }
+    });
+    await Promise.all(promesas);
 };

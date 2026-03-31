@@ -1,6 +1,6 @@
 /**
- * Modelo MatchPlayer
- * Representa el estado de un jugador dentro de una partida específica.
+ * MatchPlayer Model
+ * Represents the state of a player within a specific match.
  */
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../../config/db.js';
@@ -24,7 +24,7 @@ const MatchPlayer = sequelize.define('MatchPlayer', {
     },
     fuelReserve: {
         type: DataTypes.INTEGER,
-        defaultValue: GAME_RULES.RESOURCES.MAX_FUEL / 3,
+        defaultValue: GAME_RULES.RESOURCES.RESET_FUEL,
         allowNull: false,
         validate: { min: 0 }
     },
