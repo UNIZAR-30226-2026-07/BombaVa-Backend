@@ -1,6 +1,6 @@
 /**
- * Engine DAO
- * Direct database access for tactical entities.
+ * DAO de Engine
+ * Proporciona acceso directo a la base de datos para entidades tácticas en combate.
  */
 
 import { ShipInstance, ShipTemplate, UserShip, WeaponTemplate } from '../../../shared/models/index.js';
@@ -8,9 +8,9 @@ import { ShipInstance, ShipTemplate, UserShip, WeaponTemplate } from '../../../s
 class EngineDao {
 
     /**
-     * Finds all instantiated ships for a user
-     * @param {string} playerId User ID
-     * @returns {Promise<Array>} List of ships
+     * Busca todos los barcos instanciados asociados a un jugador.
+     * @param {string} playerId - Identificador UUID del jugador.
+     * @returns {Promise<Array<ShipInstance>>} Listado de instancias de barcos.
      */
     async findByPlayerId(playerId) {
         return await ShipInstance.findAll({
@@ -19,10 +19,10 @@ class EngineDao {
     }
 
     /**
-     * Finds the complete fleet of a player in a specific match.
-     * @param {string} matchId Match ID
-     * @param {string} playerId User ID
-     * @returns {Promise<Array>} List of ships
+     * Busca la flota completa de un jugador dentro de una partida específica.
+     * @param {string} matchId - Identificador UUID de la partida.
+     * @param {string} playerId - Identificador UUID del jugador.
+     * @returns {Promise<Array<ShipInstance>>} Listado de barcos en juego.
      */
     async findByMatchAndPlayer(matchId, playerId) {
         return await ShipInstance.findAll({
@@ -31,9 +31,9 @@ class EngineDao {
     }
 
     /**
-     * Retrieves a specific ship by ID with its weapons
-     * @param {string} id Ship ID
-     * @returns {Promise<Object>} Ship instance
+     * Obtiene una instancia de barco específica por su clave primaria, incluyendo su equipamiento.
+     * @param {string} id - Identificador UUID de la instancia del barco.
+     * @returns {Promise<ShipInstance|null>} Instancia del barco con modelos relacionados o null.
      */
     async findById(id) {
         return await ShipInstance.findByPk(id, {
@@ -50,10 +50,10 @@ class EngineDao {
     }
 
     /**
-     * Counts how many alive ships a player has left.
-     * @param {string} matchId Match ID
-     * @param {string} playerId User ID
-     * @returns {Promise<number>} Number of alive ships
+     * Cuenta cuántas unidades permanecen a flote para un jugador en una partida.
+     * @param {string} matchId - Identificador UUID de la partida.
+     * @param {string} playerId - Identificador UUID del jugador.
+     * @returns {Promise<number>} Cantidad de barcos con isSunk en false.
      */
     async countAliveShips(matchId, playerId) {
         return await ShipInstance.count({
@@ -66,13 +66,13 @@ class EngineDao {
     }
    
     /**
-     * Registers a hit on a given ship
-     * @param {string} id Ship ID
-     * @param {number} newHp New health points
-     * @param {Array<Object>} hitCellsArray List of hit cells
-     * @param {boolean} isSunk Whether the ship is sunk
-     * @param {Object} transaction Sequelize transaction
-     * @returns {Promise<Object>} Updated ship
+     * Registra un impacto sobre un barco y actualiza su estado de integridad.
+     * @param {string} id - Identificador UUID del barco.
+     * @param {number} newHp - Nuevo valor de puntos de vida.
+     * @param {Array<Object>} hitCellsArray - Estado actualizado de las celdas del barco.
+     * @param {boolean} isSunk - Flag que indica si el barco ha sido destruido.
+     * @param {Object} [transaction=null] - Transacción de Sequelize opcional para asegurar atomicidad.
+     * @returns {Promise<ShipInstance>} Instancia del barco actualizada.
      */
     async registerHit(id, newHp, hitCellsArray, isSunk, transaction = null) {
         const options = { where: { id }, returning: true };
@@ -87,10 +87,10 @@ class EngineDao {
     }
 
     /**
-     * Updates the turn number of the last attack for a ship.
-     * @param {string} id Ship ID
-     * @param {number} turnNumber Current turn number
-     * @returns {Promise<Object>} Updated ship
+     * Actualiza el registro del turno en el que el barco realizó su último ataque.
+     * @param {string} id - Identificador UUID del barco.
+     * @param {number} turnNumber - Número del turno actual.
+     * @returns {Promise<Array>} Resultado de la actualización.
      */
     async updateLastAttackTurn(id, turnNumber) {
         return await ShipInstance.update(
@@ -100,18 +100,18 @@ class EngineDao {
     }
 
     /**
-     * Instantiates an entire fleet at the start of the match.
-     * @param {Array<Object>} shipsData Array with ship data
-     * @returns {Promise<Array<Object>>} List of instantiated ships
+     * Realiza una creación masiva de barcos para inicializar una partida.
+     * @param {Array<Object>} shipsData - Array de objetos con los datos iniciales de la flota.
+     * @returns {Promise<Array<ShipInstance>>} Listado de barcos creados.
      */
     async createFleet(shipsData) {
         return await ShipInstance.bulkCreate(shipsData);
     }
 
     /**
-     * Deletes all ships from a match.
-     * @param {string} matchId Match ID
-     * @returns {Promise<number>} Number of deleted ships
+     * Elimina todas las instancias de barcos vinculadas a una partida.
+     * @param {string} matchId - Identificador UUID de la partida.
+     * @returns {Promise<number>} Cantidad de registros eliminados.
      */
     async deleteByMatchId(matchId) {
         return await ShipInstance.destroy({
@@ -120,11 +120,11 @@ class EngineDao {
     }
 
     /**
-     * Finds an alive ship at specific match coordinates.
-     * @param {string} matchId Match ID
-     * @param {number} x X coordinate
-     * @param {number} y Y coordinate
-     * @returns {Promise<Object|null>} Ship instance or null
+     * Localiza una unidad viva en unas coordenadas específicas del tablero.
+     * @param {string} matchId - Identificador UUID de la partida.
+     * @param {number} x - Coordenada X.
+     * @param {number} y - Coordenada Y.
+     * @returns {Promise<ShipInstance|null>} Instancia encontrada o null si es agua o está hundido.
      */
     async findTargetAtCoordinates(matchId, x, y) {
         return await ShipInstance.findOne({
@@ -133,9 +133,9 @@ class EngineDao {
     }
 
     /**
-     * Finds all ships in a match.
-     * @param {string} matchId Match ID
-     * @returns {Promise<Array>} List of all ships
+     * Recupera todas las instancias de barcos de una partida, independientemente del jugador.
+     * @param {string} matchId - Identificador UUID de la partida.
+     * @returns {Promise<Array<ShipInstance>>} Listado completo de barcos en el mapa.
      */
     async findByMatchId(matchId) {
         return await ShipInstance.findAll({
@@ -144,9 +144,9 @@ class EngineDao {
     }
 
     /**
-     * Finds all alive ships in a match, including their templates to determine size.
-     * @param {string} matchId Match ID
-     * @returns {Promise<Array>} List of alive ships with template data
+     * Recupera todos los barcos vivos incluyendo información de su plantilla para cálculos de colisión.
+     * @param {string} matchId - Identificador UUID de la partida.
+     * @returns {Promise<Array<ShipInstance>>} Listado de barcos con dimensiones.
      */
     async findAllAliveShipsWithSizes(matchId) {
         return await ShipInstance.findAll({

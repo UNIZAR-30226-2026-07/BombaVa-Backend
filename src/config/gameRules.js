@@ -1,6 +1,10 @@
 /**
- * Global Game Rules Configuration
- * Centralizes balancing values to facilitate adjustments without touching logic.
+ * Configuración Global de Reglas de Juego
+ * Centraliza los valores de balanceo para facilitar ajustes sin tocar la lógica del motor.
+ * @constant {Object} GAME_RULES
+ * @property {Object} MAP - Configuración del tablero.
+ * @property {Object} RESOURCES - Gestión de costes y regeneración de combustible/munición.
+ * @property {Object} COMBAT - Valores de daño y persistencia de proyectiles.
  */
 export const GAME_RULES = {
     MAP: {
