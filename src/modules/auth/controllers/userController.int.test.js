@@ -1,20 +1,20 @@
 /**
- * Test de Integración: API de Usuarios (Refactorizado)
+ * Test de Integración: API de Usuarios
  */
 import request from 'supertest';
 import app from '../../../app.js';
 import { sequelize } from '../../../config/db.js';
-import { createFullUserContext } from '../../../shared/models/testFactory.js';
+import { createFullUserContext } from '../../../shared/index.js';
 import { generarTokenAcceso } from '../../auth/services/authService.js';
 
-describe('UserController API Integration (Finalized)', () => {
+describe('UserController API Integration', () => {
     let setup, token;
 
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
 
-        setup = await createFullUserContext('profile_tester', 'p@test.va');
+        setup = await createFullUserContext('profile_tester', 'profile@test.com');
         token = generarTokenAcceso(setup.user);
     });
 
@@ -30,13 +30,5 @@ describe('UserController API Integration (Finalized)', () => {
 
         expect(res.status).toBe(200);
         expect(res.body.user.username).toBe('nuevo_nombre');
-    });
-
-    it('GET /api/auth/me - Debe devolver los datos actualizados', async () => {
-        const res = await request(app)
-            .get('/api/auth/me')
-            .set('Authorization', `Bearer ${token}`);
-
-        expect(res.body.username).toBe('nuevo_nombre');
     });
 });

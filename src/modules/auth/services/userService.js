@@ -1,15 +1,22 @@
 /**
  * Servicio de Usuario
- * Gestiona los datos del perfil y el cálculo de ranking ELO.
+ * Gestiona los datos del perfil, actualizaciones seguras y el cálculo de ranking ELO.
  */
 import User from '../models/User.js';
+import { cifrarContrasena, verificarContrasena } from './authService.js';
 
+/**
+ * Obtiene el perfil privado de un usuario.
+ */
 export const obtenerPerfilPrivado = async (userId) => {
     return await User.findByPk(userId, {
         attributes: ['id', 'username', 'email', 'elo_rating', 'created_at']
     });
 };
 
+/**
+ * Obtiene la clasificación global de jugadores.
+ */
 export const obtenerClasificacionGlobal = async (limite = 50) => {
     return await User.findAll({
         attributes: ['username', 'elo_rating'],
@@ -29,9 +36,24 @@ export const actualizarPerfil = async (userId, nuevosDatos) => {
 };
 
 /**
- * Calcula y aplica el cambio de ELO tras una partida
- * @param {string} winnerId 
- * @param {string} loserId 
+ * Cambia la contraseña del usuario validando la credencial anterior.
+ * @param {string} userId - UUID del usuario.
+ * @param {string} oldPassword - Contraseña actual en texto plano.
+ * @param {string} newPassword - Nueva contraseña en texto plano.
+ */
+export const cambiarContrasena = async (userId, oldPassword, newPassword) => {
+    const usuario = await User.findByPk(userId);
+    if (!usuario) throw new Error('Usuario no encontrado');
+
+    const isMatch = await verificarContrasena(oldPassword, usuario.password_hash);
+    if (!isMatch) throw new Error('La contraseña actual es incorrecta');
+
+    const newHash = await cifrarContrasena(newPassword);
+    return await usuario.update({ password_hash: newHash });
+};
+
+/**
+ * Calcula y aplica el cambio de ELO tras una partida.
  */
 export const procesarResultadoElo = async (winnerId, loserId) => {
     const ganador = await User.findByPk(winnerId);

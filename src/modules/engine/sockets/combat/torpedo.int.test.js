@@ -5,9 +5,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { io as Client } from 'socket.io-client';
 import { sequelize } from '../../../../config/db.js';
-import { socketProtect } from '../../../../shared/middlewares/socketMiddleware.js';
-import { Projectile } from '../../../../shared/models/index.js';
-import { createCompleteMatch } from '../../../../shared/models/testFactory.js';
+import { Projectile, createCompleteMatch, socketProtect } from '../../../../shared/index.js';
 import { generarTokenAcceso } from '../../../auth/services/authService.js';
 import { registerGameHandlers } from '../../../game/sockets/index.js';
 import { registerEngineHandlers } from '../index.js';
@@ -19,7 +17,7 @@ describe('Combat Socket: Torpedo Responsibility', () => {
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
-        setup = await createCompleteMatch({ username: 't1', email: 't1@t.va' }, { username: 't2', email: 't2@t.va' });
+        setup = await createCompleteMatch({ username: 't1', email: 't1@test.com' }, { username: 't2', email: 't2@test.com' });
 
         server = createServer();
         io = new Server(server);

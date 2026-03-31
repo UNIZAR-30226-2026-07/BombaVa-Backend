@@ -1,5 +1,6 @@
 /**
  * Controlador de Mazos
+ * Gestiona la creación y activación de formaciones de flota, aplicando validaciones de seguridad.
  */
 import { validationResult } from 'express-validator';
 import InventoryDao from '../dao/InventoryDao.js';
@@ -14,6 +15,13 @@ export const createDeck = async (req, res, next) => {
 
         if (!inventoryService.validarLimitesPuerto(shipIds)) {
             return res.status(400).json({ message: 'Barcos fuera de los límites del puerto (15x5)' });
+        }
+
+        for (const ship of shipIds) {
+            const ownsShip = await InventoryDao.findByIdAndUser(ship.userShipId, req.user.id);
+            if (!ownsShip) {
+                return res.status(403).json({ message: `Acceso denegado. El barco ${ship.userShipId} no te pertenece.` });
+            }
         }
 
         const nuevoMazo = await InventoryDao.createDeck({

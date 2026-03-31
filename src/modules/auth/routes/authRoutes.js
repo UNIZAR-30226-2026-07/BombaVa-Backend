@@ -5,7 +5,7 @@ import { Router } from 'express';
 import { body } from 'express-validator';
 import { protect } from '../../../shared/middlewares/authMiddleware.js';
 import { loginUser, registerUser } from '../controllers/authController.js';
-import { getLeaderboard, getProfile, updateProfile } from '../controllers/userController.js';
+import { getLeaderboard, getProfile, updatePassword, updateProfile } from '../controllers/userController.js';
 
 const router = Router();
 
@@ -26,6 +26,11 @@ router.patch('/me', protect, [
     body('username').optional().notEmpty(),
     body('email').optional().isEmail()
 ], updateProfile);
+
+router.patch('/password', protect, [
+    body('oldPassword').notEmpty().withMessage('La contraseña actual es obligatoria'),
+    body('newPassword').isLength({ min: 6 }).withMessage('La nueva contraseña debe tener al menos 6 caracteres')
+], updatePassword);
 
 router.get('/ranking', protect, getLeaderboard);
 

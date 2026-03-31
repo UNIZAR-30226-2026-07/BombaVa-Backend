@@ -18,8 +18,8 @@ describe('Turn Socket Responsibility', () => {
         await sequelize.sync({ force: true });
 
         setup = await createCompleteMatch(
-            { username: 'host', email: 'h@t.va' },
-            { username: 'guest', email: 'g@t.va' }
+            { username: 'host', email: 'h@turn.com' },
+            { username: 'guest', email: 'g@turn.com' }
         );
 
         server = createServer();

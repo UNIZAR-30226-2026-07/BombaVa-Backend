@@ -1,28 +1,29 @@
 /**
- * Test de Integración: API de Mazos
- * Valida la creación y límites de formación del puerto.
+
+* Test de Integración: API de Mazos
  */
 import request from 'supertest';
 import app from '../../../app.js';
 import { sequelize } from '../../../config/db.js';
-import { createFullUserContext } from '../../../shared/models/testFactory.js';
+import { createFullUserContext } from '../../../shared/index.js';
 import { generarTokenAcceso } from '../../auth/services/authService.js';
 
-describe('DeckController Integration (Refactored)', () => {
-    let setup, token;
+describe('DeckController Integration Tests', () => {
+    let setup, hackerSetup, token;
 
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
 
-        setup = await createFullUserContext('deck_user', 'deck@test.com');
+        setup = await createFullUserContext('deck_user', 'user@test.com');
+        hackerSetup = await createFullUserContext('hacker', 'hacker@test.com');
         token = generarTokenAcceso(setup.user);
     });
 
     afterAll(async () => {
         await sequelize.close();
     });
-
+    
     it('POST /api/inventory/decks - Debe rechazar formación fuera de 15x5', async () => {
         const res = await request(app)
             .post('/api/inventory/decks')

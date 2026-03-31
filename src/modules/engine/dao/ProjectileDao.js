@@ -1,24 +1,27 @@
 /**
  * DAO de Projectile
- * Gestión en base de datos para entidades dinámicas o estáticas en el mapa (Minas, Torpedos).
+ * Gestión en base de datos para entidades dinámicas o estáticas en el mapa.
  */
 import { Projectile } from '../../../shared/models/index.js';
 
 class ProjectileDao {
     /**
-     * Registra un nuevo proyectil en la partida.
-     * @param {Object} data - Datos del proyectil (tipo, dueño, posición inicial, vectores).
-     * @returns {Promise<Projectile>} Proyectil persistido.
+     * Registra un nuevo proyectil de forma atómica.
+     * @param {Object} data - Datos del proyectil.
+     * @param {Object} [transaction=null] - Transacción de Sequelize.
+     * @returns {Promise<Object>} Proyectil persistido.
      */
-    async createProjectile(data) {
-        return await Projectile.create(data);
+    async createProjectile(data, transaction = null) {
+        const options = {};
+        if (transaction) options.transaction = transaction;
+        return await Projectile.create(data, options);
     }
 
     /**
-     * Recupera todos los proyectiles activos vinculados a una sesión de juego.
+     * Recupera todos los proyectiles activos.
      * @param {string} matchId - Identificador UUID de la partida.
-     * @param {Object} [transaction=null] - Transacción de Sequelize opcional.
-     * @returns {Promise<Array<Projectile>>} Listado de torpedos y minas.
+     * @param {Object} [transaction=null] - Transacción de Sequelize.
+     * @returns {Promise<Array>} Listado de proyectiles.
      */
     async findAllByMatch(matchId, transaction = null) {
         const options = { where: { matchId } };
@@ -27,9 +30,9 @@ class ProjectileDao {
     }
 
     /**
-     * Elimina un proyectil del tablero tras su explosión o fin de vida.
+     * Elimina un proyectil del tablero.
      * @param {string} id - Identificador UUID del proyectil.
-     * @param {Object} [transaction=null] - Transacción de Sequelize opcional.
+     * @param {Object} [transaction=null] - Transacción de Sequelize.
      * @returns {Promise<number>} Resultado de la eliminación.
      */
     async deleteById(id, transaction = null) {
@@ -41,8 +44,8 @@ class ProjectileDao {
     /**
      * Actualiza la posición o estado de un proyectil existente.
      * @param {string} id - Identificador UUID del proyectil.
-     * @param {Object} data - Campos a actualizar (x, y, lifeDistance).
-     * @param {Object} [transaction=null] - Transacción de Sequelize opcional.
+     * @param {Object} data - Campos a actualizar.
+     * @param {Object} [transaction=null] - Transacción de Sequelize.
      * @returns {Promise<Array>} Resultado de la actualización.
      */
     async updateProjectile(id, data, transaction = null) {

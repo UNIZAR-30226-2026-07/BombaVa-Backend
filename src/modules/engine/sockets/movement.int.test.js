@@ -1,6 +1,5 @@
 /**
  * Test de Integración: Movimiento por Sockets.
- * Valida que el servidor procese traslaciones y notifique a la sala.
  */
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -19,7 +18,7 @@ describe('Engine Socket: Movement Responsibility', () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
 
-        setup = await createMatchWithInstance('engine_mover', 'em@t.va', { x: 5, y: 5 });
+        setup = await createMatchWithInstance('engine_mover', 'mover@test.com', { x: 5, y: 5 });
 
         server = createServer();
         io = new Server(server);
@@ -69,15 +68,12 @@ describe('Engine Socket: Movement Responsibility', () => {
 
         return movePromise;
     });
-
     it('Debe rotar el barco 90 grados y recibir la notificación de sala', async () => {
         const rotatePromise = new Promise((resolve, reject) => {
-            // Escuchamos la confirmación del servidor de que rotó
             client.once('ship:rotated', (payload) => {
                 try {
-                    // Inicialmente apuntaba a 'N' (del setup). Al rotar 90 grados, debe ser 'E' (Este).
                     expect(payload.orientation).toBe('E');
-                    expect(payload.fuelReserve).toBeDefined(); // Se debe haber descontado el fuel
+                    expect(payload.fuelReserve).toBeDefined();
                     resolve();
                 } catch (e) {
                     reject(e);
@@ -86,7 +82,6 @@ describe('Engine Socket: Movement Responsibility', () => {
             client.once('game:error', (err) => reject(new Error(err.message)));
         });
 
-        // Emitimos el evento asumiendo que el cliente ya está unido a la sala del match
         client.emit('ship:rotate', {
             matchId: setup.match.id,
             shipId: setup.instance.id,
@@ -95,7 +90,4 @@ describe('Engine Socket: Movement Responsibility', () => {
 
         return rotatePromise;
     });
-
-
-
 });

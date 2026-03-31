@@ -1,6 +1,5 @@
 /**
  * Test de Integración: Ataque de Cañón por Sockets.
- * Valida el flujo de daño mediante la fachada del módulo engine.
  */
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -20,8 +19,8 @@ describe('Combat Socket: Cannon Responsibility', () => {
         await sequelize.sync({ force: true });
 
         setup = await createCompleteMatch(
-            { username: 'atancante', email: 'a@t.va' },
-            { username: 'victima', email: 'v@t.va' }
+            { username: 'atancante', email: 'a@test.com' },
+            { username: 'victima', email: 'v@test.com' }
         );
 
         server = createServer();
