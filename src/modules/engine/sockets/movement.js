@@ -101,6 +101,20 @@ export const registerMovementHandlers = (io, socket) => {
             }
             
             const nuevaOrientacion = engineService.calcularRotacion(barco.orientation, degrees);
+
+            const tamanoBase = await EngineDao.getShipSize(barco.id);
+
+            const nuevoTamano = engineService.calculartamanoEfectivo( tamanoBase.width, tamanoBase.height, nuevaOrientacion);
+            const targetCells = engineService.calcularCeldasOcupadas( barco.x, barco.y, nuevoTamano.effectiveWidth, nuevoTamano.effectiveHeight);
+
+            if (!engineService.validarLimitesMapa(targetCells)) {
+                throw new Error('Movimiento inválido: El barco se saldría del mapa al rotar');
+            }
+            const allAliveShips = await EngineDao.findAllAliveShipsWithSizes(matchId);
+            if (engineService.verificarColision(targetCells, allAliveShips, barco.id)) {
+                throw new Error('Colisión detectada: No hay espacio suficiente para rotar el barco');
+            }
+
             const dirTraducida = matchService.traducirOrientacion(nuevaOrientacion, jugador.side);
 
             // Calculamos los nuevos recursos
