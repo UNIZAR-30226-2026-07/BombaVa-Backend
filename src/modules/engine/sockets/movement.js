@@ -33,9 +33,20 @@ export const registerMovementHandlers = (io, socket) => {
             if (jugador.fuelReserve < costes.TRASLACION) {
                 throw new Error('Recursos insuficientes');
             }
-
             const nuevaPos = engineService.calcularTraslacion({ x: barco.x, y: barco.y }, dirTraducida);
 
+            //Calcular tamaño del barco y las casillas que ocupan
+            const tamanoBase = await EngineDao.getShipSize(barco.id);
+            const tamanoReal = engineService.calculartamanoEfectivo(tamanoBase.width, tamanoBase.height, barco.orientation);
+            const targetCells = engineService.calcularCeldasOcupadas(nuevaPos.x, nuevaPos.y, tamanoReal.effectiveWidth, tamanoReal.effectiveHeight);
+            if (!engineService.validarLimitesMapa(targetCells)) {
+                throw new Error('Movimiento fuera de límites');
+            }
+
+            const allAliveShips = await EngineDao.findAllAliveShipsWithSizes(matchId);
+            if (engineService.verificarColision(targetCells, allAliveShips, barco.id)) {
+                throw new Error('Colisión detectada: Casilla ocupada');
+            }
             // Calculamos los nuevos recursos
             const nuevoFuel = jugador.fuelReserve - costes.TRASLACION;
 
@@ -88,8 +99,10 @@ export const registerMovementHandlers = (io, socket) => {
             if (degrees !== 90 && degrees !== -90) {
                 throw new Error('Rotación inválida. Solo 90 o -90 grados.');
             }
-
+            console.log("Peticion rotacion: ", degrees, " Sentido orig: " , barco.orientation);
+            
             const nuevaOrientacion = engineService.calcularRotacion(barco.orientation, degrees);
+            console.log("orientacion nueva: ", nuevaOrientacion);
             const dirTraducida = matchService.traducirOrientacion(nuevaOrientacion, jugador.side);
 
             // Calculamos los nuevos recursos
@@ -104,6 +117,7 @@ export const registerMovementHandlers = (io, socket) => {
                 fuelReserve: nuevoFuel,
                 userId
             });
+            console.log ("salida:", shipId, dirTraducida, nuevoFuel, userId)
             //Actualización de Visión
             const socketsEnSala = await io.in(matchId).fetchSockets();
             for (const s of socketsEnSala) {
