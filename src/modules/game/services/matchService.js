@@ -12,7 +12,7 @@ import {EngineDao} from '../../engine/dao/index.js';
  * @param {string} bando 
  */
 export const traducirPosicionTablero = (pos, bando) => {
-    return bando === 'NORTH' ? pos : { x: pos.x, y: (GAME_RULES.MAP.SIZE - 1) - pos.y };
+    return bando === 'NORTH' ? pos : { x: (GAME_RULES.MAP.SIZE - 1) - pos.x, y: (GAME_RULES.MAP.SIZE - 1) - pos.y };
 };
 
 /**
