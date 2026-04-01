@@ -87,11 +87,10 @@ export const verificarColision = (targetCells, allAliveShips, ignoreShipId) => {
             tamanoReal.effectiveWidth, 
             tamanoReal.effectiveHeight
         );
-        console.log(occupiedCells);
         for (const tCell of targetCells) {
             for (const oCell of occupiedCells) {
                 if (tCell.x === oCell.x && tCell.y === oCell.y) {
-                    return true; // ¡Colisión detectada!
+                    return true;
                 }
             }
         }

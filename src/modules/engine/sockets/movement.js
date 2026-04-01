@@ -99,10 +99,8 @@ export const registerMovementHandlers = (io, socket) => {
             if (degrees !== 90 && degrees !== -90) {
                 throw new Error('Rotación inválida. Solo 90 o -90 grados.');
             }
-            console.log("Peticion rotacion: ", degrees, " Sentido orig: " , barco.orientation);
             
             const nuevaOrientacion = engineService.calcularRotacion(barco.orientation, degrees);
-            console.log("orientacion nueva: ", nuevaOrientacion);
             const dirTraducida = matchService.traducirOrientacion(nuevaOrientacion, jugador.side);
 
             // Calculamos los nuevos recursos
@@ -117,7 +115,6 @@ export const registerMovementHandlers = (io, socket) => {
                 fuelReserve: nuevoFuel,
                 userId
             });
-            console.log ("salida:", shipId, dirTraducida, nuevoFuel, userId)
             //Actualización de Visión
             const socketsEnSala = await io.in(matchId).fetchSockets();
             for (const s of socketsEnSala) {
