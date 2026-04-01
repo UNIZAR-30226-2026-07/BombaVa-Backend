@@ -5,6 +5,7 @@ import EngineDao from '../../dao/EngineDao.js';
 import MatchDao from '../../../game/dao/MatchDao.js';
 import * as combatService from '../../services/combatService.js';
 import { matchService } from '../../../game/index.js';
+import { engineService } from '../../services/index.js';
 
 export const handleCannonAttack = async (io, socket, data) => {
     const { matchId, shipId, target } = data;
@@ -25,11 +26,33 @@ export const handleCannonAttack = async (io, socket, data) => {
         if (barco.lastAttackTurn === partida.turnNumber || jugador.ammoCurrent < cañon.apCost) {
             throw new Error('Ataque no disponible o munición insuficiente');
         }
-        if (!combatService.validarRangoAtaque({ x: barco.x, y: barco.y }, targetTraducido, cañon.range)) {
+
+        //Calcular celdas ocupadas del barco
+        const tamanoBase = await EngineDao.getShipSize(barco.id);
+        const tamanoEfectivo = engineService.calculartamanoEfectivo(tamanoBase.width, tamanoBase.height, barco.orientation);
+        const celdasOrigen = engineService.calcularCeldasOcupadas(barco.x, barco.y, tamanoEfectivo.effectiveWidth, tamanoEfectivo.effectiveHeight);
+
+        if (!combatService.validarRangoAtaque(celdasOrigen, targetTraducido, cañon.range)) {
             throw new Error('Objetivo fuera de rango');
         }
 
-        const objetivo = await EngineDao.findTargetAtCoordinates(matchId, targetTraducido.x, targetTraducido.y);
+        const allAliveShips = await EngineDao.findAllAliveShipsWithSizes(matchId);
+        let objetivo = null;
+
+        for (const shipEnemigo of allAliveShips) {
+            const tWidth = shipEnemigo.UserShip.ShipTemplate.width;
+            const tHeight = shipEnemigo.UserShip.ShipTemplate.height;
+            const tTamano = engineService.calculartamanoEfectivo(tWidth, tHeight, shipEnemigo.orientation);
+            const tCeldas = engineService.calcularCeldasOcupadas(shipEnemigo.x, shipEnemigo.y, tTamano.effectiveWidth, tTamano.effectiveHeight);
+            
+            // Verificamos si la celda objetivo pertenece a este barco
+            const impactado = tCeldas.some(celda => celda.x === targetTraducido.x && celda.y === targetTraducido.y);
+            
+            if (impactado) {
+                objetivo = shipEnemigo;
+                break;
+            }
+        }
         let targetHp = null;
         if (objetivo) {
             const newHp = Math.max(0, objetivo.currentHp - cañon.damage);

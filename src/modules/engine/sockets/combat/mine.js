@@ -6,6 +6,7 @@ import MatchDao from '../../../game/dao/MatchDao.js';
 import ProjectileDao from '../../dao/ProjectileDao.js';
 import * as combatService from '../../services/combatService.js';
 import { matchService } from '../../../game/index.js';
+import { engineService } from '../../services/index.js';
 
 export const handleMineDrop = async (io, socket, data) => {
     const { matchId, shipId, target } = data;
@@ -28,8 +29,17 @@ export const handleMineDrop = async (io, socket, data) => {
             throw new Error('Munición insuficiente para mina');
         }
 
-        if (!combatService.validarAdyacencia({ x: barco.x, y: barco.y }, targetTraducido)) {
-            throw new Error('La posición de la mina está fuera de rango');
+        //Calcular celdas ocupadas del barco
+        const tamanoBase = await EngineDao.getShipSize(barco.id);
+        const tamanoEfectivo = engineService.calculartamanoEfectivo(tamanoBase.width, tamanoBase.height, barco.orientation);
+        const celdasOrigen = engineService.calcularCeldasOcupadas(barco.x, barco.y, tamanoEfectivo.effectiveWidth, tamanoEfectivo.effectiveHeight);
+
+        const sobrePropioBarco = celdasOrigen.some(celda => celda.x === targetTraducido.x && celda.y === targetTraducido.y);
+        if (sobrePropioBarco) {
+            throw new Error('No puedes colocar una mina en las casillas ocupadas por tu propio barco');
+        }
+        if (!combatService.validarAdyacencia(celdasOrigen, targetTraducido)) {
+            throw new Error('La posición de la mina está fuera de rango (debe estar adyacente)');
         }
 
         await ProjectileDao.createProjectile({

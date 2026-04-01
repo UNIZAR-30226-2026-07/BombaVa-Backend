@@ -6,9 +6,11 @@
 /**
  * Valida si un ataque es posible según el rango y el estado del barco
  */
-export const validarRangoAtaque = (origen, destino, rangoMax) => {
-    const distancia = Math.sqrt(Math.pow(destino.x - origen.x, 2) + Math.pow(destino.y - origen.y, 2));
-    return distancia <= rangoMax;
+export const validarRangoAtaque = (origenes, destino, rangoMax) => {
+    return origenes.some(origen => {
+        const distancia = Math.sqrt(Math.pow(destino.x - origen.x, 2) + Math.pow(destino.y - origen.y, 2));
+        return distancia <= rangoMax;
+    });
 };
 
 /**
@@ -27,10 +29,12 @@ export const calcularVectorProyectil = (orientacion) => {
 /**
  * Valida si una posición es adyacente (radio 1)
  */
-export const validarAdyacencia = (pos1, pos2) => {
-    const dx = Math.abs(pos1.x - pos2.x);
-    const dy = Math.abs(pos1.y - pos2.y);
-    return dx <= 1 && dy <= 1;
+export const validarAdyacencia = (origenes, destino) => {
+    return origenes.some(origen => {
+        const dx = Math.abs(origen.x - destino.x);
+        const dy = Math.abs(origen.y - destino.y);
+        return dx <= 1 && dy <= 1;
+    });
 };
 
 /**
@@ -39,7 +43,7 @@ export const validarAdyacencia = (pos1, pos2) => {
  * @param {number} danioDelArma - Cantidad de daño puro
  * @param {Object} transaccion - Transacción de Sequelize
  */
-export const aplicarDañoImpacto = async (objetivo, danioDelArma, transaccion) => {
+export const aplicarDanoImpacto = async (objetivo, danioDelArma, transaccion) => {
     let newHp = objetivo.currentHp - danioDelArma;
     if (newHp < 0) newHp = 0;
 
