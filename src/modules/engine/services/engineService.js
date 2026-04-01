@@ -11,8 +11,8 @@ import { GAME_RULES } from '../../../config/gameRules.js';
  */
 export const calcularTraslacion = (pos, dir) => {
     let { x, y } = pos;
-    if (dir === 'N') y -= 1;
-    if (dir === 'S') y += 1;
+    if (dir === 'N') y += 1;
+    if (dir === 'S') y -= 1;
     if (dir === 'E') x += 1;
     if (dir === 'W') x -= 1;
     return { x, y };
@@ -47,4 +47,41 @@ export const obtenerCostesMovimiento = () => {
         TRASLACION: GAME_RULES.RESOURCES.COST_MOVE,
         ROTACION: GAME_RULES.RESOURCES.COST_ROTATE
     };
+};
+
+/**
+ * Calcula todas las celdas ocupadas por un barco basándose en su origen, orientación y tamaño
+ */
+export const calcularCeldasOcupadas = (startX, startY, orientation, size) => {
+    const celdas = [];
+    const esHorizontal = orientation === 'E' || orientation === 'W';
+    
+    for (let i = 0; i < size; i++) {
+        celdas.push({
+            x: esHorizontal ? startX + i : startX,
+            y: esHorizontal ? startY : startY + i
+        });
+    }
+    return celdas;
+};
+
+/**
+ * Verifica si las celdas objetivo intersectan con algún barco vivo
+ */
+export const verificarColision = (targetCells, allAliveShips, ignoreShipId) => {
+    for (const ship of allAliveShips) {
+        if (ship.id === ignoreShipId) continue;
+        
+        const size = Math.max(ship.UserShip.ShipTemplate.width, ship.UserShip.ShipTemplate.height);
+        const occupiedCells = calcularCeldasOcupadas(ship.x, ship.y, ship.orientation, size);
+        
+        for (const tCell of targetCells) {
+            for (const oCell of occupiedCells) {
+                if (tCell.x === oCell.x && tCell.y === oCell.y) {
+                    return true; 
+                }
+            }
+        }
+    }
+    return false;
 };
