@@ -5,8 +5,8 @@ import MatchPlayer from './MatchPlayer.js';
 
 describe('MatchPlayer Model Unit Tests', () => {
     it('Debe tener recursos iniciales correctos según GAME_RULES V1', () => {
-        expect(MatchPlayer.rawAttributes.fuelReserve.defaultValue).toBe(10);
-        expect(MatchPlayer.rawAttributes.ammoCurrent.defaultValue).toBe(5);
+        expect(MatchPlayer.rawAttributes.fuelReserve.defaultValue).toBe(20);
+        expect(MatchPlayer.rawAttributes.ammoCurrent.defaultValue).toBe(10);
     });
 
     it('No debe permitir combustible negativo', async () => {

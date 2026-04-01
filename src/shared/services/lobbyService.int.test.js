@@ -7,7 +7,7 @@ import { Match } from '../../shared/models/index.js';
 import { createFullUserContext } from '../../shared/models/testFactory.js';
 import { crearLobby, ejecutarInicioPartida, intentarUnirseALobby } from './lobbyService.js';
 
-describe('LobbyService Integration (Refactored)', () => {
+describe('LobbyService Integration', () => {
     let hostCtx, guestCtx;
 
     beforeAll(async () => {

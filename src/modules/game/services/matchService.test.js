@@ -20,10 +20,10 @@ describe('Test unitarios de matchService', () => {
     it('calcularRegeneracionTurno - Debe rellenar AP y sumar MP limitados a 30', () => {
         const res1 = calcularRegeneracionTurno({ fuel: 10, ammo: 0 });
         expect(res1.fuel).toBe(20);
-        expect(res1.ammo).toBe(5);
+        expect(res1.ammo).toBe(10);
 
         const res2 = calcularRegeneracionTurno({ fuel: 25, ammo: 3 });
-        expect(res2.fuel).toBe(30);
-        expect(res2.ammo).toBe(5);
+        expect(res2.fuel).toBe(20);
+        expect(res2.ammo).toBe(10);
     });
 });
