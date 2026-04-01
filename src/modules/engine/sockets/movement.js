@@ -104,7 +104,6 @@ export const registerMovementHandlers = (io, socket) => {
                 fuelReserve: nuevoFuel,
                 userId
             });
-
             //Actualización de Visión
             const socketsEnSala = await io.in(matchId).fetchSockets();
             for (const s of socketsEnSala) {

@@ -23,7 +23,7 @@ export const traducirPosicionTablero = (pos, bando) => {
  */
 export const traducirOrientacion = (orientacion, bando) => {
     if (bando === 'NORTH') return orientacion;
-    const opuestos = { 'N': 'S', 'S': 'N', 'E': 'E', 'W': 'W' };
+    const opuestos = { 'N': 'S', 'S': 'N', 'E': 'W', 'W': 'E' };
     return opuestos[orientacion] || orientacion;
 };
 
