@@ -28,20 +28,20 @@ export const traducirOrientacion = (orientacion, bando) => {
 };
 
 /**
- * Crea las instancias físicas de los barcos en el tablero
+ * Crea las instancias físicas de los barcos en el tablero y congela su armamento
  * @param {string} matchId 
  * @param {string} playerId 
  * @param {string} bando 
  * @param {Array} configuracionMazo 
  */
 export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configuracionMazo) => {
-    const shipList = [];
     for (const shipCfg of configuracionMazo) {
-        const userShip = await InventoryDao.findByIdAndUser(shipCfg.userShipId, playerId);
-        const posAbs =  traducirPosicionTablero(shipCfg.position, bando);
+        const userShip = await InventoryDao.findByIdWithWeapons(shipCfg.userShipId, playerId);
+        
+        const posAbs = traducirPosicionTablero(shipCfg.position, bando);
         const orientation = (bando === 'NORTH') ? shipCfg.orientation : traducirOrientacion(shipCfg.orientation, 'SOUTH');
 
-        shipList.push({
+        const instance = await EngineDao.createShipInstance({
             matchId: matchId, 
             playerId: playerId, 
             userShipId: userShip.id,
@@ -51,9 +51,11 @@ export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configu
             currentHp: await InventoryDao.getUserShipHp(userShip.id),
             isSunk: false
         });
-        
+
+        if (userShip.WeaponTemplates && userShip.WeaponTemplates.length > 0) {
+            await instance.addCombatWeapons(userShip.WeaponTemplates);
+        }
     }
-    EngineDao.createFleet(shipList);
 };
 
 /**

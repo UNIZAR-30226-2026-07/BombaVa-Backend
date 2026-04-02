@@ -30,20 +30,31 @@ class EngineDao{
     }
 
     /**
-     * Obtiene un barco específico por su ID
-     * @param {UUID} id Id del barco que se quiere buscar
-     * @param {Object} options Opciones extra de Sequelize (ej. { transaction })
-     * @returns {Promise<Object>} Instancia del barco con su UserShip y WeaponTemplates
+     * Crea una instancia individual de un barco en el tablero.
+     * @param {Object} data - Datos de la instancia (matchId, playerId, etc.)
+     * @returns {Promise<Object>} La instancia creada (Sequelize model).
+     */
+    async createShipInstance(data) {
+        return await ShipInstance.create(data);
+    }
+
+    /**
+     * Obtiene un barco específico por su ID con sus armas de combate (Snapshot).
+     * @param {UUID} id - ID de la instancia del barco.
+     * @returns {Promise<Object>} Instancia con sus armas de combate asociadas.
      */
     async findById(id) {
         return await ShipInstance.findByPk(id, {
-            include: [{
-                model: UserShip,
-                include: [{
+            include: [
+                {
                     model: WeaponTemplate,
-                    as: 'WeaponTemplates'
-                }]
-            }]
+                    as: 'CombatWeapons'
+                },
+                {
+                    model: UserShip, // Mantenido
+                    include: [ShipTemplate]
+                }
+            ]
         });
     }
 
