@@ -39,7 +39,7 @@ export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configu
     for (const shipCfg of configuracionMazo) {
         const userShip = await InventoryDao.findByIdAndUser(shipCfg.userShipId, playerId);
         const posAbs =  traducirPosicionTablero(shipCfg.position, bando);
-        const orientation = (bando === 'NORTH') ? shipCfg.orientation : 'S';
+        const orientation = (bando === 'NORTH') ? shipCfg.orientation : traducirOrientacion(shipCfg.orientation, 'SOUTH');
 
         shipList.push({
             matchId: matchId, 
@@ -98,7 +98,6 @@ export const generarSnapshotVision = async (matchId, userId) => {
     
     // Obtenemos todos los barcos del tablero
     const todosLosBarcos = await EngineDao.findByMatchId(matchId);
-
     const misBarcosRaw = todosLosBarcos.filter(b => b.playerId === userId);
     const enemigosRaw = todosLosBarcos.filter(b => b.playerId !== userId);
 
@@ -148,7 +147,6 @@ export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
     
     // Usamos el nuevo sistema de visión para obtener las flotas
     const vision = await generarSnapshotVision(matchId, userId);
-
     const partidaLimpio = ({
         matchId: match.id,
         status: match.status,
