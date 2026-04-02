@@ -5,16 +5,16 @@
 
 import { ShipInstance, UserShip, WeaponTemplate, ShipTemplate } from '../../../shared/models/index.js';
 
-class EngineDao{
+class EngineDao {
 
     /**
      * Busca todos los barcos instanciados de un usuario
      * @param {UUID} playerId Id del ususario
      * @returns {Promise<Array>} Listado de barcos
      */
-    async findByPlayerId(playerId){
+    async findByPlayerId(playerId) {
         return await ShipInstance.findAll({
-            where: {playerId}
+            where: { playerId }
         })
     }
     /**
@@ -66,14 +66,14 @@ class EngineDao{
      */
     async countAliveShips(matchId, playerId) {
         return await ShipInstance.count({
-            where: { 
-                matchId, 
-                playerId, 
-                isSunk: false 
+            where: {
+                matchId,
+                playerId,
+                isSunk: false
             }
         });
     }
-   
+
     /**
      * Registra el impacto de un barco dado
      * @param {UUID} id Id del barco dado
@@ -147,7 +147,11 @@ class EngineDao{
      */
     async findByMatchId(matchId) {
         return await ShipInstance.findAll({
-            where: { matchId }
+            where: { matchId },
+            include: [
+                { model: WeaponTemplate, as: 'CombatWeapons' },
+                { model: UserShip, include: [ShipTemplate] }
+            ]
         });
     }
 
@@ -161,9 +165,9 @@ class EngineDao{
     async updateShipPosition(id, x, y) {
         const [updatedRows, [updatedShip]] = await ShipInstance.update(
             { x, y },
-            { 
+            {
                 where: { id },
-                returning: true 
+                returning: true
             }
         );
         return updatedShip;
@@ -178,9 +182,9 @@ class EngineDao{
     async updateShipOrientation(id, orientation) {
         const [updatedRows, [updatedShip]] = await ShipInstance.update(
             { orientation },
-            { 
+            {
                 where: { id },
-                returning: true 
+                returning: true
             }
         );
         return updatedShip;

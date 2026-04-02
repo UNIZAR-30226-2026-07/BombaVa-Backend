@@ -37,11 +37,15 @@ export const createCompleteMatch = async (p1Data, p2Data) => {
         matchId: match.id, playerId: hostUser.id, userShipId: hostInv.uShip.id,
         x: 5, y: 5, orientation: 'N', currentHp: hostInv.template.baseMaxHp
     });
+    const hostWeapons = await hostInv.uShip.getWeaponTemplates();
+    await shipH.addCombatWeapons(hostWeapons);
 
     const shipG = await ShipInstance.create({
         matchId: match.id, playerId: guestUser.id, userShipId: guestInv.uShip.id,
         x: 5, y: 7, orientation: 'S', currentHp: guestInv.template.baseMaxHp
     });
+    const guestWeapons = await guestInv.uShip.getWeaponTemplates();
+    await shipG.addCombatWeapons(guestWeapons);
 
     return {
         match,
@@ -74,6 +78,9 @@ export const createMatchWithInstance = async (username, email, pos = { x: 5, y: 
         matchId: match.id, playerId: user.id, userShipId: inv.uShip.id,
         x: pos.x, y: pos.y, orientation: 'N', currentHp: inv.template.baseMaxHp
     });
+
+    const weapons = await inv.uShip.getWeaponTemplates();
+    await instance.addCombatWeapons(weapons);
 
     return { user, ...inv, match, instance };
 };
