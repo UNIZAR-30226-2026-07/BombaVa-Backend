@@ -20,6 +20,19 @@ export const validarLimitesPuerto = (formation) => {
 };
 
 /**
+ * Verifica que todos los barcos enviados en la formación pertenezcan al usuario.
+ * @param {string} userId - UUID del usuario
+ * @param {Array} formation - Array de barcos recibidos en el payload
+ * @returns {Promise<boolean>} True si todos le pertenecen, false si hay intrusos
+ */
+export const verificarPropiedadBarcos = async (userId, formation) => {
+    const misBarcos = await InventoryDao.findUserShips(userId);
+    const misBarcosIds = misBarcos.map(b => b.id);
+
+    return formation.every(ship => misBarcosIds.includes(ship.userShipId));
+};
+
+/**
  * Actualiza el equipamiento de un barco
  * @param {Object} ship 
  * @param {string} weaponSlug 

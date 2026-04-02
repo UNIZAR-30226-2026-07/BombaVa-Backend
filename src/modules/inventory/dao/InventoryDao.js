@@ -181,6 +181,33 @@ class InventoryDao {
         });
         return userShip.ShipTemplate.baseMaxHp;
     }
+
+    /**
+     * Cuenta cuántos mazos tiene un usuario
+     */
+    async countUserDecks(userId) {
+        return await FleetDeck.count({ where: { userId } });
+    }
+
+    /**
+     * Actualiza los datos de un mazo (nombre o formación de barcos)
+     */
+    async updateDeck(deckId, userId, updateData) {
+        const [updatedRows, [updatedDeck]] = await FleetDeck.update(updateData, {
+            where: { id: deckId, userId },
+            returning: true
+        });
+        return updatedDeck;
+    }
+
+    /**
+     * Elimina un mazo específico
+     */
+    async deleteDeck(deckId, userId) {
+        return await FleetDeck.destroy({
+            where: { id: deckId, userId }
+        });
+    }
 }
 
 export default new InventoryDao();
