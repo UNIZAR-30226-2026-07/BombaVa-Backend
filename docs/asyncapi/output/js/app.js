@@ -971,6 +971,8 @@
                     "orientation",
                     "currentHp",
                     "hitCells",
+                    "effectiveWidth",
+                    "effectiveHeight",
                     "isSunk"
                   ],
                   "properties": {
@@ -1022,9 +1024,19 @@
                       },
                       "x-parser-schema-id": "<anonymous-schema-127>"
                     },
+                    "effectiveWidth": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "x-parser-schema-id": "<anonymous-schema-131>"
+                    },
+                    "effectiveHeight": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "x-parser-schema-id": "<anonymous-schema-132>"
+                    },
                     "isSunk": {
                       "type": "boolean",
-                      "x-parser-schema-id": "<anonymous-schema-131>"
+                      "x-parser-schema-id": "<anonymous-schema-133>"
                     }
                   },
                   "x-parser-schema-id": "<anonymous-schema-121>"
@@ -1042,23 +1054,25 @@
                     "orientation",
                     "currentHp",
                     "hitCells",
+                    "effectiveWidth",
+                    "effectiveHeight",
                     "isSunk"
                   ],
                   "properties": {
                     "id": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-134>"
+                      "x-parser-schema-id": "<anonymous-schema-136>"
                     },
                     "x": {
                       "type": "integer",
                       "minimum": 0,
-                      "x-parser-schema-id": "<anonymous-schema-135>"
+                      "x-parser-schema-id": "<anonymous-schema-137>"
                     },
                     "y": {
                       "type": "integer",
                       "minimum": 0,
-                      "x-parser-schema-id": "<anonymous-schema-136>"
+                      "x-parser-schema-id": "<anonymous-schema-138>"
                     },
                     "orientation": {
                       "type": "string",
@@ -1068,12 +1082,12 @@
                         "E",
                         "W"
                       ],
-                      "x-parser-schema-id": "<anonymous-schema-137>"
+                      "x-parser-schema-id": "<anonymous-schema-139>"
                     },
                     "currentHp": {
                       "type": "integer",
                       "minimum": 0,
-                      "x-parser-schema-id": "<anonymous-schema-138>"
+                      "x-parser-schema-id": "<anonymous-schema-140>"
                     },
                     "hitCells": {
                       "type": "array",
@@ -1082,25 +1096,35 @@
                         "properties": {
                           "x": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-141>"
+                            "x-parser-schema-id": "<anonymous-schema-143>"
                           },
                           "y": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-142>"
+                            "x-parser-schema-id": "<anonymous-schema-144>"
                           }
                         },
-                        "x-parser-schema-id": "<anonymous-schema-140>"
+                        "x-parser-schema-id": "<anonymous-schema-142>"
                       },
-                      "x-parser-schema-id": "<anonymous-schema-139>"
+                      "x-parser-schema-id": "<anonymous-schema-141>"
+                    },
+                    "effectiveWidth": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "x-parser-schema-id": "<anonymous-schema-145>"
+                    },
+                    "effectiveHeight": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "x-parser-schema-id": "<anonymous-schema-146>"
                     },
                     "isSunk": {
                       "type": "boolean",
-                      "x-parser-schema-id": "<anonymous-schema-143>"
+                      "x-parser-schema-id": "<anonymous-schema-147>"
                     }
                   },
-                  "x-parser-schema-id": "<anonymous-schema-133>"
+                  "x-parser-schema-id": "<anonymous-schema-135>"
                 },
-                "x-parser-schema-id": "<anonymous-schema-132>"
+                "x-parser-schema-id": "<anonymous-schema-134>"
               }
             },
             "x-parser-schema-id": "<anonymous-schema-119>"

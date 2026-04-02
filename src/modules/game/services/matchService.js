@@ -12,7 +12,7 @@ import {EngineDao} from '../../engine/dao/index.js';
  * @param {string} bando 
  */
 export const traducirPosicionTablero = (pos, bando) => {
-    return bando === 'NORTH' ? pos : { x: pos.x, y: (GAME_RULES.MAP.SIZE - 1) - pos.y };
+    return bando === 'NORTH' ? pos : { x: (GAME_RULES.MAP.SIZE - 1) - pos.x, y: (GAME_RULES.MAP.SIZE - 1) - pos.y };
 };
 
 /**
@@ -23,7 +23,7 @@ export const traducirPosicionTablero = (pos, bando) => {
  */
 export const traducirOrientacion = (orientacion, bando) => {
     if (bando === 'NORTH') return orientacion;
-    const opuestos = { 'N': 'S', 'S': 'N', 'E': 'E', 'W': 'W' };
+    const opuestos = { 'N': 'S', 'S': 'N', 'E': 'W', 'W': 'E' };
     return opuestos[orientacion] || orientacion;
 };
 
@@ -39,7 +39,7 @@ export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configu
     for (const shipCfg of configuracionMazo) {
         const userShip = await InventoryDao.findByIdAndUser(shipCfg.userShipId, playerId);
         const posAbs =  traducirPosicionTablero(shipCfg.position, bando);
-        const orientation = (bando === 'NORTH') ? shipCfg.orientation : 'S';
+        const orientation = (bando === 'NORTH') ? shipCfg.orientation : traducirOrientacion(shipCfg.orientation, 'SOUTH');
 
         shipList.push({
             matchId: matchId, 
@@ -83,7 +83,7 @@ export const iniciarPartidaOrquestada = async (usuarios) => {
  */
 export const calcularRegeneracionTurno = (recursosActuales) => {
     return {
-        fuel: Math.min(GAME_RULES.RESOURCES.MAX_FUEL, recursosActuales.fuel + GAME_RULES.RESOURCES.REGEN_FUEL),
+        fuel: GAME_RULES.RESOURCES.RESET_FUEL,
         ammo: GAME_RULES.RESOURCES.RESET_AMMO
     };
 };
@@ -98,7 +98,6 @@ export const generarSnapshotVision = async (matchId, userId) => {
     
     // Obtenemos todos los barcos del tablero
     const todosLosBarcos = await EngineDao.findByMatchId(matchId);
-
     const misBarcosRaw = todosLosBarcos.filter(b => b.playerId === userId);
     const enemigosRaw = todosLosBarcos.filter(b => b.playerId !== userId);
 
@@ -106,28 +105,35 @@ export const generarSnapshotVision = async (matchId, userId) => {
     // Para la V1, el MOCK asume que todos los enemigos son visibles
     const enemigosVisiblesRaw = enemigosRaw; 
 
-    // Función auxiliar para traducir la visión al bando del jugador
-    const limpiarYTraducir = (barcos) => barcos.map(barco => {
-        const posTraducida = traducirPosicionTablero({ x: barco.x, y: barco.y }, bando);
-        const orientacionTraducida = traducirOrientacion(barco.orientation, bando);
-        const hitCellsTraducidas = barco.hitCells 
-            ? barco.hitCells.map(hit => traducirPosicionTablero(hit, bando))
-            :[];
-
-        return {
-            id: barco.id,
-            x: posTraducida.x,
-            y: posTraducida.y,
-            orientation: orientacionTraducida,
-            currentHp: barco.currentHp,
-            hitCells: hitCellsTraducidas,
-            isSunk: barco.isSunk
-        };
-    });
+    const limpiarYTraducir = async (barcos) => {
+        const promesas = barcos.map(async (barco) => {
+            const posTraducida = traducirPosicionTablero({ x: barco.x, y: barco.y }, bando);
+            const orientacionTraducida = traducirOrientacion(barco.orientation, bando);
+            const hitCellsTraducidas = barco.hitCells 
+                ? barco.hitCells.map(hit => traducirPosicionTablero(hit, bando))
+                : [];
+            
+            // Ponemos el await para que espere al DAO
+            const tamano = await obtenerTamanoEfectiva(barco);
+            
+            return {
+                id: barco.id,
+                x: posTraducida.x,
+                y: posTraducida.y,
+                orientation: orientacionTraducida,
+                currentHp: barco.currentHp,
+                hitCells: hitCellsTraducidas,
+                isSunk: barco.isSunk,
+                efectiveWidth: tamano.effectiveWidth,
+                effectiveHeight: tamano.effectiveHeight
+            };
+        });
+        return Promise.all(promesas);
+    };
 
     return {
-        myFleet: limpiarYTraducir(misBarcosRaw),
-        visibleEnemyFleet: limpiarYTraducir(enemigosVisiblesRaw)
+        myFleet: await limpiarYTraducir(misBarcosRaw),
+        visibleEnemyFleet: await limpiarYTraducir(enemigosVisiblesRaw)
     };
 };
 
@@ -148,7 +154,6 @@ export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
     
     // Usamos el nuevo sistema de visión para obtener las flotas
     const vision = await generarSnapshotVision(matchId, userId);
-
     const partidaLimpio = ({
         matchId: match.id,
         status: match.status,
@@ -165,6 +170,7 @@ export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
         playerFleet: vision.myFleet,
         enemyFleet: vision.visibleEnemyFleet // Añadido para que el cliente vea al enemigo al entrar
     };
+    console.log(payload);
     return payload;
 };
 
@@ -189,3 +195,25 @@ export const notificarVisionSala = async (io, matchId) => {
         s.emit('match:vision_update', vision);
     }
 };
+
+/**
+ * Obtiene las dimensiones reales del barco, adaptadose a su orientación
+ * @param {Object} barco Objeto del barco
+ * @returns {Promise<{ effectiveWidth: number, effectiveHeight: number }>} Dimensiones reales del barco
+ */
+export const obtenerTamanoEfectiva = async (barco) => {
+    console.log(barco);
+    const tamano = await EngineDao.getShipSize(barco.id);
+    console.log(tamano);
+    console.log (barco.orientation);
+    if (barco.orientation === 'N' || barco.orientation === 'S') {
+            return { 
+                effectiveWidth: tamano.width, 
+                effectiveHeight: tamano.height 
+            };
+        } 
+    return { 
+        effectiveWidth: tamano.height, 
+        effectiveHeight: tamano.width 
+    };
+}

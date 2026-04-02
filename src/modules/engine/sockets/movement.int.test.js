@@ -11,7 +11,7 @@ import { authService } from '../../auth/index.js';
 import { registerGameHandlers } from '../../game/index.js';
 import { registerEngineHandlers } from '../index.js';
 
-describe('Engine Socket: Movement Responsibility', () => {
+describe('Movimniento', () => {
     let io, server, client, setup;
     const port = 4220;
 
@@ -48,7 +48,7 @@ describe('Engine Socket: Movement Responsibility', () => {
         const movePromise = new Promise((resolve, reject) => {
             client.once('ship:moved', (payload) => {
                 try {
-                    expect(payload.position.y).toBe(6);
+                    expect(payload.position.y).toBe(4);
                     resolve();
                 } catch (e) {
                     reject(e);
@@ -72,12 +72,10 @@ describe('Engine Socket: Movement Responsibility', () => {
 
     it('Debe rotar el barco 90 grados y recibir la notificación de sala', async () => {
         const rotatePromise = new Promise((resolve, reject) => {
-            // Escuchamos la confirmación del servidor de que rotó
             client.once('ship:rotated', (payload) => {
                 try {
-                    // Inicialmente apuntaba a 'N' (del setup). Al rotar 90 grados, debe ser 'E' (Este).
                     expect(payload.orientation).toBe('E');
-                    expect(payload.fuelReserve).toBeDefined(); // Se debe haber descontado el fuel
+                    expect(payload.fuelReserve).toBeDefined();
                     resolve();
                 } catch (e) {
                     reject(e);
@@ -86,7 +84,7 @@ describe('Engine Socket: Movement Responsibility', () => {
             client.once('game:error', (err) => reject(new Error(err.message)));
         });
 
-        // Emitimos el evento asumiendo que el cliente ya está unido a la sala del match
+
         client.emit('ship:rotate', {
             matchId: setup.match.id,
             shipId: setup.instance.id,

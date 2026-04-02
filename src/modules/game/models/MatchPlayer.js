@@ -24,7 +24,7 @@ const MatchPlayer = sequelize.define('MatchPlayer', {
     },
     fuelReserve: {
         type: DataTypes.INTEGER,
-        defaultValue: GAME_RULES.RESOURCES.MAX_FUEL / 3,
+        defaultValue: GAME_RULES.RESOURCES.MAX_FUEL,
         allowNull: false,
         validate: { min: 0 }
     },

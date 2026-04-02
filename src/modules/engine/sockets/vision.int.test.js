@@ -12,15 +12,14 @@ import { authService } from '../../auth/index.js';
 import { registerGameHandlers } from '../../game/index.js';  
 import { registerEngineHandlers } from '../index.js';  
 
-describe('Vision & Fog of War: Asymmetric Socket Responsibility', () => {
+describe('Vision y niebla de guerra', () => {
     let io, server, hostClient, guestClient, setup;
-    const port = 4230; //Si cambiais el puerto y el test se rompe, cambiad el test
+    const port = 4230;
 
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
 
-        // Factoría: Host(NORTH) barco en {5,5}. Guest(SOUTH) barco en {5,7}.
         setup = await createCompleteMatch(
             { username: 'vision_host', email: 'vh@t.va' },
             { username: 'vision_guest', email: 'vg@t.va' }
@@ -65,7 +64,7 @@ describe('Vision & Fog of War: Asymmetric Socket Responsibility', () => {
         await sequelize.close();
     });
 
-    it('Debe emitir perspectivas independientes a cada jugador al moverse (V1 / V2 Readiness)', async () => {
+    it('Debe emitir perspectivas independientes a cada jugador al moverse', async () => {
         const hostPromise = new Promise(resolve => {
             hostClient.once('match:vision_update', (payload) => resolve(payload));
         });
@@ -74,7 +73,6 @@ describe('Vision & Fog of War: Asymmetric Socket Responsibility', () => {
             guestClient.once('match:vision_update', (payload) => resolve(payload));
         });
 
-        // El host mueve su barco al Sur. Pasa de {5,5} a {5,6}.
         hostClient.emit('ship:move', {
             matchId: setup.match.id,
             shipId: setup.shipH.id,
@@ -82,22 +80,17 @@ describe('Vision & Fog of War: Asymmetric Socket Responsibility', () => {
         });
 
         const [hostVision, guestVision] = await Promise.all([hostPromise, guestPromise]);
-
-        //EN   V2 ASEGURARSE QUE LO QUE VERIFICA ES CORRECTO (BARCOS SE VEN, ETC)
-        // VALIDACIÓN HOST (NORTH)
-        // El Host ve su barco donde lo movió ({5,6} mirando al 'N')
-        expect(hostVision.myFleet[0].y).toBe(6);
+        expect(hostVision.myFleet[0].y).toBe(4);
         expect(hostVision.myFleet[0].orientation).toBe('N');
         // El Host ve al enemigo en coordenadas absolutas ({5,7} mirando al 'S')
         expect(hostVision.visibleEnemyFleet[0].y).toBe(7);
         expect(hostVision.visibleEnemyFleet[0].orientation).toBe('S');
 
-        // VALIDACIÓN GUEST (SOUTH)
-        // El Guest ve su barco en perspectiva local: Absoluto 7 -> 14 - 7 = 7. Orientación Absoluta 'S' -> 'N'
+        // El Guest ve su barco en perspectiva local.
         expect(guestVision.myFleet[0].y).toBe(7);
         expect(guestVision.myFleet[0].orientation).toBe('N');
-        // El Guest ve el barco enemigo en perspectiva local: Absoluto 6 -> 14 - 6 = 8. Orientación Absoluta 'N' -> 'S'
-        expect(guestVision.visibleEnemyFleet[0].y).toBe(8);
+        // El Guest ve el barco enemigo en perspectiva local.
+        expect(guestVision.visibleEnemyFleet[0].y).toBe(10);
         expect(guestVision.visibleEnemyFleet[0].orientation).toBe('S');
     });
 });

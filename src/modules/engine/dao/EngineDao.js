@@ -3,7 +3,7 @@
  * Acceso 
  */
 
-import { ShipInstance, UserShip, WeaponTemplate } from '../../../shared/models/index.js';
+import { ShipInstance, UserShip, WeaponTemplate, ShipTemplate } from '../../../shared/models/index.js';
 
 class EngineDao{
 
@@ -138,6 +138,84 @@ class EngineDao{
         return await ShipInstance.findAll({
             where: { matchId }
         });
+    }
+
+    /**
+     * Actualiza la posición (X, Y) de un barco en el tablero.
+     * @param {UUID} id Id del barco
+     * @param {Integer} x Nueva coordenada X
+     * @param {Integer} y Nueva coordenada Y
+     * @returns {Promise<Object>} El barco actualizado
+     */
+    async updateShipPosition(id, x, y) {
+        const [updatedRows, [updatedShip]] = await ShipInstance.update(
+            { x, y },
+            { 
+                where: { id },
+                returning: true 
+            }
+        );
+        return updatedShip;
+    }
+
+    /**
+     * Actualiza la orientación de un barco en el tablero.
+     * @param {UUID} id Id del barco
+     * @param {String} orientation Nueva orientación ('N', 'S', 'E', 'W')
+     * @returns {Promise<Object>} El barco actualizado
+     */
+    async updateShipOrientation(id, orientation) {
+        const [updatedRows, [updatedShip]] = await ShipInstance.update(
+            { orientation },
+            { 
+                where: { id },
+                returning: true 
+            }
+        );
+        return updatedShip;
+    }
+
+    /**
+     * Recupera todos los barcos vivos incluyendo información de su plantilla para cálculos de colisión.
+     * @param {string} matchId - Identificador UUID de la partida.
+     * @returns {Promise<Array<ShipInstance>>} Listado de barcos con dimensiones.
+     */
+    async findAllAliveShipsWithSizes(matchId) {
+        return await ShipInstance.findAll({
+            where: { matchId, isSunk: false },
+            include: [{
+                model: UserShip,
+                include: [{ model: ShipTemplate }]
+            }]
+        });
+    }
+
+    /**
+     * Obtiene las dimensiones (ancho y alto) de un barco a partir de su instancia.
+     * @param {UUID} id - ID de la instancia del barco (ShipInstance).
+     * @returns {Promise<{width: number, height: number}|null>} Dimensiones o null si no existe.
+     */
+    async getShipSize(id) {
+        const ship = await ShipInstance.findByPk(id, {
+            attributes: ['id'],
+            include: [{
+                model: UserShip,
+                attributes: ['id'],
+                include: [{
+                    model: ShipTemplate,
+                    attributes: ['width', 'height']
+                }]
+            }]
+        });
+
+        if (!ship || !ship.UserShip || !ship.UserShip.ShipTemplate) {
+            return null;
+        }
+
+        return {
+            width: ship.UserShip.ShipTemplate.width,
+            height: ship.UserShip.ShipTemplate.height
+        };
     }
 
 }
