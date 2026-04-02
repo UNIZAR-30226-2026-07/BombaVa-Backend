@@ -72,7 +72,7 @@ messages:
           type: array
           items:
             type: object
-            required: [id, x, y, orientation, currentHp, hitCells, isSunk]
+            required: [id, x, y, orientation, currentHp, hitCells, effectiveWidth, effectiveHeight, isSunk]
             properties:
               id: { type: string, format: uuid }
               x: { type: integer, minimum: 0 }
@@ -80,13 +80,15 @@ messages:
               orientation: { type: string, enum:[N, S, E, W] }
               currentHp: { type: integer, minimum: 0 }
               hitCells: { type: array, items: { type: object, properties: { x: { type: integer }, y: { type: integer } } } }
+              effectiveWidth: { type: integer, minimum: 1 }
+              effectiveHeight: {type: integer, minimum: 1 }
               isSunk: { type: boolean }
         visibleEnemyFleet:
           type: array
           items:
             type: object
             # Mismas propiedades que myFleet (el cliente usa el mismo esquema para renderizarlos)
-            required: [id, x, y, orientation, currentHp, hitCells, isSunk]
+            required: [id, x, y, orientation, currentHp, hitCells, effectiveWidth, effectiveHeight, isSunk]
             properties:
               id: { type: string, format: uuid }
               x: { type: integer, minimum: 0 }
@@ -94,4 +96,6 @@ messages:
               orientation: { type: string, enum: [N, S, E, W] }
               currentHp: { type: integer, minimum: 0 }
               hitCells: { type: array, items: { type: object, properties: { x: { type: integer }, y: { type: integer } } } }
+              effectiveWidth: { type: integer, minimum: 1 }
+              effectiveHeight: {type: integer, minimum: 1 }
               isSunk: { type: boolean }
