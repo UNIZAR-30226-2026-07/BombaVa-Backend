@@ -16,6 +16,11 @@ export const createDeck = async (req, res, next) => {
             return res.status(400).json({ message: 'Barcos fuera de los límites del puerto (15x5)' });
         }
 
+        const sonPropios = await inventoryService.verificarPropiedadBarcos(req.user.id, shipIds);
+        if (!sonPropios) {
+            return res.status(403).json({ message: 'Uno o más barcos no te pertenecen o no existen' });
+        }
+
         const nuevoMazo = await InventoryDao.createDeck({
             userId: req.user.id,
             deckName,
@@ -65,6 +70,11 @@ export const updateDeck = async (req, res, next) => {
         // Si se están cambiando los barcos, validamos que estén en la zona 15x5
         if (shipIds && !inventoryService.validarLimitesPuerto(shipIds)) {
             return res.status(400).json({ message: 'Barcos fuera de los límites del puerto (15x5)' });
+        }
+
+        const sonPropios = await inventoryService.verificarPropiedadBarcos(req.user.id, shipIds);
+        if (!sonPropios) {
+            return res.status(403).json({ message: 'Uno o más barcos no te pertenecen o no existen' });
         }
 
         const mazoActualizado = await InventoryDao.updateDeck(deckId, req.user.id, {

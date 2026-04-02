@@ -102,4 +102,19 @@ describe('DeckController Integration (Refactored)', () => {
         expect(res.status).toBe(400);
         expect(res.body.message).toContain('único mazo');
     });
+
+    it('POST /api/inventory/decks - Debe rechazar la creación si un barco no pertenece al usuario', async () => {
+        const fakeShipId = '11111111-1111-1111-1111-111111111111'; // UUID inventado
+        
+        const res = await request(app)
+            .post('/api/inventory/decks')
+            .set('Authorization', `Bearer ${token}`)
+            .send({
+                deckName: 'Mazo Hackeado',
+                shipIds: [{ userShipId: fakeShipId, position: { x: 0, y: 2 }, orientation: 'N' }]
+            });
+
+        expect(res.status).toBe(403);
+        expect(res.body.message).toContain('no te pertenecen');
+    });
 });
