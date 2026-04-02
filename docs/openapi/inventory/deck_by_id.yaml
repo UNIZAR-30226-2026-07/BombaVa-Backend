@@ -1,0 +1,105 @@
+put:
+  tags:
+    - Inventory
+  summary: Actualizar mazo de flota
+  description: Modifica el nombre o la formación de barcos de un mazo. Valida que los barcos estén en la zona de despliegue permitida (15x5).
+  operationId: updateDeck
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: deckId
+      in: path
+      required: true
+      description: UUID del mazo a modificar
+      schema:
+        type: string
+        format: uuid
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            deckName:
+              type: string
+              minLength: 2
+              maxLength: 30
+              example: "Flota Renombrada"
+            shipIds:
+              type: array
+              minItems: 1
+              items:
+                type: object
+                properties:
+                  userShipId:
+                    type: string
+                    format: uuid
+                  position:
+                    type: object
+                    properties:
+                      x: { type: integer, example: 5 }
+                      y: { type: integer, example: 2 }
+                  orientation:
+                    type: string
+                    enum: [N, S, E, W]
+                    example: "E"
+  responses:
+    '200':
+      description: Mazo actualizado con éxito
+      content:
+        application/json:
+          schema:
+            $ref: '../shared/schemas.yaml#/FleetDeck'
+    '400':
+      description: Error de validación o barcos fuera de los límites del puerto (Y > 4)
+      content:
+        application/json:
+          schema:
+            $ref: '../shared/schemas.yaml#/ValidationError'
+    '404':
+      description: Mazo no encontrado
+    '401':
+      description: No autorizado
+
+delete:
+  tags:
+    - Inventory
+  summary: Eliminar un mazo de flota
+  description: Borra un mazo. No se permitirá borrar si es el único mazo que le queda al usuario en su cuenta.
+  operationId: deleteDeck
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: deckId
+      in: path
+      required: true
+      description: UUID del mazo a eliminar
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Mazo eliminado exitosamente
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Mazo eliminado correctamente"
+    '400':
+      description: El usuario intenta borrar su único mazo
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "No puedes eliminar tu único mazo. Debes tener al menos una formación configurada."
+    '404':
+      description: Mazo no encontrado
+    '401':
+      description: No autorizado
