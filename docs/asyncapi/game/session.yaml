@@ -83,11 +83,21 @@ messages:
               effectiveWidth: { type: integer, minimum: 1 }
               effectiveHeight: {type: integer, minimum: 1 }
               isSunk: { type: boolean }
+              weapons:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [CANNON, TORPEDO, MINE] }
+                    name: { type: string }
+                    apCost: { type: integer }
+                    range: { type: integer, nullable: true }
+                    damage: { type: integer }
         visibleEnemyFleet:
           type: array
           items:
             type: object
-            # Mismas propiedades que myFleet (el cliente usa el mismo esquema para renderizarlos)
+            # Mismas propiedades que myFleet
             required: [id, x, y, orientation, currentHp, hitCells, effectiveWidth, effectiveHeight, isSunk]
             properties:
               id: { type: string, format: uuid }
@@ -99,3 +109,14 @@ messages:
               effectiveWidth: { type: integer, minimum: 1 }
               effectiveHeight: {type: integer, minimum: 1 }
               isSunk: { type: boolean }
+              weapons:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [CANNON, TORPEDO, MINE] }
+                    name: { type: string }
+                    apCost: { type: integer }
+                    range: { type: integer, nullable: true }
+                    damage: { type: integer }
+            

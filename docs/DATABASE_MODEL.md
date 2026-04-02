@@ -50,8 +50,6 @@ erDiagram
         string weapon_slug FK
     }
 
-    SHIP_INSTANCE ||--o{ WEAPON_TEMPLATE : uses_for_combat
-
     USER_SHIP {
         uuid id PK
         uuid user_id FK "Relación con USER"
@@ -107,6 +105,14 @@ erDiagram
         boolean is_sunk
     }
 
+    SHIP_INSTANCE ||--o{ SHIP_INSTANCE_WEAPON : equipped_for_match
+    WEAPON_TEMPLATE ||--o{ SHIP_INSTANCE_WEAPON : snapshots_to
+
+    SHIP_INSTANCE_WEAPON {
+        uuid ship_instance_id FK
+        string weapon_slug FK
+    }
+
     MATCH ||--o{ PROJECTILE : tracks
     PROJECTILE {
         uuid id PK
@@ -144,6 +150,9 @@ La tabla `Proyectile` sirve para identificar municiones que perduran en la parti
 
 ### D. Usuario tiene un deck de barcos
 En la tabla `MATCH_PLAYER` hay una snapshot del deck de cada jugador para guardarse tal y como se jugó la partida.
+
+### E. Snapshot de Armas (Integridad de Partida)
+Para evitar que un cambio en el "Puerto" afecte a una partida en curso o pausada, al inicio del `MATCH` se realiza un volcado de las armas del USER
 
 ---
 

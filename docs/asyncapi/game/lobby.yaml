@@ -145,6 +145,16 @@ messages:
                       type: integer
               isSunk:
                 type: boolean
+              weapons:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [CANNON, TORPEDO, MINE] }
+                    name: { type: string }
+                    apCost: { type: integer }
+                    range: { type: integer, nullable: true }
+                    damage: { type: integer }
         enemyFleet:
           type: array
           description: Lista de barcos enemigos visibles inicialmente.
@@ -178,3 +188,13 @@ messages:
                       type: integer
               isSunk:
                 type: boolean
+              weapons:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [CANNON, TORPEDO, MINE] }
+                    name: { type: string }
+                    apCost: { type: integer }
+                    range: { type: integer, nullable: true }
+                    damage: { type: integer }
