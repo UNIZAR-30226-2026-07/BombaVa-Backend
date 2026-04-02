@@ -50,3 +50,58 @@ export const getMyDecks = async (req, res, next) => {
         next(error);
     }
 };
+
+/**
+ * Actualiza la formación de barcos o el nombre de un mazo
+ */
+export const updateDeck = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+    try {
+        const { deckId } = req.params;
+        const { deckName, shipIds } = req.body;
+
+        // Si se están cambiando los barcos, validamos que estén en la zona 15x5
+        if (shipIds && !inventoryService.validarLimitesPuerto(shipIds)) {
+            return res.status(400).json({ message: 'Barcos fuera de los límites del puerto (15x5)' });
+        }
+
+        const mazoActualizado = await InventoryDao.updateDeck(deckId, req.user.id, {
+            deckName,
+            shipIds
+        });
+
+        if (!mazoActualizado) return res.status(404).json({ message: 'Mazo no encontrado' });
+
+        res.json(mazoActualizado);
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * Elimina un mazo si no es el único que tiene el usuario
+ */
+export const deleteDeck = async (req, res, next) => {
+    try {
+        const { deckId } = req.params;
+        const userId = req.user.id;
+
+        const totalMazos = await InventoryDao.countUserDecks(userId);
+        
+        if (totalMazos <= 1) {
+            return res.status(400).json({ 
+                message: 'No puedes eliminar tu único mazo. Debes tener al menos una formación configurada.' 
+            });
+        }
+
+        const eliminado = await InventoryDao.deleteDeck(deckId, userId);
+        
+        if (!eliminado) return res.status(404).json({ message: 'Mazo no encontrado' });
+
+        res.json({ message: 'Mazo eliminado correctamente' });
+    } catch (error) {
+        next(error);
+    }
+};

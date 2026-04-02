@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { body, param } from 'express-validator';
 import { protect } from '../../../shared/middlewares/authMiddleware.js';
-import { createDeck, getMyDecks, setActiveDeck } from '../controllers/deckController.js';
+import { createDeck, getMyDecks, setActiveDeck, updateDeck, deleteDeck } from '../controllers/deckController.js';
 import { equipWeapon, getMyShips, removeWeaponFromShip, showAllWeapons } from '../controllers/inventoryController.js';
 
 const router = Router();
@@ -32,5 +32,18 @@ router.post('/decks', [
 router.patch('/decks/:deckId/activate', [
     param('deckId').isUUID().withMessage('ID inválido')
 ], setActiveDeck);
+
+// ACTUALIZAR Mazo (Barcos o nombre)
+router.put('/decks/:deckId', [
+    param('deckId').isUUID().withMessage('ID de mazo inválido'),
+    body('deckName').optional().isLength({ min: 2, max: 30 }),
+    body('shipIds').optional().isArray({ min: 1 })
+], updateDeck);
+
+// ELIMINAR Mazo
+router.delete('/decks/:deckId', [
+    param('deckId').isUUID().withMessage('ID de mazo inválido')
+], deleteDeck);
+
 
 export default router;
