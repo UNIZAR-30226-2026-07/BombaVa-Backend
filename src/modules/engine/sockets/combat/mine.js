@@ -20,7 +20,7 @@ export const handleMineDrop = async (io, socket, data) => {
         if (!barco || !jugador || !partida) {
             throw new Error('No se han encontrado las entidades necesarias para colocar la mina');
         }
-        const mina = barco.UserShip?.WeaponTemplates?.find(w => w.type === 'MINE');
+        const mina = barco.CombatWeapons?.find(w => w.type === 'MINE');
         if (!mina) {
             throw new Error('El barco no tiene equipadas minas');
         }

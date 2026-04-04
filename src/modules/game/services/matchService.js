@@ -3,9 +3,9 @@
  * Orquesta la creación, recuperación de estados y lógica de recursos.
  */
 import { GAME_RULES } from '../../../config/gameRules.js';
-import {InventoryDao} from '../../inventory/dao/index.js';
-import {MatchDao} from '../dao/index.js';
-import {EngineDao} from '../../engine/dao/index.js';
+import { InventoryDao } from '../../inventory/dao/index.js';
+import { MatchDao } from '../dao/index.js';
+import { EngineDao } from '../../engine/dao/index.js';
 /**
  * Traduce coordenadas relativas del puerto a absolutas del mapa de batalla
  * @param {Object} pos 
@@ -28,22 +28,22 @@ export const traducirOrientacion = (orientacion, bando) => {
 };
 
 /**
- * Crea las instancias físicas de los barcos en el tablero
+ * Crea las instancias físicas de los barcos en el tablero y congela su armamento
  * @param {string} matchId 
  * @param {string} playerId 
  * @param {string} bando 
  * @param {Array} configuracionMazo 
  */
 export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configuracionMazo) => {
-    const shipList = [];
     for (const shipCfg of configuracionMazo) {
-        const userShip = await InventoryDao.findByIdAndUser(shipCfg.userShipId, playerId);
-        const posAbs =  traducirPosicionTablero(shipCfg.position, bando);
+        const userShip = await InventoryDao.findByIdWithWeapons(shipCfg.userShipId, playerId);
+
+        const posAbs = traducirPosicionTablero(shipCfg.position, bando);
         const orientation = (bando === 'NORTH') ? shipCfg.orientation : traducirOrientacion(shipCfg.orientation, 'SOUTH');
 
-        shipList.push({
-            matchId: matchId, 
-            playerId: playerId, 
+        const instance = await EngineDao.createShipInstance({
+            matchId: matchId,
+            playerId: playerId,
             userShipId: userShip.id,
             x: posAbs.x,
             y: posAbs.y,
@@ -51,9 +51,11 @@ export const instanciarFlotaEnPartida = async (matchId, playerId, bando, configu
             currentHp: await InventoryDao.getUserShipHp(userShip.id),
             isSunk: false
         });
-        
+
+        if (userShip.WeaponTemplates && userShip.WeaponTemplates.length > 0) {
+            await instance.addCombatWeapons(userShip.WeaponTemplates);
+        }
     }
-    EngineDao.createFleet(shipList);
 };
 
 /**
@@ -95,7 +97,7 @@ export const calcularRegeneracionTurno = (recursosActuales) => {
 export const generarSnapshotVision = async (matchId, userId) => {
     const jugador = await MatchDao.findMatchPlayer(matchId, userId);
     const bando = jugador.side;
-    
+
     // Obtenemos todos los barcos del tablero
     const todosLosBarcos = await EngineDao.findByMatchId(matchId);
     const misBarcosRaw = todosLosBarcos.filter(b => b.playerId === userId);
@@ -103,19 +105,26 @@ export const generarSnapshotVision = async (matchId, userId) => {
 
     // TODO (V2): Aquí irá la función que calcula el tablero visible: calcularVision(misBarcosRaw, enemigosRaw)
     // Para la V1, el MOCK asume que todos los enemigos son visibles
-    const enemigosVisiblesRaw = enemigosRaw; 
+    const enemigosVisiblesRaw = enemigosRaw;
 
     const limpiarYTraducir = async (barcos) => {
         const promesas = barcos.map(async (barco) => {
             const posTraducida = traducirPosicionTablero({ x: barco.x, y: barco.y }, bando);
             const orientacionTraducida = traducirOrientacion(barco.orientation, bando);
-            const hitCellsTraducidas = barco.hitCells 
+            const hitCellsTraducidas = barco.hitCells
                 ? barco.hitCells.map(hit => traducirPosicionTablero(hit, bando))
                 : [];
-            
-            // Ponemos el await para que espere al DAO
+
             const tamano = await obtenerTamanoEfectiva(barco);
             
+            const armasSnapshot = barco.CombatWeapons ? barco.CombatWeapons.map(w => ({
+                type: w.type,
+                name: w.name,
+                apCost: w.apCost,
+                range: w.range,
+                damage: w.damage
+            })) : [];
+
             return {
                 id: barco.id,
                 x: posTraducida.x,
@@ -125,7 +134,8 @@ export const generarSnapshotVision = async (matchId, userId) => {
                 hitCells: hitCellsTraducidas,
                 isSunk: barco.isSunk,
                 efectiveWidth: tamano.effectiveWidth,
-                effectiveHeight: tamano.effectiveHeight
+                effectiveHeight: tamano.effectiveHeight,
+                weapons: armasSnapshot // <--- ENVIADO AL CLIENTE
             };
         });
         return Promise.all(promesas);
@@ -151,7 +161,7 @@ export const generarSnapshotVision = async (matchId, userId) => {
 export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
     const match = await MatchDao.findById(matchId);
     const jugador = await MatchDao.findMatchPlayer(matchId, userId);
-    
+
     // Usamos el nuevo sistema de visión para obtener las flotas
     const vision = await generarSnapshotVision(matchId, userId);
     const partidaLimpio = ({
@@ -162,7 +172,7 @@ export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
         turnNumber: match.turnNumber,
         mapTerrain: match.mapTerrain
     });
-    
+
     const payload = {
         matchInfo: partidaLimpio,
         ammo: jugador.ammoCurrent,
@@ -205,15 +215,15 @@ export const obtenerTamanoEfectiva = async (barco) => {
     console.log(barco);
     const tamano = await EngineDao.getShipSize(barco.id);
     console.log(tamano);
-    console.log (barco.orientation);
+    console.log(barco.orientation);
     if (barco.orientation === 'N' || barco.orientation === 'S') {
-            return { 
-                effectiveWidth: tamano.width, 
-                effectiveHeight: tamano.height 
-            };
-        } 
-    return { 
-        effectiveWidth: tamano.height, 
-        effectiveHeight: tamano.width 
+        return {
+            effectiveWidth: tamano.width,
+            effectiveHeight: tamano.height
+        };
+    }
+    return {
+        effectiveWidth: tamano.height,
+        effectiveHeight: tamano.width
     };
 }

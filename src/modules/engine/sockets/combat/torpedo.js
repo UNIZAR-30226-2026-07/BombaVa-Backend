@@ -20,7 +20,7 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
             throw new Error('No se han encontrado las entidades necesarias');
         }
 
-        const torpedo = barco.UserShip?.WeaponTemplates?.find(w => w.type === 'TORPEDO');
+        const torpedo = barco.CombatWeapons?.find(w => w.type === 'TORPEDO');
         if (!torpedo) {
             throw new Error('El barco no tiene equipados torpedos');
         }

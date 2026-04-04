@@ -19,7 +19,7 @@ export const handleCannonAttack = async (io, socket, data) => {
         if (!partida || !barco || !jugador) {
             throw new Error('No se han encontrado las entidades necesarias');
         }
-        const cañon = barco.UserShip?.WeaponTemplates?.find(w => w.type === 'CANNON');
+        const cañon = barco.CombatWeapons?.find(w => w.type === 'CANNON');
         if (!cañon) {
             throw new Error('El barco no tiene equipado un cañón');
         }
