@@ -13,6 +13,17 @@ class ProjectileDao {
     async createProjectile(data) {
         return await Projectile.create(data);
     }
+
+    /**
+     * Devuelve todos los proyectiles de una partida
+     * @param {UUID} matchId Id de la partida
+     * @returns {Promise<Array>} Listado de proyectiles
+     */
+    async findAllProjectiles(matchId){
+        return await Projectile.findAll({
+            where: {matchId} 
+        });
+    }
 }
 
 export default new ProjectileDao();

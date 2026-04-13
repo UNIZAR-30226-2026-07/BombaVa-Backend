@@ -6,6 +6,7 @@ import { GAME_RULES } from '../../../config/gameRules.js';
 import { InventoryDao } from '../../inventory/dao/index.js';
 import { MatchDao } from '../dao/index.js';
 import { EngineDao } from '../../engine/dao/index.js';
+import {ProjectileDao} from '../../engine/dao/index.js';
 /**
  * Traduce coordenadas relativas del puerto a absolutas del mapa de batalla
  * @param {Object} pos 
@@ -97,12 +98,10 @@ export const calcularRegeneracionTurno = (recursosActuales) => {
 export const generarSnapshotVision = async (matchId, userId) => {
     const jugador = await MatchDao.findMatchPlayer(matchId, userId);
     const bando = jugador.side;
-
     // Obtenemos todos los barcos del tablero
     const todosLosBarcos = await EngineDao.findByMatchId(matchId);
     const misBarcosRaw = todosLosBarcos.filter(b => b.playerId === userId);
     const enemigosRaw = todosLosBarcos.filter(b => b.playerId !== userId);
-
     // TODO (V2): Aquí irá la función que calcula el tablero visible: calcularVision(misBarcosRaw, enemigosRaw)
     // Para la V1, el MOCK asume que todos los enemigos son visibles
     const enemigosVisiblesRaw = enemigosRaw;
@@ -135,24 +134,33 @@ export const generarSnapshotVision = async (matchId, userId) => {
                 isSunk: barco.isSunk,
                 efectiveWidth: tamano.effectiveWidth,
                 effectiveHeight: tamano.effectiveHeight,
-                weapons: armasSnapshot // <--- ENVIADO AL CLIENTE
+                weapons: armasSnapshot
             };
         });
         return Promise.all(promesas);
     };
 
+    const todosLosProyectiles = await ProjectileDao.findAllProjectiles(matchId);
+    const proyPropios = [];
+    const proyEnemigos = [];
+    for (const proy of todosLosProyectiles) {
+        if (proy.ownerId === userId) {
+            proyPropios.push(proy);
+        } else {
+            // Aquí los proyectiles enemigos se envían todos. 
+            // Cambiar para meter niebla de guerra en el futuro
+            proyEnemigos.push(proy);
+        }
+    }
     return {
         myFleet: await limpiarYTraducir(misBarcosRaw),
-        visibleEnemyFleet: await limpiarYTraducir(enemigosVisiblesRaw)
+        visibleEnemyFleet: await limpiarYTraducir(enemigosVisiblesRaw),
+        proyPropios: proyPropios,
+        proyEnemigos: proyEnemigos
     };
 };
 
 
-/**
- * Recupera el estado completo de una partida
- * @param {UUID} matchId El id de la partid
- * @param {UUID} userId El id del usuario
- */
 /**
  * Recupera el estado completo de una partida
  * @param {UUID} matchId El id de la partida
@@ -164,6 +172,10 @@ export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
 
     // Usamos el nuevo sistema de visión para obtener las flotas
     const vision = await generarSnapshotVision(matchId, userId);
+    const proyectiles = await ProjectileDao.findAllProjectiles(matchId);
+    const proyPropios = proyectiles.filter(b => b.playerId === userId);
+    const proyEnemigos = proyectiles.filter(b => b.playerId !== userId);
+
     const partidaLimpio = ({
         matchId: match.id,
         status: match.status,
@@ -178,9 +190,10 @@ export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
         ammo: jugador.ammoCurrent,
         fuel: jugador.fuelReserve,
         playerFleet: vision.myFleet,
-        enemyFleet: vision.visibleEnemyFleet // Añadido para que el cliente vea al enemigo al entrar
+        enemyFleet: vision.visibleEnemyFleet,
+        proyPropios: proyPropios,
+        proyEnemigos: proyEnemigos
     };
-    console.log(payload);
     return payload;
 };
 
@@ -212,10 +225,7 @@ export const notificarVisionSala = async (io, matchId) => {
  * @returns {Promise<{ effectiveWidth: number, effectiveHeight: number }>} Dimensiones reales del barco
  */
 export const obtenerTamanoEfectiva = async (barco) => {
-    console.log(barco);
     const tamano = await EngineDao.getShipSize(barco.id);
-    console.log(tamano);
-    console.log(barco.orientation);
     if (barco.orientation === 'N' || barco.orientation === 'S') {
         return {
             effectiveWidth: tamano.width,

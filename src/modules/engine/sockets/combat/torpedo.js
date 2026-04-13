@@ -6,6 +6,7 @@ import MatchDao from '../../../game/dao/MatchDao.js';
 import ProjectileDao from '../../dao/ProjectileDao.js';
 import * as combatService from '../../services/combatService.js';
 import { matchService } from '../../../game/index.js';
+import { engineService } from '../../services/index.js';
 
 export const handleTorpedoLaunch = async (io, socket, data) => {
     const { matchId, shipId } = data;
@@ -29,19 +30,23 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
             throw new Error('Munición insuficiente para torpedo');
         }
 
+        const tamanoBase = await EngineDao.getShipSize(barco.id);
+        const tamanoReal = engineService.calculartamanoEfectivo(tamanoBase.width, tamanoBase.height, barco.orientation);
+        console.log(barco);
+        const frente = combatService.obtenerFrente(barco.x, barco.y, barco.orientation, tamanoReal.effectiveWidth, tamanoReal.effectiveHeight);
         const vector = combatService.calcularVectorProyectil(barco.orientation);
 
-        await ProjectileDao.createProjectile({
+        const proyectil = await ProjectileDao.createProjectile({
             matchId, 
             ownerId: userId, 
             type: 'TORPEDO',
-            x: barco.x + vector.vx, 
-            y: barco.y + vector.vy,
+            x: frente.topx + vector.vx, 
+            y: frente.topy + vector.vy,
             vectorX: vector.vx, 
             vectorY: vector.vy,
             lifeDistance: torpedo.lifeDistance
         })
-
+        console.log(proyectil);
         const nuevaMunicion = jugador.ammoCurrent - torpedo.apCost;
         await MatchDao.updateResources(jugador.id, jugador.fuelReserve, nuevaMunicion);
         await EngineDao.updateLastAttackTurn(barco.id, partida.turnNumber);

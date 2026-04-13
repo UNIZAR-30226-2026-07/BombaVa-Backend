@@ -18,8 +18,8 @@ export const validarRangoAtaque = (origenes, destino, rangoMax) => {
  */
 export const calcularVectorProyectil = (orientacion) => {
     const vectores = {
-        'N': { vx: 0, vy: -1 },
-        'S': { vx: 0, vy: 1 },
+        'N': { vx: 0, vy: 1 },
+        'S': { vx: 0, vy: -1 },
         'E': { vx: 1, vy: 0 },
         'W': { vx: -1, vy: 0 }
     };
@@ -55,3 +55,33 @@ export const aplicarDanoImpacto = async (objetivo, danioDelArma, transaccion) =>
 
     return { newHp, isSunk };
 };
+
+/**
+ * Devuelve la posición en donde se ubica el frente del barco
+ * @param {Int} x Posición x del centro del barco
+ * @param {Int} y Posición y del centro del barco
+ * @param {Char} orientacion Orientación que esta apuntando el barco
+ * @param {Int} effectiveWidth Longitud del barco
+ * @param {Int} effectiveHeight Altura del barco
+ * @returns Las coordenadas del frente del barco
+ */
+export const obtenerFrente = (x, y, orientacion, effectiveWidth, effectiveHeight) => {
+    const startX = x - Math.ceil(effectiveWidth / 2);
+    const startY = y - Math.ceil(effectiveHeight / 2);
+    let topx = x;
+    let topy = y; 
+    if (orientacion === 'N'){
+        topy = y + startY;
+    }
+    if (orientacion === 'E'){
+        topx = x + startX;
+    }
+    if (orientacion === 'S'){
+        topy = y - startY;
+    }
+    if (orientacion === 'W'){
+        topx = x - startX;
+    }
+    if (topx < 0 || topy < 0) throw new Error('No se puede lanzar un torpedo en los límites del mapa');
+    else return {topx, topy};
+}
