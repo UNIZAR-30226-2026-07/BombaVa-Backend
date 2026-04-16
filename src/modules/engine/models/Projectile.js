@@ -53,6 +53,11 @@ const Projectile = sequelize.define('Projectile', {
         type: DataTypes.INTEGER,
         allowNull: false,
         validate: { min: 0 }
+    },
+    damage: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: { min: 1 }
     }
 }, {
     tableName: 'projectiles',

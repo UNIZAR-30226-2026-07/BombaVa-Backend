@@ -41,14 +41,14 @@ export const handleMineDrop = async (io, socket, data) => {
         if (!combatService.validarAdyacencia(celdasOrigen, targetTraducido)) {
             throw new Error('La posición de la mina está fuera de rango (debe estar adyacente)');
         }
-
         await ProjectileDao.createProjectile({
             matchId,
             ownerId: userId,
             type: 'MINE',
             x: targetTraducido.x,
             y: targetTraducido.y,
-            lifeDistance: mina.lifeDistance
+            lifeDistance: mina.lifeDistance,
+            damage: mina.damage
         });
 
         const nuevaMunicion = jugador.ammoCurrent - mina.apCost;

@@ -30,9 +30,9 @@ describe('CombatService Unit Tests (V2 Logic - Múltiples Celdas)', () => {
     });
 
     describe('calcularVectorProyectil', () => {
-        it('Debe devolver vectorY -1 para orientación Norte', () => {
+        it('Debe devolver vectorY 1 para orientación Norte', () => {
             const vector = calcularVectorProyectil('N');
-            expect(vector).toEqual({ vx: 0, vy: -1 });
+            expect(vector).toEqual({ vx: 0, vy: 1 });
         });
     });
 

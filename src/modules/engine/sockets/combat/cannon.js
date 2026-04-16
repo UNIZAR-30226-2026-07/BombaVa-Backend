@@ -19,11 +19,11 @@ export const handleCannonAttack = async (io, socket, data) => {
         if (!partida || !barco || !jugador) {
             throw new Error('No se han encontrado las entidades necesarias');
         }
-        const cañon = barco.CombatWeapons?.find(w => w.type === 'CANNON');
-        if (!cañon) {
+        const cannon = barco.CombatWeapons?.find(w => w.type === 'CANNON');
+        if (!cannon) {
             throw new Error('El barco no tiene equipado un cañón');
         }
-        if (barco.lastAttackTurn === partida.turnNumber || jugador.ammoCurrent < cañon.apCost) {
+        if (barco.lastAttackTurn === partida.turnNumber || jugador.ammoCurrent < cannon.apCost) {
             throw new Error('Ataque no disponible o munición insuficiente');
         }
 
@@ -32,7 +32,7 @@ export const handleCannonAttack = async (io, socket, data) => {
         const tamanoEfectivo = engineService.calculartamanoEfectivo(tamanoBase.width, tamanoBase.height, barco.orientation);
         const celdasOrigen = engineService.calcularCeldasOcupadas(barco.x, barco.y, tamanoEfectivo.effectiveWidth, tamanoEfectivo.effectiveHeight);
 
-        if (!combatService.validarRangoAtaque(celdasOrigen, targetTraducido, cañon.range)) {
+        if (!combatService.validarRangoAtaque(celdasOrigen, targetTraducido, cannon.range)) {
             throw new Error('Objetivo fuera de rango');
         }
 
@@ -55,14 +55,14 @@ export const handleCannonAttack = async (io, socket, data) => {
         }
         let targetHp = null;
         if (objetivo) {
-            const newHp = Math.max(0, objetivo.currentHp - cañon.damage);
+            const newHp = Math.max(0, objetivo.currentHp - cannon.damage);
             const isSunk = newHp === 0;
             
             await EngineDao.registerHit(objetivo.id, newHp, objetivo.hitCells || [], isSunk);
             targetHp = newHp;
         }
 
-        const nuevaMunicion = jugador.ammoCurrent - cañon.apCost;
+        const nuevaMunicion = jugador.ammoCurrent - cannon.apCost;
         await MatchDao.updateResources(jugador.id, jugador.fuelReserve, nuevaMunicion);
         await EngineDao.updateLastAttackTurn(barco.id, partida.turnNumber);
 

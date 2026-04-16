@@ -32,10 +32,8 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
 
         const tamanoBase = await EngineDao.getShipSize(barco.id);
         const tamanoReal = engineService.calculartamanoEfectivo(tamanoBase.width, tamanoBase.height, barco.orientation);
-        console.log(barco);
         const frente = combatService.obtenerFrente(barco.x, barco.y, barco.orientation, tamanoReal.effectiveWidth, tamanoReal.effectiveHeight);
         const vector = combatService.calcularVectorProyectil(barco.orientation);
-
         const proyectil = await ProjectileDao.createProjectile({
             matchId, 
             ownerId: userId, 
@@ -44,9 +42,9 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
             y: frente.topy + vector.vy,
             vectorX: vector.vx, 
             vectorY: vector.vy,
-            lifeDistance: torpedo.lifeDistance
+            lifeDistance: torpedo.lifeDistance,
+            damage: torpedo.damage
         })
-        console.log(proyectil);
         const nuevaMunicion = jugador.ammoCurrent - torpedo.apCost;
         await MatchDao.updateResources(jugador.id, jugador.fuelReserve, nuevaMunicion);
         await EngineDao.updateLastAttackTurn(barco.id, partida.turnNumber);

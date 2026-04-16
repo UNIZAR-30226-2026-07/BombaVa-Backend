@@ -24,6 +24,16 @@ class ProjectileDao {
             where: {matchId} 
         });
     }
+
+    /**
+     * Elimina un proyectil de la partida
+     * @param {UUID} id 
+     */
+    async removeProjectile(id){
+        return await Projectile.destroy({
+            where: {id}
+        });
+    }
 }
 
 export default new ProjectileDao();

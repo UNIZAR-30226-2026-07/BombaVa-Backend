@@ -3,8 +3,9 @@
  */
 import MatchDao from '../../game/dao/MatchDao.js';
 import EngineDao from '../dao/EngineDao.js';
-import { engineService } from '../index.js';
+import { combatService, engineService, Projectile } from '../index.js';
 import { matchService } from '../../game/index.js';
+import ProjectileDao from '../dao/ProjectileDao.js';
 
 export const registerMovementHandlers = (io, socket) => {
 
@@ -46,6 +47,23 @@ export const registerMovementHandlers = (io, socket) => {
             const allAliveShips = await EngineDao.findAllAliveShipsWithSizes(matchId);
             if (engineService.verificarColision(targetCells, allAliveShips, barco.id)) {
                 throw new Error('Colisión detectada: Casilla ocupada');
+            }
+
+            //Comprobar colisión con un proyectil
+            const allProyectiles = await ProjectileDao.findAllProjectiles(matchId);
+            const proyectilColisionado = combatService.colisionBarcoProyectil(targetCells, allProyectiles);
+            if (proyectilColisionado != null){
+                console.log (barco.currentHp, proyectilColisionado.damage);
+                const newHp = Math.max(0, barco.currentHp - proyectilColisionado.damage);
+                const isSunk = newHp === 0;
+                await EngineDao.registerHit(barco.id, newHp, barco.hitCells || [], isSunk);
+                await ProjectileDao.removeProjectile(proyectilColisionado.id);
+                io.to(matchId).emit('projectile:hit', {
+                    shipId,
+                    proyectilColisionado: proyectilColisionado.id,
+                    newHp
+                });
+                console.log( shipId, proyectilColisionado,newHp);
             }
             // Calculamos los nuevos recursos
             const nuevoFuel = jugador.fuelReserve - costes.TRASLACION;
@@ -116,6 +134,23 @@ export const registerMovementHandlers = (io, socket) => {
             }
 
             const dirTraducida = matchService.traducirOrientacion(nuevaOrientacion, jugador.side);
+
+            //Comprobar colisión con un proyectil
+            const allProyectiles = await ProjectileDao.findAllProjectiles(matchId);
+            const proyectilColisionado = combatService.colisionBarcoProyectil(targetCells, allProyectiles);
+            if (proyectilColisionado != null){
+                console.log (barco.currentHp, proyectilColisionado.damage);
+                const newHp = Math.max(0, barco.currentHp - proyectilColisionado.damage);
+                const isSunk = newHp === 0;
+                await EngineDao.registerHit(barco.id, newHp, barco.hitCells || [], isSunk);
+                await ProjectileDao.removeProjectile(proyectilColisionado.id);
+                io.to(matchId).emit('projectile:hit', {
+                    shipId,
+                    proyectilColisionado: proyectilColisionado.id,
+                    newHp
+                });
+                console.log( shipId, proyectilColisionado,newHp);
+            }
 
             // Calculamos los nuevos recursos
             const nuevoFuel = jugador.fuelReserve - costes.ROTACION;

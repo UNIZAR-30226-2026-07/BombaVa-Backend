@@ -85,3 +85,20 @@ export const obtenerFrente = (x, y, orientacion, effectiveWidth, effectiveHeight
     if (topx < 0 || topy < 0) throw new Error('No se puede lanzar un torpedo en los límites del mapa');
     else return {topx, topy};
 }
+
+/**
+ * Comprueba si un barco colisiona con un proyectil
+ * @param {List<Object>} celdasBarco Todas las celdas que ocupa un barco
+ * @param {List<Object>} allProyectiles Todos los proyectiles desplegado en el tablero
+ * @returns True si colisiona un barco con un proyectil
+ */
+export const colisionBarcoProyectil = (celdasBarco, allProyectiles) => {
+    for (const celda of celdasBarco){
+        for (const proyectil of allProyectiles){
+            if (celda.x === proyectil.x && celda.y === proyectil.y){
+                return proyectil;
+            }
+        }
+    }
+    return null;
+}
