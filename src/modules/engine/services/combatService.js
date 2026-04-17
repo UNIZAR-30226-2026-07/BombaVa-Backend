@@ -66,21 +66,19 @@ export const aplicarDanoImpacto = async (objetivo, danioDelArma, transaccion) =>
  * @returns Las coordenadas del frente del barco
  */
 export const obtenerFrente = (x, y, orientacion, effectiveWidth, effectiveHeight) => {
-    const startX = x - Math.ceil(effectiveWidth / 2);
-    const startY = y - Math.ceil(effectiveHeight / 2);
     let topx = x;
     let topy = y; 
-    if (orientacion === 'N'){
-        topy = y + startY;
-    }
-    if (orientacion === 'E'){
-        topx = x + startX;
-    }
-    if (orientacion === 'S'){
-        topy = y - startY;
-    }
-    if (orientacion === 'W'){
-        topx = x - startX;
+    const offsetX = Math.floor(effectiveWidth / 2);
+    const offsetY = Math.floor(effectiveHeight / 2);
+    
+    if (orientacion === 'N') {
+        topy = y + offsetY;
+    } else if (orientacion === 'S') {
+        topy = y - offsetY;
+    } else if (orientacion === 'E') {
+        topx = x + offsetX;
+    } else if (orientacion === 'W') {
+        topx = x - offsetX;
     }
     if (topx < 0 || topy < 0) throw new Error('No se puede lanzar un torpedo en los límites del mapa');
     else return {topx, topy};

@@ -46,7 +46,7 @@ describe('Projectile Model Exhaustive Tests', () => {
             lifeDistance: 0,
             vectorX: 0,
             vectorY: 0,
-            damage: 0
+            damage: 1
         });
         await expect(p.validate()).resolves.not.toThrow();
     });

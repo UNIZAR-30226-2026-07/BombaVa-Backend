@@ -145,11 +145,31 @@ export const generarSnapshotVision = async (matchId, userId) => {
     const proyEnemigos = [];
     for (const proy of todosLosProyectiles) {
         if (proy.ownerId === userId) {
-            proyPropios.push(proy);
+            proyPropios.push({
+                id: proy.id,
+                lifeDistance: proy.lifeDistance,
+                matchId: proy.matchId,
+                ownerId: proy.ownerId,
+                type: proy.mine,
+                vectorX: proy.vectorX,
+                vectorY: proy.vectorY,
+                x: proy.x,
+                y: proy.y
+            });
         } else {
             // Aquí los proyectiles enemigos se envían todos. 
             // Cambiar para meter niebla de guerra en el futuro
-            proyEnemigos.push(proy);
+            proyEnemigos.push({
+                id: proy.id,
+                lifeDistance: proy.lifeDistance,
+                matchId: proy.matchId,
+                ownerId: proy.ownerId,
+                type: proy.mine,
+                vectorX: proy.vectorX,
+                vectorY: proy.vectorY,
+                x: proy.x,
+                y: proy.y
+            });
         }
     }
     return {
