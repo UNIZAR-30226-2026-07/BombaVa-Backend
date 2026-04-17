@@ -1,4 +1,5 @@
 import Projectile from './Projectile.js';
+import { sequelize } from '../../../config/db.js';
 
 describe('Projectile Model Exhaustive Tests', () => {
     const dummyMatchId = '550e8400-e29b-41d4-a716-446655440000';
