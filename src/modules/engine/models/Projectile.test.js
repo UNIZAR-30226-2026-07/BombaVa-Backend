@@ -11,7 +11,8 @@ describe('Projectile Model Exhaustive Tests', () => {
             type: 'NUKE',
             x: 0,
             y: 0,
-            lifeDistance: 1
+            lifeDistance: 1,
+            damage: 50
         });
 
         try {
@@ -33,7 +34,8 @@ describe('Projectile Model Exhaustive Tests', () => {
             y: 0,
             lifeDistance: 0,
             vectorX: 0,
-            vectorY: 0
+            vectorY: 0,
+            damage: 0
         });
         await expect(p.validate()).resolves.not.toThrow();
     });

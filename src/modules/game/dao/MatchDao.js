@@ -126,6 +126,27 @@ class MatchDao {
         });
         return updatedPlayer;
     }
+
+    /**
+     * Avanza el turno de la partida, cambiando el jugador activo.
+     * @param {UUID} id Id de la partida.
+     * @param {UUID} currentTurnPlayerId Id del jugador al que le toca ahora.
+     * @param {Integer} turnNumber Nuevo número de turno.
+     * @returns {Promise<Object>} La partida actualizada.
+     */
+    async updateTurn(id, currentTurnPlayerId, turnNumber) {
+        const [updatedRows, [updatedMatch]] = await Match.update(
+            { 
+                currentTurnPlayerId: currentTurnPlayerId,
+                turnNumber: turnNumber 
+            },
+            { 
+                where: { id },
+                returning: true 
+            }
+        );
+        return updatedMatch;
+    }
 }
 
 export default new MatchDao();

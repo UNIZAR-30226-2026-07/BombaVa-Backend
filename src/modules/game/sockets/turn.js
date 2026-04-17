@@ -1,7 +1,7 @@
 /**
  * Manejador interno de eventos de turno y rendición.
  */
-import { Match, MatchPlayer, sequelize } from '../../../shared/models/index.js';
+import MatchDao from '../dao/MatchDao.js';
 import { matchService, statusService } from '../index.js';
 
 export const registerTurnHandlers = (io, socket) => {
@@ -12,45 +12,38 @@ export const registerTurnHandlers = (io, socket) => {
     socket.on('match:turn_end', async (data) => {
         const { matchId } = data;
         const userId = socket.data.user.id;
-        const transaction = await sequelize.transaction();
 
         try {
-            const partida = await Match.findByPk(matchId, {
-                include: [MatchPlayer],
-                transaction
-            });
+            const partida = await MatchDao.findById(matchId);
 
             if (!partida || partida.currentTurnPlayerId !== userId) {
                 throw new Error('No es tu turno');
             }
 
             const oponente = partida.MatchPlayers.find(p => p.userId !== userId);
+            if (!oponente) {
+                throw new Error('Oponente no encontrado');
+            }
+
             const nuevosRecursos = matchService.calcularRegeneracionTurno({
                 fuel: oponente.fuelReserve,
                 ammo: oponente.ammoCurrent
             });
 
+            // Resolucion de proyectiles aqui
+            
+            const nextTurnNumber = partida.turnNumber + 1;
+            const nextPlayerId = oponente.userId;
 
-            // Resolucion de proyectiles antes que esto
-            oponente.fuelReserve = nuevosRecursos.fuel;
-            oponente.ammoCurrent = nuevosRecursos.ammo;
-            partida.currentTurnPlayerId = oponente.userId;
-            partida.turnNumber += 1;
-
-            await Promise.all([
-                partida.save({ transaction }),
-                oponente.save({ transaction })
-            ]);
-
-            await transaction.commit();
+            await MatchDao.updateResources(oponente.id, nuevosRecursos.fuel, nuevosRecursos.ammo);
+            await MatchDao.updateTurn(partida.id, nextPlayerId, nextTurnNumber);
 
             io.to(matchId).emit('match:turn_changed', {
-                nextPlayerId: partida.currentTurnPlayerId,
-                turnNumber: partida.turnNumber,
+                nextPlayerId: nextPlayerId,
+                turnNumber: nextTurnNumber,
                 resources: nuevosRecursos
             });
         } catch (error) {
-            if (transaction) await transaction.rollback();
             socket.emit('game:error', { message: error.message });
         }
     });
@@ -63,10 +56,11 @@ export const registerTurnHandlers = (io, socket) => {
         const userId = socket.data.user.id;
 
         try {
-            const partida = await Match.findByPk(matchId, { include: [MatchPlayer] });
+            const partida = await MatchDao.findById(matchId);
             if (!partida || partida.status === 'FINISHED') return;
 
             const ganador = partida.MatchPlayers.find(p => p.userId !== userId);
+            
             if (ganador) {
                 await statusService.registrarVictoria(matchId, ganador.userId);
             }

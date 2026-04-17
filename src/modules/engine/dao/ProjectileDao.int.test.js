@@ -33,7 +33,8 @@ describe('DAO: ProjectileDao', () => {
             y: 5,
             vectorX: 0,
             vectorY: 1,
-            lifeDistance: 10
+            lifeDistance: 10,
+            damage: 20
         };
 
         const createdProjectile = await ProjectileDao.createProjectile(projectileData);
