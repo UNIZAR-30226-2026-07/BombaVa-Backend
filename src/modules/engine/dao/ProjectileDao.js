@@ -34,6 +34,17 @@ class ProjectileDao {
             where: {id}
         });
     }
+
+    /**
+     * Actualiza los datos de un proyectil existente.
+     * @param {UUID} id Id del proyectil
+     * @param {Object} data Objeto con las propiedades a actualizar
+     */
+    async updateProjectile(id, data) {
+        return await Projectile.update(data, {
+            where: { id }
+        });
+    }
 }
 
 export default new ProjectileDao();

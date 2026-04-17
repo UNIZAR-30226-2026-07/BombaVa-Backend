@@ -2,6 +2,10 @@
  * Manejador interno de eventos de turno y rendición.
  */
 import MatchDao from '../dao/MatchDao.js';
+import { engineService } from '../../engine/index.js';
+import { combatService } from '../../engine/index.js';
+import ProjectileDao from '../../engine/dao/ProjectileDao.js';
+import EngineDao from '../../engine/dao/EngineDao.js';
 import { matchService, statusService } from '../index.js';
 
 export const registerTurnHandlers = (io, socket) => {
@@ -30,7 +34,61 @@ export const registerTurnHandlers = (io, socket) => {
                 ammo: oponente.ammoCurrent
             });
 
-            // Resolucion de proyectiles aqui
+            // Resolucion de proyectiles
+            const proyectiles = await ProjectileDao.findAllProjectiles(matchId);
+            const barcosVivos = await EngineDao.findAllAliveShipsWithSizes(matchId);
+
+            for (const proy of proyectiles) {
+                if (proy.vectorX !== 0 || proy.vectorY !== 0) {
+                    
+                    proy.x += proy.vectorX;
+                    proy.y += proy.vectorY;
+                    proy.lifeDistance -= 1;
+
+                    if (!engineService.validarLimitesMapa([{ x: proy.x, y: proy.y }]) || proy.lifeDistance < 0) {
+                        await ProjectileDao.removeProjectile(proy.id);
+                        continue;
+                    }
+
+                    await ProjectileDao.updateProjectile(proy.id, {
+                        x: proy.x,
+                        y: proy.y,
+                        lifeDistance: proy.lifeDistance
+                    });
+
+                    for (const barco of barcosVivos) {
+                        const tamanoReal = engineService.calculartamanoEfectivo(
+                            barco.UserShip.ShipTemplate.width, 
+                            barco.UserShip.ShipTemplate.height, 
+                            barco.orientation
+                        );
+                        const celdasBarco = engineService.calcularCeldasOcupadas(
+                            barco.x, barco.y, 
+                            tamanoReal.effectiveWidth, tamanoReal.effectiveHeight
+                        );
+
+                        const colision = celdasBarco.find(c => c.x === proy.x && c.y === proy.y);
+
+                        if (colision) {
+                            const damage = proy.damage; 
+                            const newHp = Math.max(0, barco.currentHp - damage);
+                            const isSunk = newHp === 0;
+
+                            await EngineDao.registerHit(barco.id, newHp, barco.hitCells || [], isSunk);
+                            await ProjectileDao.removeProjectile(proy.id);
+
+                            io.to(matchId).emit('projectile:hit', {
+                                shipId: barco.id,
+                                proyectilColisionado: proy.id,
+                                newHp
+                            });
+
+                            await matchService.notificarVisionSala(io, matchId);
+                            break; 
+                        }
+                    }
+                }
+            }
             
             const nextTurnNumber = partida.turnNumber + 1;
             const nextPlayerId = oponente.userId;

@@ -4,6 +4,18 @@ describe('Projectile Model Exhaustive Tests', () => {
     const dummyMatchId = '550e8400-e29b-41d4-a716-446655440000';
     const dummyOwnerId = '550e8400-e29b-41d4-a716-446655440001';
 
+    beforeAll(async () => {
+            await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
+            await sequelize.sync({ force: true });
+    
+            setup = await createMatchWithInstance('captain_dao', 'c@dao.va', { x: 10, y: 10 });
+        });
+    
+        afterAll(async () => {
+            await sequelize.close();
+        });
+    
+
     it('Debe fallar si el tipo de proyectil no es TORPEDO ni MINE', async () => {
         const p = Projectile.build({
             matchId: dummyMatchId,
