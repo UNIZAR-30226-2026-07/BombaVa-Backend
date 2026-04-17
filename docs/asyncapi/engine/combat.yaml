@@ -67,3 +67,15 @@ messages:
         matchId: { type: string, format: uuid }
         shipId: { type: string, format: uuid }
         target: { type: object, properties: { x: {type: integer}, y: {type: integer} } }
+
+  ProjectileHitShip:
+    name: 'projectile:hit'
+    contentType: application/json
+    summary: Notifica que un proyectil ha impactado con un barco.
+    payload:
+      type: object
+      required: [shipId, proyectilColisionado, newHp]
+      properties:
+        shipId: {type: string, format: uuid}
+        proyectilColisionado: {type: string, format: uuid}
+        newHp: {type: integer}

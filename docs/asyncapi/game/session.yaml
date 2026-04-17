@@ -66,7 +66,7 @@ messages:
     summary: Envía a un jugador su visión actualizada del tablero de forma individual.
     payload:
       type: object
-      required: [myFleet, visibleEnemyFleet]
+      required: [myFleet, proyEnemigos, proyPropios, visibleEnemyFleet]
       properties:
         myFleet:
           type: array
@@ -93,6 +93,36 @@ messages:
                     apCost: { type: integer }
                     range: { type: integer, nullable: true }
                     damage: { type: integer }
+        proyEnemigos:
+          type: array
+          items:
+            type: object
+            required: [id, lifeDistance, matchId, ownerId,type,vectorX,vectorY,x,y]
+            properties: 
+              id: { type: string, format: uuid}
+              lifeDistance: {type: integer, minimun: 0}
+              matchId: { type: string, format: uuid}
+              ownerId: { type: string, format: uuid}
+              type: {string, enum: [MINE, TORPEDO]}
+              vectorX: {type: integer}
+              vectorY: {type: integer, minimun: 0}
+              x: {type: integer, minimun: 0}
+              y: {type: integer, minimun: 0}
+        proyPropios:
+          type: array
+          items:
+            type: object
+            required: [id, lifeDistance, matchId, ownerId,type,vectorX,vectorY,x,y]
+            properties: 
+              id: { type: string, format: uuid}
+              lifeDistance: {type: integer, minimun: 0}
+              matchId: { type: string, format: uuid}
+              ownerId: { type: string, format: uuid}
+              type: {string, enum: [MINE, TORPEDO]}
+              vectorX: {type: integer}
+              vectorY: {type: integer, minimun: 0}
+              x: {type: integer, minimun: 0}
+              y: {type: integer, minimun: 0}
         visibleEnemyFleet:
           type: array
           items:

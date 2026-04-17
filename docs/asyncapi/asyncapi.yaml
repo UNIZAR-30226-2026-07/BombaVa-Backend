@@ -64,6 +64,8 @@ channels:
         $ref: './engine/movement.yaml#/messages/ShipRotated'
       matchVisionUpdate:
         $ref: './game/session.yaml#/messages/MatchVisionUpdate'
+      ProjectileHitShip:
+        $ref: './engine/combat.yaml#/messages/ProjectileHitShip'
 
 operations:
 #LOBBY
@@ -259,6 +261,14 @@ operations:
     summary: Desplegar una mina.
     messages:
       - $ref: '#/channels/main/messages/shipAttackMine'
+  
+  "projectile:hit":
+    action: send
+    channel: 
+      $ref: '#/channels/main'
+    summary: Notifica de un impacto de un projectil contra un barco.
+    messages:
+      - $ref: '#/channels/main/messages/ProjectileHitShip'
 
 
 
