@@ -34,12 +34,32 @@ export const handleMineDrop = async (io, socket, data) => {
         const tamanoEfectivo = engineService.calculartamanoEfectivo(tamanoBase.width, tamanoBase.height, barco.orientation);
         const celdasOrigen = engineService.calcularCeldasOcupadas(barco.x, barco.y, tamanoEfectivo.effectiveWidth, tamanoEfectivo.effectiveHeight);
 
-        const sobrePropioBarco = celdasOrigen.some(celda => celda.x === targetTraducido.x && celda.y === targetTraducido.y);
-        if (sobrePropioBarco) {
-            throw new Error('No puedes colocar una mina en las casillas ocupadas por tu propio barco');
-        }
         if (!combatService.validarAdyacencia(celdasOrigen, targetTraducido)) {
             throw new Error('La posición de la mina está fuera de rango (debe estar adyacente)');
+        }
+        if (!engineService.validarLimitesMapa([targetTraducido])) {
+            throw new Error('No puedes colocar una mina fuera del tablero');
+        }
+        //Validar que no haya ya un proyectil en esa casilla
+        const proyectilesExistentes = await ProjectileDao.findAllProjectiles(matchId);
+        if (proyectilesExistentes.some(p => p.x === targetTraducido.x && p.y === targetTraducido.y)) {
+            throw new Error('Ya hay un proyectil en esa posición');
+        }
+        //Validar que no se coloque encima de ningun barco barco
+        const barcosVivos = await EngineDao.findAllAliveShipsWithSizes(matchId);
+        for (const b of barcosVivos) {
+            const tamanoReal = engineService.calculartamanoEfectivo(
+                b.UserShip.ShipTemplate.width, 
+                b.UserShip.ShipTemplate.height, 
+                b.orientation
+            );
+            const celdas = engineService.calcularCeldasOcupadas(
+                b.x, b.y, 
+                tamanoReal.effectiveWidth, tamanoReal.effectiveHeight
+            );
+            if (celdas.some(c => c.x === targetTraducido.x && c.y === targetTraducido.y)) {
+                throw new Error('No puedes colocar una mina encima de un barco');
+            }
         }
         await ProjectileDao.createProjectile({
             matchId,

@@ -34,6 +34,37 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
         const tamanoReal = engineService.calculartamanoEfectivo(tamanoBase.width, tamanoBase.height, barco.orientation);
         const frente = combatService.obtenerFrente(barco.x, barco.y, barco.orientation, tamanoReal.effectiveWidth, tamanoReal.effectiveHeight);
         const vector = combatService.calcularVectorProyectil(barco.orientation);
+
+        const spawnX = frente.topx + vector.vx;
+        const spawnY = frente.topy + vector.vy;
+
+        if (!engineService.validarLimitesMapa([{ x: spawnX, y: spawnY }])) {
+            throw new Error('No puedes disparar un torpedo apuntando hacia fuera del límite del tablero');
+        }
+
+        //Validar que no colisione inmediatamente con otro proyectil
+        const proyectilesExistentes = await ProjectileDao.findAllProjectiles(matchId);
+        if (proyectilesExistentes.some(p => p.x === spawnX && p.y === spawnY)) {
+            throw new Error('La trayectoria de lanzamiento está bloqueada por otro proyectil');
+        }
+
+        //Validar que no se lance justo donde ya hay un barco
+        const barcosVivos = await EngineDao.findAllAliveShipsWithSizes(matchId);
+        for (const b of barcosVivos) {
+            const tamanoBarcoColision = engineService.calculartamanoEfectivo(
+                b.UserShip.ShipTemplate.width, 
+                b.UserShip.ShipTemplate.height, 
+                b.orientation
+            );
+            const celdas = engineService.calcularCeldasOcupadas(
+                b.x, b.y, 
+                tamanoBarcoColision.effectiveWidth, tamanoBarcoColision.effectiveHeight
+            );
+            if (celdas.some(c => c.x === spawnX && c.y === spawnY)) {
+                throw new Error('La trayectoria de lanzamiento está bloqueada por un barco cercano');
+            }
+        }
+
         const proyectil = await ProjectileDao.createProjectile({
             matchId, 
             ownerId: userId, 

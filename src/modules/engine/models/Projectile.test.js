@@ -8,8 +8,6 @@ describe('Projectile Model Exhaustive Tests', () => {
     beforeAll(async () => {
             await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
             await sequelize.sync({ force: true });
-    
-            setup = await createMatchWithInstance('captain_dao', 'c@dao.va', { x: 10, y: 10 });
         });
     
         afterAll(async () => {
