@@ -50,10 +50,17 @@ messages:
     summary: Notifica que un proyectil dinámico ha sido desplegado en el tablero.
     payload:
       type: object
-      required: [type, attackerId, ammoCurrent]
+      required: [id, lifeDistance, matchId, ownerId,type,vectorX,vectorY, x, y, ammoCurrent]
       properties:
-        type: { type: string, enum: [TORPEDO, MINE] }
-        attackerId: { type: string, format: uuid }
+        id: { type: string, format: uuid}
+        lifeDistance: {type: integer, minimun: 0}
+        matchId: { type: string, format: uuid}
+        ownerId: { type: string, format: uuid}
+        type: {string, enum: [MINE, TORPEDO]}
+        vectorX: {type: integer}
+        vectorY: {type: integer, minimun: 0}
+        x: {type: integer, minimun: 0}
+        y: {type: integer, minimun: 0}
         ammoCurrent: { type: integer, example: 2 }
 
   ShipAttackMine:

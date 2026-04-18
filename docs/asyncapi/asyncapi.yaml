@@ -262,6 +262,14 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/shipAttackMine'
   
+  "projectile:launched":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: Notifica de un despliegue de un projectil.
+    messages:
+      - $ref: '#/channels/main/messages/projectileLaunched'
+  
   "projectile:hit":
     action: send
     channel: 

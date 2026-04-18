@@ -17,6 +17,17 @@ export const traducirPosicionTablero = (pos, bando) => {
 };
 
 /**
+ * Traduce el vector de movimiento de un proyectil dependiendo de la perspectiva del jugador.
+ * @param {Object} vector - El vector original
+ * @param {string} bando - El bando del jugador
+ * @returns {{ vx: number, vy: number }} El vector traducido
+ */
+export const traducirVectorProyectil = (vector, bando) => {
+    if (bando === 'NORTH') return { vector };
+    else return { vx: -vector.vx, vy: -vector.vy };
+};
+
+/**
  * Traduce la direccion que apunta un barco dependiendo de su bando
  * @param {string} orientacion 
  * @param {string} bando 
@@ -144,17 +155,19 @@ export const generarSnapshotVision = async (matchId, userId) => {
     const proyPropios = [];
     const proyEnemigos = [];
     for (const proy of todosLosProyectiles) {
+        const posTraducida = traducirPosicionTablero({ x: proy.x, y: proy.y }, bando);
+        const vecTraducida = traducirVectorProyectil({vx: proy.vectorX, vy: proy.vectorY}, bando);
         if (proy.ownerId === userId) {
             proyPropios.push({
                 id: proy.id,
                 lifeDistance: proy.lifeDistance,
                 matchId: proy.matchId,
                 ownerId: proy.ownerId,
-                type: proy.mine,
-                vectorX: proy.vectorX,
-                vectorY: proy.vectorY,
-                x: proy.x,
-                y: proy.y
+                type: proy.type,
+                vectorX: vecTraducida.vx,
+                vectorY: vecTraducida.vy,
+                x: posTraducida.x,
+                y: posTraducida.y
             });
         } else {
             // Aquí los proyectiles enemigos se envían todos. 
@@ -164,11 +177,11 @@ export const generarSnapshotVision = async (matchId, userId) => {
                 lifeDistance: proy.lifeDistance,
                 matchId: proy.matchId,
                 ownerId: proy.ownerId,
-                type: proy.mine,
-                vectorX: proy.vectorX,
-                vectorY: proy.vectorY,
-                x: proy.x,
-                y: proy.y
+                type: proy.type,
+                vectorX: vecTraducida.vx,
+                vectorY: vecTraducida.vy,
+                x: posTraducida.x,
+                y: posTraducida.y
             });
         }
     }

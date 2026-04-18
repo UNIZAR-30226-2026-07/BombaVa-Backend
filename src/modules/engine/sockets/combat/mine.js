@@ -61,12 +61,12 @@ export const handleMineDrop = async (io, socket, data) => {
                 throw new Error('No puedes colocar una mina encima de un barco');
             }
         }
-        await ProjectileDao.createProjectile({
+        const proyectil = await ProjectileDao.createProjectile({
             matchId,
             ownerId: userId,
             type: 'MINE',
-            x: targetTraducido.x,
-            y: targetTraducido.y,
+            x: target.x,
+            y: target.y,
             lifeDistance: mina.lifeDistance,
             damage: mina.damage
         });
@@ -76,8 +76,15 @@ export const handleMineDrop = async (io, socket, data) => {
         await EngineDao.updateLastAttackTurn(barco.id, partida.turnNumber);
 
         io.to(matchId).emit('projectile:launched', {
-            type: 'MINE',
-            attackerId: userId,
+            id: proyectil.id,
+            lifeDistance: proyectil.lifeDistance,
+            matchId: proyectil.matchId,
+            ownerId: proyectil.ownerId,
+            type: proyectil.type,
+            vectorX: 0,
+            vectorY: 0,
+            x: targetTraducido.x,
+            y: targetTraducido.y, 
             ammoCurrent: nuevaMunicion
         });
 

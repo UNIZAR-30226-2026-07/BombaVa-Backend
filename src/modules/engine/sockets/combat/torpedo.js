@@ -65,12 +65,15 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
             }
         }
 
+        const posTraducida = matchService.traducirPosicionTablero({x: spawnX, y: spawnY}, jugador.side);
+        const vectTraducida = matchService.traducirVectorProyectil(vector, jugador.side);
+
         const proyectil = await ProjectileDao.createProjectile({
             matchId, 
             ownerId: userId, 
             type: 'TORPEDO',
-            x: frente.topx + vector.vx, 
-            y: frente.topy + vector.vy,
+            x: spawnX, 
+            y: spawnY,
             vectorX: vector.vx, 
             vectorY: vector.vy,
             lifeDistance: torpedo.lifeDistance,
@@ -81,7 +84,16 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
         await EngineDao.updateLastAttackTurn(barco.id, partida.turnNumber);
 
         io.to(matchId).emit('projectile:launched', {
-            type: 'TORPEDO', attackerId: userId, ammoCurrent: nuevaMunicion
+            id: proyectil.id,
+            lifeDistance: proyectil.lifeDistance,
+            matchId: proyectil.matchId,
+            ownerId: proyectil.ownerId,
+            type: proyectil.type,
+            vectorX: vectTraducida.vx,
+            vectorY: vectTraducida.vy,
+            x: posTraducida.x,
+            y: posTraducida.y, 
+            ammoCurrent: nuevaMunicion
         });
 
         await matchService.notificarVisionSala(io, matchId);
