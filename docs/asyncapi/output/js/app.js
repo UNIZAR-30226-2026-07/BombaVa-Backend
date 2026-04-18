@@ -10,7 +10,12 @@
     "dev": {
       "host": "localhost:3000",
       "protocol": "socket.io",
-      "description": "Servidor de desarrollo"
+      "description": "Servidor de desarrollo local"
+    },
+    "deployment": {
+      "host": "bombava-backend-vbgv.onrender.com",
+      "protocol": "socket.io",
+      "description": "Servidor desplegado en remoto"
     }
   },
   "channels": {
