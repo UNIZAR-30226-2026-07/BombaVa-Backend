@@ -1625,6 +1625,51 @@
             "x-parser-schema-id": "<anonymous-schema-227>"
           },
           "x-parser-unique-object-id": "ProjectileHitShip"
+        },
+        "ProjectileUpdate": {
+          "name": "projectile:update",
+          "contentType": "application/json",
+          "summary": "Notifica la actualización de un proyectil desplegado y visible.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "projectile",
+              "status"
+            ],
+            "properties": {
+              "projectile": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-232>"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ENDOFLIFE",
+                  "ALIVE"
+                ],
+                "description": "ENDOFLIFE significa que el proyectil va a dejar de existir en el siguiente turno. ALIVE significa que sigue vivo",
+                "x-parser-schema-id": "<anonymous-schema-233>"
+              },
+              "x": {
+                "type": "integer",
+                "minimun": 0,
+                "x-parser-schema-id": "<anonymous-schema-234>"
+              },
+              "y": {
+                "type": "integer",
+                "minimun": 0,
+                "x-parser-schema-id": "<anonymous-schema-235>"
+              },
+              "lifeDistance": {
+                "type": "integer",
+                "minimun": 0,
+                "x-parser-schema-id": "<anonymous-schema-236>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-231>"
+          },
+          "x-parser-unique-object-id": "ProjectileUpdate"
         }
       },
       "x-parser-unique-object-id": "main"
@@ -1855,6 +1900,15 @@
         "$ref:$.channels.main.messages.projectileLaunched"
       ],
       "x-parser-unique-object-id": "projectile:launched"
+    },
+    "projectile:updated": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Notifica de una actualización de un projectil.",
+      "messages": [
+        "$ref:$.channels.main.messages.ProjectileUpdate"
+      ],
+      "x-parser-unique-object-id": "projectile:updated"
     },
     "projectile:hit": {
       "action": "send",

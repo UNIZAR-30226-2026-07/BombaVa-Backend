@@ -6,19 +6,22 @@ Soporte lógico y motor de juego para el ecosistema BombaVa. Implementado con un
 
 - **Entorno de Contenedores**: Docker o Podman (con `docker-compose` instalado).
 - **Node.js**: v20+ (Solo si deseas ejecutar tests o desarrollo fuera de contenedores).
-- **Herramienta de Construcción**: `make` instalado en el sistema.
+- **Herramienta de Construcción**: `npm` instalado en el sistema.
 
-## Flujo de Trabajo (Makefile)
+## Flujo de Trabajo 
 
-Hemos estandarizado las operaciones mediante un `Makefile` para evitar errores de configuración manual.
+Con el comando `npm run <opcion>` puedes ejecutar las siguientes acciones
 
 | Comando | Acción |
 | :--- | :--- |
-| `make help` | Muestra la lista de comandos disponibles. |
-| `make infra-up` | Levanta la base de datos PostgreSQL en segundo plano. |
-| `make test` | Ejecuta la suite de pruebas contra la base de datos de Docker. |
-| `make run` | Arranca el servidor en modo desarrollo con Hot-Reload. |
-| `make infra-down` | Detiene la base de datos y limpia los volúmenes. |
+| `npm run` | Muestra la lista de comandos disponibles. |
+| `npm run dev` | Arranca el servidor en modo desarrollo con nodemon, permitiendo el hot realoading cuando se cambia cualquier fichero. |
+| `make run start` | Arranca el servidor en modo normal. |
+| `npm run infra:up` | Levanta la base de datos PostgreSQL en segundo plano. |
+| `npm run infra:down` | Detiene la base de datos y limpia los volúmenes. |
+| `npm run infra:logs` | Muestra los logs de los contenedores de Docker. |
+| `npm run test` | Ejecuta la suite de pruebas contra la base de datos de Docker. |
+| `npm run doc:async` | Compila la documentación de asyncApi. Mas información [aquí](#generar-documentación-de-sockets). |
 
 ## Estrategia de Testing
 
@@ -61,9 +64,3 @@ npm run doc:async
 ## Configuración de Red
 
 El sistema es autodetectable. Si se ejecuta mediante el orquestador global de la raíz, utiliza el host `db`. Si se ejecuta de forma independiente en esta carpeta, utiliza `localhost` para facilitar el desarrollo rápido.
-
-## Seguridad y Estándares
-
-- **Autoridad del Servidor**: Toda validación de movimiento o disparo se realiza en el backend. El cliente es una representación visual "tonta".
-- **Niebla de Guerra**: El servidor filtra la información de las unidades enemigas antes de enviarlas por socket según el rango de visión.
-- **Transaccionalidad**: Todas las operaciones críticas de base de datos (como el consumo de recursos en un turno) utilizan transacciones SQL para asegurar la integridad.

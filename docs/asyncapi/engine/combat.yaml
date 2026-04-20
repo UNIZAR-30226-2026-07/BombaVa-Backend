@@ -86,3 +86,18 @@ messages:
         shipId: {type: string, format: uuid}
         proyectilColisionado: {type: string, format: uuid}
         newHp: {type: integer}
+
+  ProjectileUpdate:
+    name: 'projectile:update'
+    contentType: application/json
+    summary: Notifica la actualización de un proyectil desplegado y visible.
+    payload:
+      type: object
+      required: [projectile, status]
+      properties:
+        projectile: {type: string, format: uuid}
+        status: {type: string, enum: [ENDOFLIFE, ALIVE], description: ENDOFLIFE significa que el proyectil va a dejar de existir en el siguiente turno. ALIVE significa que sigue vivo}
+        x: {type: integer, minimun: 0}
+        y: {type: integer, minimun: 0}
+        lifeDistance: {type: integer, minimun: 0}
+

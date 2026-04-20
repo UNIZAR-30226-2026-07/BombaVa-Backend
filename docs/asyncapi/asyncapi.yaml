@@ -70,6 +70,8 @@ channels:
         $ref: './game/session.yaml#/messages/MatchVisionUpdate'
       ProjectileHitShip:
         $ref: './engine/combat.yaml#/messages/ProjectileHitShip'
+      ProjectileUpdate:
+        $ref: './engine/combat.yaml#/messages/ProjectileUpdate'
 
 operations:
 #LOBBY
@@ -273,6 +275,14 @@ operations:
     summary: Notifica de un despliegue de un projectil.
     messages:
       - $ref: '#/channels/main/messages/projectileLaunched'
+
+  "projectile:updated":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: Notifica de una actualización de un projectil.
+    messages:
+      - $ref: '#/channels/main/messages/ProjectileUpdate'
   
   "projectile:hit":
     action: send

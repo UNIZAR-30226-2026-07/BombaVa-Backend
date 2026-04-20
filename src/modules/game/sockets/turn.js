@@ -39,23 +39,57 @@ export const registerTurnHandlers = (io, socket) => {
             const barcosVivos = await EngineDao.findAllAliveShipsWithSizes(matchId);
 
             for (const proy of proyectiles) {
+                //Descontar primero la vida del proyectil
+                proy.lifeDistance -= 1;
+                
+                if (proy.lifeDistance < 0) {
+                    await ProjectileDao.removeProjectile(proy.id);
+                    //!!!!!!!!!
+                    // Nota prar luego: actualizar esto para asegurar que solo se envie a quienes tenga la vista del proyectil
+                    //!!!!!!!!!
+                    io.to(matchId).emit('projectile:update', {
+                        projectile: proy.id,
+                        status: 'ENDOFLIFE'
+                    });
+                    continue;
+                }
+                
                 if (proy.vectorX !== 0 || proy.vectorY !== 0) {
                     
                     proy.x += proy.vectorX;
                     proy.y += proy.vectorY;
-                    proy.lifeDistance -= 1;
 
-                    if (!engineService.validarLimitesMapa([{ x: proy.x, y: proy.y }]) || proy.lifeDistance < 0) {
+                    if (!engineService.validarLimitesMapa([{ x: proy.x, y: proy.y }])) {
                         await ProjectileDao.removeProjectile(proy.id);
+                        //!!!!!!!!!
+                        // Nota prar luego: actualizar esto para asegurar que solo se envie a quienes tenga la vista del proyectil
+                        //!!!!!!!!!
+                        io.to(matchId).emit('projectile:update', {
+                            projectile: proy.id,
+                            status: 'ENDOFLIFE'
+                        });
                         continue;
                     }
 
+                    
                     await ProjectileDao.updateProjectile(proy.id, {
                         x: proy.x,
                         y: proy.y,
                         lifeDistance: proy.lifeDistance
                     });
 
+                    //!!!!!!!!!
+                    // Nota prar luego: actualizar esto para asegurar que solo se envie a quienes tenga la vista del proyectil
+                    //!!!!!!!!!
+                    io.to(matchId).emit('projectile:update', {
+                        projectile: proy.id,
+                        status: 'ALIVE',
+                        x: proy.x,
+                        y: proy.y,
+                        lifeDistance: proy.lifeDistance
+                    });
+                    
+                    //Buscar por todos los barcos desplegados para ver si colisiona con el proyectil
                     for (const barco of barcosVivos) {
                         const tamanoReal = engineService.calculartamanoEfectivo(
                             barco.UserShip.ShipTemplate.width, 
