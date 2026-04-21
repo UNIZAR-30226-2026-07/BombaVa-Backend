@@ -18,8 +18,8 @@ export const validarRangoAtaque = (origenes, destino, rangoMax) => {
  */
 export const calcularVectorProyectil = (orientacion) => {
     const vectores = {
-        'N': { vx: 0, vy: -1 },
-        'S': { vx: 0, vy: 1 },
+        'N': { vx: 0, vy: 1 },
+        'S': { vx: 0, vy: -1 },
         'E': { vx: 1, vy: 0 },
         'W': { vx: -1, vy: 0 }
     };
@@ -55,3 +55,48 @@ export const aplicarDanoImpacto = async (objetivo, danioDelArma, transaccion) =>
 
     return { newHp, isSunk };
 };
+
+/**
+ * Devuelve la posición en donde se ubica el frente del barco
+ * @param {Int} x Posición x del centro del barco
+ * @param {Int} y Posición y del centro del barco
+ * @param {Char} orientacion Orientación que esta apuntando el barco
+ * @param {Int} effectiveWidth Longitud del barco
+ * @param {Int} effectiveHeight Altura del barco
+ * @returns Las coordenadas del frente del barco
+ */
+export const obtenerFrente = (x, y, orientacion, effectiveWidth, effectiveHeight) => {
+    let topx = x;
+    let topy = y; 
+    const offsetX = Math.floor(effectiveWidth / 2);
+    const offsetY = Math.floor(effectiveHeight / 2);
+    
+    if (orientacion === 'N') {
+        topy = y + offsetY;
+    } else if (orientacion === 'S') {
+        topy = y - offsetY;
+    } else if (orientacion === 'E') {
+        topx = x + offsetX;
+    } else if (orientacion === 'W') {
+        topx = x - offsetX;
+    }
+    if (topx < 0 || topy < 0) throw new Error('No se puede lanzar un torpedo en los límites del mapa');
+    else return {topx, topy};
+}
+
+/**
+ * Comprueba si un barco colisiona con un proyectil
+ * @param {List<Object>} celdasBarco Todas las celdas que ocupa un barco
+ * @param {List<Object>} allProyectiles Todos los proyectiles desplegado en el tablero
+ * @returns True si colisiona un barco con un proyectil
+ */
+export const colisionBarcoProyectil = (celdasBarco, allProyectiles) => {
+    for (const celda of celdasBarco){
+        for (const proyectil of allProyectiles){
+            if (celda.x === proyectil.x && celda.y === proyectil.y){
+                return proyectil;
+            }
+        }
+    }
+    return null;
+}

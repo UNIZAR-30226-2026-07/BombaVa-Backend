@@ -50,10 +50,17 @@ messages:
     summary: Notifica que un proyectil dinámico ha sido desplegado en el tablero.
     payload:
       type: object
-      required: [type, attackerId, ammoCurrent]
+      required: [id, lifeDistance, matchId, ownerId,type,vectorX,vectorY, x, y, ammoCurrent]
       properties:
-        type: { type: string, enum: [TORPEDO, MINE] }
-        attackerId: { type: string, format: uuid }
+        id: { type: string, format: uuid}
+        lifeDistance: {type: integer, minimun: 0}
+        matchId: { type: string, format: uuid}
+        ownerId: { type: string, format: uuid}
+        type: {string, enum: [MINE, TORPEDO]}
+        vectorX: {type: integer}
+        vectorY: {type: integer, minimun: 0}
+        x: {type: integer, minimun: 0}
+        y: {type: integer, minimun: 0}
         ammoCurrent: { type: integer, example: 2 }
 
   ShipAttackMine:
@@ -67,3 +74,30 @@ messages:
         matchId: { type: string, format: uuid }
         shipId: { type: string, format: uuid }
         target: { type: object, properties: { x: {type: integer}, y: {type: integer} } }
+
+  ProjectileHitShip:
+    name: 'projectile:hit'
+    contentType: application/json
+    summary: Notifica que un proyectil ha impactado con un barco.
+    payload:
+      type: object
+      required: [shipId, proyectilColisionado, newHp]
+      properties:
+        shipId: {type: string, format: uuid}
+        proyectilColisionado: {type: string, format: uuid}
+        newHp: {type: integer}
+
+  ProjectileUpdate:
+    name: 'projectile:update'
+    contentType: application/json
+    summary: Notifica la actualización de un proyectil desplegado y visible.
+    payload:
+      type: object
+      required: [projectile, status]
+      properties:
+        projectile: {type: string, format: uuid}
+        status: {type: string, enum: [ENDOFLIFE, ALIVE], description: ENDOFLIFE significa que el proyectil va a dejar de existir en el siguiente turno. ALIVE significa que sigue vivo}
+        x: {type: integer, minimun: 0}
+        y: {type: integer, minimun: 0}
+        lifeDistance: {type: integer, minimun: 0}
+

@@ -29,7 +29,8 @@ describe('Projectile Model Integration (Refactored)', () => {
             y: setup.instance.y - 1,
             vectorX: 0,
             vectorY: -1,
-            lifeDistance: 6
+            lifeDistance: 6,
+            damage: 20
         });
 
         expect(p.id).toBeDefined();

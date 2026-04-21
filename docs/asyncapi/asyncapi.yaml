@@ -8,7 +8,11 @@ servers:
   dev:
     host: localhost:3000
     protocol: socket.io
-    description: Servidor de desarrollo
+    description: Servidor de desarrollo local
+  deployment:
+    host: bombava-backend-vbgv.onrender.com
+    protocol: socket.io
+    description: Servidor desplegado en remoto
 
 channels:
   main:
@@ -64,6 +68,10 @@ channels:
         $ref: './engine/movement.yaml#/messages/ShipRotated'
       matchVisionUpdate:
         $ref: './game/session.yaml#/messages/MatchVisionUpdate'
+      ProjectileHitShip:
+        $ref: './engine/combat.yaml#/messages/ProjectileHitShip'
+      ProjectileUpdate:
+        $ref: './engine/combat.yaml#/messages/ProjectileUpdate'
 
 operations:
 #LOBBY
@@ -259,6 +267,30 @@ operations:
     summary: Desplegar una mina.
     messages:
       - $ref: '#/channels/main/messages/shipAttackMine'
+  
+  "projectile:launched":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: Notifica de un despliegue de un projectil.
+    messages:
+      - $ref: '#/channels/main/messages/projectileLaunched'
+
+  "projectile:updated":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: Notifica de una actualización de un projectil.
+    messages:
+      - $ref: '#/channels/main/messages/ProjectileUpdate'
+  
+  "projectile:hit":
+    action: send
+    channel: 
+      $ref: '#/channels/main'
+    summary: Notifica de un impacto de un projectil contra un barco.
+    messages:
+      - $ref: '#/channels/main/messages/ProjectileHitShip'
 
 
 

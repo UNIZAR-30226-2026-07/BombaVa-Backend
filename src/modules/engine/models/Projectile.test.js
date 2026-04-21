@@ -1,8 +1,19 @@
 import Projectile from './Projectile.js';
+import { sequelize } from '../../../config/db.js';
 
 describe('Projectile Model Exhaustive Tests', () => {
     const dummyMatchId = '550e8400-e29b-41d4-a716-446655440000';
     const dummyOwnerId = '550e8400-e29b-41d4-a716-446655440001';
+
+    beforeAll(async () => {
+            await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
+            await sequelize.sync({ force: true });
+        });
+    
+        afterAll(async () => {
+            await sequelize.close();
+        });
+    
 
     it('Debe fallar si el tipo de proyectil no es TORPEDO ni MINE', async () => {
         const p = Projectile.build({
@@ -11,7 +22,8 @@ describe('Projectile Model Exhaustive Tests', () => {
             type: 'NUKE',
             x: 0,
             y: 0,
-            lifeDistance: 1
+            lifeDistance: 1,
+            damage: 50
         });
 
         try {
@@ -33,7 +45,8 @@ describe('Projectile Model Exhaustive Tests', () => {
             y: 0,
             lifeDistance: 0,
             vectorX: 0,
-            vectorY: 0
+            vectorY: 0,
+            damage: 1
         });
         await expect(p.validate()).resolves.not.toThrow();
     });

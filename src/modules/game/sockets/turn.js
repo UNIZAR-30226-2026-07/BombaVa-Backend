@@ -1,7 +1,11 @@
 /**
  * Manejador interno de eventos de turno y rendición.
  */
-import { Match, MatchPlayer, sequelize } from '../../../shared/models/index.js';
+import MatchDao from '../dao/MatchDao.js';
+import { engineService } from '../../engine/index.js';
+import { combatService } from '../../engine/index.js';
+import ProjectileDao from '../../engine/dao/ProjectileDao.js';
+import EngineDao from '../../engine/dao/EngineDao.js';
 import { matchService, statusService } from '../index.js';
 
 export const registerTurnHandlers = (io, socket) => {
@@ -12,45 +16,126 @@ export const registerTurnHandlers = (io, socket) => {
     socket.on('match:turn_end', async (data) => {
         const { matchId } = data;
         const userId = socket.data.user.id;
-        const transaction = await sequelize.transaction();
 
         try {
-            const partida = await Match.findByPk(matchId, {
-                include: [MatchPlayer],
-                transaction
-            });
+            const partida = await MatchDao.findById(matchId);
 
             if (!partida || partida.currentTurnPlayerId !== userId) {
                 throw new Error('No es tu turno');
             }
 
             const oponente = partida.MatchPlayers.find(p => p.userId !== userId);
+            if (!oponente) {
+                throw new Error('Oponente no encontrado');
+            }
+
             const nuevosRecursos = matchService.calcularRegeneracionTurno({
                 fuel: oponente.fuelReserve,
                 ammo: oponente.ammoCurrent
             });
 
+            // Resolucion de proyectiles
+            const proyectiles = await ProjectileDao.findAllProjectiles(matchId);
+            const barcosVivos = await EngineDao.findAllAliveShipsWithSizes(matchId);
 
-            // Resolucion de proyectiles antes que esto
-            oponente.fuelReserve = nuevosRecursos.fuel;
-            oponente.ammoCurrent = nuevosRecursos.ammo;
-            partida.currentTurnPlayerId = oponente.userId;
-            partida.turnNumber += 1;
+            for (const proy of proyectiles) {
+                //Descontar primero la vida del proyectil
+                proy.lifeDistance -= 1;
+                
+                if (proy.lifeDistance < 0) {
+                    await ProjectileDao.removeProjectile(proy.id);
+                    //!!!!!!!!!
+                    // Nota prar luego: actualizar esto para asegurar que solo se envie a quienes tenga la vista del proyectil
+                    //!!!!!!!!!
+                    io.to(matchId).emit('projectile:update', {
+                        projectile: proy.id,
+                        status: 'ENDOFLIFE'
+                    });
+                    continue;
+                }
+                
+                if (proy.vectorX !== 0 || proy.vectorY !== 0) {
+                    
+                    proy.x += proy.vectorX;
+                    proy.y += proy.vectorY;
 
-            await Promise.all([
-                partida.save({ transaction }),
-                oponente.save({ transaction })
-            ]);
+                    if (!engineService.validarLimitesMapa([{ x: proy.x, y: proy.y }])) {
+                        await ProjectileDao.removeProjectile(proy.id);
+                        //!!!!!!!!!
+                        // Nota prar luego: actualizar esto para asegurar que solo se envie a quienes tenga la vista del proyectil
+                        //!!!!!!!!!
+                        io.to(matchId).emit('projectile:update', {
+                            projectile: proy.id,
+                            status: 'ENDOFLIFE'
+                        });
+                        continue;
+                    }
 
-            await transaction.commit();
+                    
+                    await ProjectileDao.updateProjectile(proy.id, {
+                        x: proy.x,
+                        y: proy.y,
+                        lifeDistance: proy.lifeDistance
+                    });
+
+                    //!!!!!!!!!
+                    // Nota prar luego: actualizar esto para asegurar que solo se envie a quienes tenga la vista del proyectil
+                    //!!!!!!!!!
+                    io.to(matchId).emit('projectile:update', {
+                        projectile: proy.id,
+                        status: 'ALIVE',
+                        x: proy.x,
+                        y: proy.y,
+                        lifeDistance: proy.lifeDistance
+                    });
+                    
+                    //Buscar por todos los barcos desplegados para ver si colisiona con el proyectil
+                    for (const barco of barcosVivos) {
+                        const tamanoReal = engineService.calculartamanoEfectivo(
+                            barco.UserShip.ShipTemplate.width, 
+                            barco.UserShip.ShipTemplate.height, 
+                            barco.orientation
+                        );
+                        const celdasBarco = engineService.calcularCeldasOcupadas(
+                            barco.x, barco.y, 
+                            tamanoReal.effectiveWidth, tamanoReal.effectiveHeight
+                        );
+
+                        const colision = celdasBarco.find(c => c.x === proy.x && c.y === proy.y);
+
+                        if (colision) {
+                            const damage = proy.damage; 
+                            const newHp = Math.max(0, barco.currentHp - damage);
+                            const isSunk = newHp === 0;
+
+                            await EngineDao.registerHit(barco.id, newHp, barco.hitCells || [], isSunk);
+                            await ProjectileDao.removeProjectile(proy.id);
+
+                            io.to(matchId).emit('projectile:hit', {
+                                shipId: barco.id,
+                                proyectilColisionado: proy.id,
+                                newHp
+                            });
+
+                            await matchService.notificarVisionSala(io, matchId);
+                            break; 
+                        }
+                    }
+                }
+            }
+            
+            const nextTurnNumber = partida.turnNumber + 1;
+            const nextPlayerId = oponente.userId;
+
+            await MatchDao.updateResources(oponente.id, nuevosRecursos.fuel, nuevosRecursos.ammo);
+            await MatchDao.updateTurn(partida.id, nextPlayerId, nextTurnNumber);
 
             io.to(matchId).emit('match:turn_changed', {
-                nextPlayerId: partida.currentTurnPlayerId,
-                turnNumber: partida.turnNumber,
+                nextPlayerId: nextPlayerId,
+                turnNumber: nextTurnNumber,
                 resources: nuevosRecursos
             });
         } catch (error) {
-            if (transaction) await transaction.rollback();
             socket.emit('game:error', { message: error.message });
         }
     });
@@ -63,10 +148,11 @@ export const registerTurnHandlers = (io, socket) => {
         const userId = socket.data.user.id;
 
         try {
-            const partida = await Match.findByPk(matchId, { include: [MatchPlayer] });
+            const partida = await MatchDao.findById(matchId);
             if (!partida || partida.status === 'FINISHED') return;
 
             const ganador = partida.MatchPlayers.find(p => p.userId !== userId);
+            
             if (ganador) {
                 await statusService.registrarVictoria(matchId, ganador.userId);
             }
