@@ -7,6 +7,8 @@ import { InventoryDao } from '../../inventory/dao/index.js';
 import { MatchDao } from '../dao/index.js';
 import { EngineDao } from '../../engine/dao/index.js';
 import {ProjectileDao} from '../../engine/dao/index.js';
+import {engineService} from '../../engine/services/index.js';
+import { combatService } from '../../engine/services/index.js';
 /**
  * Traduce coordenadas relativas del puerto a absolutas del mapa de batalla
  * @param {Object} pos 
@@ -104,7 +106,7 @@ export const calcularRegeneracionTurno = (recursosActuales) => {
 
 /**
  * Genera la visión actual del tablero para un jugador.
- * MOCK V1: Devuelve todos los barcos enemigos como visibles.
+ * V2: Devuelve los barcos enemigos que esten en el rango de visión.
  */
 export const generarSnapshotVision = async (matchId, userId) => {
     const jugador = await MatchDao.findMatchPlayer(matchId, userId);
@@ -113,9 +115,9 @@ export const generarSnapshotVision = async (matchId, userId) => {
     const todosLosBarcos = await EngineDao.findByMatchId(matchId);
     const misBarcosRaw = todosLosBarcos.filter(b => b.playerId === userId);
     const enemigosRaw = todosLosBarcos.filter(b => b.playerId !== userId);
-    // TODO (V2): Aquí irá la función que calcula el tablero visible: calcularVision(misBarcosRaw, enemigosRaw)
-    // Para la V1, el MOCK asume que todos los enemigos son visibles
-    const enemigosVisiblesRaw = enemigosRaw;
+
+    //Ahora con vissión de niebla
+    const enemigosVisiblesRaw = await calcularVision(misBarcosRaw, enemigosRaw);
 
     const limpiarYTraducir = async (barcos) => {
         const promesas = barcos.map(async (barco) => {
@@ -134,7 +136,6 @@ export const generarSnapshotVision = async (matchId, userId) => {
                 range: w.range,
                 damage: w.damage
             })) : [];
-
             return {
                 id: barco.id,
                 x: posTraducida.x,
@@ -143,6 +144,7 @@ export const generarSnapshotVision = async (matchId, userId) => {
                 currentHp: barco.currentHp,
                 hitCells: hitCellsTraducidas,
                 isSunk: barco.isSunk,
+                visionRange: barco.UserShip.ShipTemplate.visionRange,
                 efectiveWidth: tamano.effectiveWidth,
                 effectiveHeight: tamano.effectiveHeight,
                 weapons: armasSnapshot
@@ -259,6 +261,7 @@ export const notificarVisionSala = async (io, matchId) => {
  */
 export const obtenerTamanoEfectiva = async (barco) => {
     const tamano = await EngineDao.getShipSize(barco.id);
+    console.log(tamano);
     if (barco.orientation === 'N' || barco.orientation === 'S') {
         return {
             effectiveWidth: tamano.width,
@@ -270,3 +273,56 @@ export const obtenerTamanoEfectiva = async (barco) => {
         effectiveHeight: tamano.width
     };
 }
+
+/**
+ * Calcula qué barcos enemigos son visibles para el jugador actual.
+ * @param {Array} misBarcosRaw - Lista de barcos del jugador que solicita la visión.
+ * @param {Array} enemigosRaw - Lista de barcos del oponente.
+ * @returns {Array} - Conjunto elementos que son visibles.
+ */
+export const calcularVision = async (misBarcosRaw, enemigosRaw) => {
+    const enemigosDetectados = new Set();
+
+    for (const miBarco of misBarcosRaw) {
+        const rangoVision = miBarco.UserShip?.ShipTemplate?.visionRange || 0;
+        console.log(rangoVision);
+        // Si el barco está hundido o no tiene rango, no aporta visión
+        if (miBarco.isSunk || rangoVision <= 0) continue;
+
+        const tamano = await obtenerTamanoEfectiva(miBarco);
+        console.log(tamano);
+        // Calcular las celdas que ocupa el barco
+        console.log(miBarco.x,
+            miBarco.y,
+            tamano.effectiveWidth,
+            tamano.effectiveHeight);
+        const celdasMias = engineService.calcularCeldasOcupadas(
+            miBarco.x,
+            miBarco.y,
+            tamano.effectiveWidth,
+            tamano.effectiveHeight
+        );
+        console.log("Mias" ,celdasMias);
+        for (const enemigo of enemigosRaw) {
+            // Si ya lo ha visto otro barco, saltamos 
+            if (enemigosDetectados.has(enemigo)) continue;
+            const tamano = await obtenerTamanoEfectiva(enemigo);
+            const celdasEnemigo = engineService.calcularCeldasOcupadas(
+                enemigo.x,
+                enemigo.y,
+                tamano.effectiveWidth,
+                tamano.effectiveHeight
+            );
+            console.log("enemigo", celdasEnemigo);
+            // Comprobar si alguna celda del enemigo está en el rango de visión
+            const esVisible = celdasEnemigo.some(celdaE => 
+                combatService.validarRangoAtaque(celdasMias, celdaE, rangoVision)
+            );
+
+            if (esVisible) {
+                enemigosDetectados.add(enemigo);
+            }
+        }
+    }
+    return Array.from(enemigosDetectados);
+};
