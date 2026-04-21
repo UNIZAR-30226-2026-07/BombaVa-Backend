@@ -10,7 +10,7 @@ const templatesData = [
         width: 1, height: 1,
         baseMaxHp: 20,
         supplyCost: 10,
-        baseStats: { speed: 5, vision: 4 }
+        visionRange: 4
     },
     {
         slug: 'fragata',
@@ -18,7 +18,7 @@ const templatesData = [
         width: 1, height: 3,
         baseMaxHp: 30,
         supplyCost: 15,
-        baseStats: { speed: 3, vision: 3 }
+        visionRange: 3
     },
     {
         slug: 'acorazado',
@@ -26,7 +26,7 @@ const templatesData = [
         width: 1, height: 5,
         baseMaxHp: 50,
         supplyCost: 40,
-        baseStats: { speed: 1, vision: 2 }
+        visionRange: 2
     }
 ];
 

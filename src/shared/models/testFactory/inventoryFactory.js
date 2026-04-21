@@ -36,7 +36,7 @@ export const createTemplate = async (slug = 'lancha', overrides = {}) => {
         defaults: {
             name: slug.charAt(0).toUpperCase() + slug.slice(1),
             width: 1, height: 1, baseMaxHp: 20, supplyCost: 10,
-            baseStats: { speed: 5, vision: 5 },
+            visionRange: 5,
             ...overrides
         }
     });
