@@ -65,8 +65,6 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
             }
         }
 
-        const posTraducida = matchService.traducirPosicionTablero({x: spawnX, y: spawnY}, jugador.side);
-        const vectTraducida = matchService.traducirVectorProyectil(vector, jugador.side);
 
         const proyectil = await ProjectileDao.createProjectile({
             matchId, 
@@ -83,18 +81,25 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
         await MatchDao.updateResources(jugador.id, jugador.fuelReserve, nuevaMunicion);
         await EngineDao.updateLastAttackTurn(barco.id, partida.turnNumber);
 
-        io.to(matchId).emit('projectile:launched', {
-            id: proyectil.id,
-            lifeDistance: proyectil.lifeDistance,
-            matchId: proyectil.matchId,
-            ownerId: proyectil.ownerId,
-            type: proyectil.type,
-            vectorX: vectTraducida.vx,
-            vectorY: vectTraducida.vy,
-            x: posTraducida.x,
-            y: posTraducida.y, 
-            ammoCurrent: nuevaMunicion
-        });
+        const listadoJuagdores = await MatchDao.findPlayersByMatch(matchId);
+        
+        for (const jugadorPartida of listadoJuagdores){
+            const posTraducida = matchService.traducirPosicionTablero({x: spawnX, y: spawnY}, jugadorPartida.side);
+            const vectTraducida = matchService.traducirVectorProyectil(vector, jugadorPartida.side);
+           
+            io.to(jugador.id).emit('projectile:launched', {
+                id: proyectil.id,
+                lifeDistance: proyectil.lifeDistance,
+                matchId: proyectil.matchId,
+                ownerId: proyectil.ownerId,
+                type: proyectil.type,
+                vectorX: vectTraducida.vx,
+                vectorY: vectTraducida.vy,
+                x: posTraducida.x,
+                y: posTraducida.y, 
+                ammoCurrent: nuevaMunicion
+            });
+        }
 
         await matchService.notificarVisionSala(io, matchId);
         

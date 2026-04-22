@@ -55,7 +55,6 @@ export const registerTurnHandlers = (io, socket) => {
                 }
                 
                 if (proy.vectorX !== 0 || proy.vectorY !== 0) {
-                    
                     proy.x += proy.vectorX;
                     proy.y += proy.vectorY;
 
@@ -71,23 +70,27 @@ export const registerTurnHandlers = (io, socket) => {
                         continue;
                     }
 
-                    
+
                     await ProjectileDao.updateProjectile(proy.id, {
                         x: proy.x,
                         y: proy.y,
                         lifeDistance: proy.lifeDistance
                     });
 
-                    //!!!!!!!!!
-                    // Nota prar luego: actualizar esto para asegurar que solo se envie a quienes tenga la vista del proyectil
-                    //!!!!!!!!!
-                    io.to(matchId).emit('projectile:update', {
-                        projectile: proy.id,
-                        status: 'ALIVE',
-                        x: proy.x,
-                        y: proy.y,
-                        lifeDistance: proy.lifeDistance
-                    });
+                    const jugadores = await MatchDao.findPlayersByMatch(matchId);
+                    for (const jugador of jugadores){
+                        const posTraducida = matchService.traducirPosicionTablero({x: proy.x, y: proy.y}, jugador.side);
+                        //!!!!!!!!!
+                        // Nota prar luego: actualizar esto para asegurar que solo se envie a quienes tenga la vista del proyectil
+                        //!!!!!!!!!
+                        io.to(jugador.id).emit('projectile:update', {
+                            projectile: proy.id,
+                            status: 'ALIVE',
+                            x: posTraducida.x,
+                            y: posTraducida.y,
+                            lifeDistance: proy.lifeDistance
+                        });
+                    }
                     
                     //Buscar por todos los barcos desplegados para ver si colisiona con el proyectil
                     for (const barco of barcosVivos) {
