@@ -53,7 +53,6 @@ export const registerMovementHandlers = (io, socket) => {
             const allProyectiles = await ProjectileDao.findAllProjectiles(matchId);
             const proyectilColisionado = combatService.colisionBarcoProyectil(targetCells, allProyectiles);
             if (proyectilColisionado != null){
-                console.log (barco.currentHp, proyectilColisionado.damage);
                 const newHp = Math.max(0, barco.currentHp - proyectilColisionado.damage);
                 const isSunk = newHp === 0;
                 await EngineDao.registerHit(barco.id, newHp, barco.hitCells || [], isSunk);
@@ -63,7 +62,6 @@ export const registerMovementHandlers = (io, socket) => {
                     proyectilColisionado: proyectilColisionado.id,
                     newHp
                 });
-                console.log( shipId, proyectilColisionado,newHp);
             }
             // Calculamos los nuevos recursos
             const nuevoFuel = jugador.fuelReserve - costes.TRASLACION;
