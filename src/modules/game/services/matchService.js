@@ -153,10 +153,11 @@ export const generarSnapshotVision = async (matchId, userId) => {
         return Promise.all(promesas);
     };
 
-    const todosLosProyectiles = await ProjectileDao.findAllProjectiles(matchId);
+    const proyectilesTodos = await ProjectileDao.findAllProjectiles(matchId);
+    const todosLosVisibles = await filtrarProyectilesVisibles(misBarcosRaw, proyectilesTodos, userId);
     const proyPropios = [];
     const proyEnemigos = [];
-    for (const proy of todosLosProyectiles) {
+    for (const proy of todosLosVisibles) {
         const posTraducida = traducirPosicionTablero({ x: proy.x, y: proy.y }, bando);
         const vecTraducida = traducirVectorProyectil({vx: proy.vectorX, vy: proy.vectorY}, bando);
         if (proy.ownerId === userId) {
@@ -172,8 +173,6 @@ export const generarSnapshotVision = async (matchId, userId) => {
                 y: posTraducida.y
             });
         } else {
-            // Aquí los proyectiles enemigos se envían todos. 
-            // Cambiar para meter niebla de guerra en el futuro
             proyEnemigos.push({
                 id: proy.id,
                 lifeDistance: proy.lifeDistance,
@@ -261,7 +260,6 @@ export const notificarVisionSala = async (io, matchId) => {
  */
 export const obtenerTamanoEfectiva = async (barco) => {
     const tamano = await EngineDao.getShipSize(barco.id);
-    console.log(tamano);
     if (barco.orientation === 'N' || barco.orientation === 'S') {
         return {
             effectiveWidth: tamano.width,
@@ -285,24 +283,16 @@ export const calcularVision = async (misBarcosRaw, enemigosRaw) => {
 
     for (const miBarco of misBarcosRaw) {
         const rangoVision = miBarco.UserShip?.ShipTemplate?.visionRange || 0;
-        console.log(rangoVision);
         // Si el barco está hundido o no tiene rango, no aporta visión
         if (miBarco.isSunk || rangoVision <= 0) continue;
 
         const tamano = await obtenerTamanoEfectiva(miBarco);
-        console.log(tamano);
-        // Calcular las celdas que ocupa el barco
-        console.log(miBarco.x,
-            miBarco.y,
-            tamano.effectiveWidth,
-            tamano.effectiveHeight);
         const celdasMias = engineService.calcularCeldasOcupadas(
             miBarco.x,
             miBarco.y,
             tamano.effectiveWidth,
             tamano.effectiveHeight
         );
-        console.log("Mias" ,celdasMias);
         for (const enemigo of enemigosRaw) {
             // Si ya lo ha visto otro barco, saltamos 
             if (enemigosDetectados.has(enemigo)) continue;
@@ -313,7 +303,6 @@ export const calcularVision = async (misBarcosRaw, enemigosRaw) => {
                 tamano.effectiveWidth,
                 tamano.effectiveHeight
             );
-            console.log("enemigo", celdasEnemigo);
             // Comprobar si alguna celda del enemigo está en el rango de visión
             const esVisible = celdasEnemigo.some(celdaE => 
                 combatService.validarRangoAtaque(celdasMias, celdaE, rangoVision)
@@ -325,4 +314,52 @@ export const calcularVision = async (misBarcosRaw, enemigosRaw) => {
         }
     }
     return Array.from(enemigosDetectados);
+};
+
+
+/**
+ * Filtra proyectiles basándose en la visión de los barcos y reglas especiales para minas.
+ * @param {Array} misBarcos - Flota del jugador actual.
+ * @param {Array} proyectilesRaw - Todos los proyectiles de la partida.
+ * @param {string} userId - ID del jugador que recibe la información.
+ */
+export const filtrarProyectilesVisibles = async (misBarcos, proyectilesRaw, userId) => {
+    const proyVisibles = [];
+
+    for (const proy of proyectilesRaw) {
+        // El proyectil propio es siempre visible
+        if (proy.ownerId === userId) {
+            proyVisibles.push(proy);
+            continue;
+        }
+        let detectado = false;
+
+        for (const miBarco of misBarcos) {
+            if (miBarco.isSunk) continue;
+
+            const tamano = await obtenerTamanoEfectiva(miBarco);
+            const celdasMias = engineService.calcularCeldasOcupadas(
+                miBarco.x, miBarco.y, 
+                tamano.effectiveWidth, tamano.effectiveHeight
+            );
+
+            const posProy = { x: proy.x, y: proy.y };
+
+            if (proy.type === 'MINE') {
+                if (combatService.validarAdyacencia(celdasMias, posProy)) {
+                    detectado = true;
+                    break;
+                }
+            } else {
+                const rangoVision = miBarco.UserShip?.ShipTemplate?.visionRange || 0;
+                if (combatService.validarRangoAtaque(celdasMias, posProy, rangoVision)) {
+                    detectado = true;
+                    break;
+                }
+            }
+        }
+        if (detectado) proyVisibles.push(proy);
+    }
+
+    return proyVisibles;
 };

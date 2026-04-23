@@ -79,7 +79,7 @@ export const handleMineDrop = async (io, socket, data) => {
         for (const jugadorPartida of listadoJuagdores){
             const posTraducida = matchService.traducirPosicionTablero({x: target.x, y: target.x}, jugadorPartida.side);
            
-            io.to(jugador.id).emit('projectile:launched', {
+            io.emit('projectile:launched', {
                 id: proyectil.id,
                 lifeDistance: proyectil.lifeDistance,
                 matchId: proyectil.matchId,
