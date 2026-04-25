@@ -11,25 +11,6 @@ import { authService } from '../../auth/index.js';
 import { registerGameHandlers } from './index.js';
 import MatchDao from '../dao/MatchDao.js';
 
-afterAll(async () => {
-    // Desconectar cli
-    if (hostClient) hostClient.disconnect();
-    if (guestClient) guestClient.disconnect();
-    
-    // Limpiar los timers de 2 minutos que se quedaron colgando
-    clearGameTimers();
-
-    // Cerrar el servidor de sockets
-    if (io) io.close();
-    
-    // esperar
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // cerrar la bd
-    await new Promise(res => server.close(res));
-    await sequelize.close();
-});
-
 describe('Game Sockets: Pause Responsibility', () => {
     let io, server, hostClient, guestClient, setup;
     const port = 4250;

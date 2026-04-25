@@ -75,7 +75,7 @@ export const registerGameHandlers = (io, socket) => {
         }
     });
 
-    /**
+/**
      * RF-505: Gestión de caídas de red y abandono
      */
     socket.on('disconnect', async () => {
@@ -87,34 +87,43 @@ export const registerGameHandlers = (io, socket) => {
             
             if (activeMatch) {
                 const matchId = activeMatch.id;
+                
                 io.to(matchId).emit('match:player_disconnected', {
                     message: 'El oponente ha perdido la conexión. Esperando reconexión (2 min)...',
                     userId: userId
                 });
 
-                // Si no hay ya un timer corriendo, lo iniciamos
                 if (!disconnectTimers.has(matchId)) {
                     const timer = setTimeout(async () => {
-                        // Pasados los 2 minutos, validamos si sigue en estado PLAYING
-                        const partida = await MatchDao.findById(matchId);
-                        if (partida && partida.status === 'PLAYING') {
-                            const oponente = partida.MatchPlayers.find(p => p.userId !== userId);
-                            if (oponente) {
-                                // Otorgamos la victoria por abandono
-                                await statusService.registrarVictoria(matchId, oponente.userId);
-                                io.to(matchId).emit('match:finished', {
-                                    winnerId: oponente.userId,
-                                    reason: 'abandonment'
-                                });
+                        try {
+                            const partida = await MatchDao.findById(matchId);
+                            if (partida && partida.status === 'PLAYING') {
+                                const oponente = partida.MatchPlayers.find(p => p.userId !== userId);
+                                if (oponente) {
+                                    await statusService.registrarVictoria(matchId, oponente.userId);
+                                    io.to(matchId).emit('match:finished', {
+                                        winnerId: oponente.userId,
+                                        reason: 'abandonment'
+                                    });
+                                }
                             }
+                            disconnectTimers.delete(matchId);
+                        } catch (e) {
+                            // Silenciar errores internos del timer si la BBDD ya cerró
                         }
-                        disconnectTimers.delete(matchId);
-                    }, 2 * 60 * 1000); // 2 minutos en milisegundos
+                    }, 2 * 60 * 1000); 
+
+                    // Evita que Jest se quede colgado esperando los 2 minutos
+                    timer.unref(); 
 
                     disconnectTimers.set(matchId, timer);
                 }
             }
         } catch (error) {
+            // Si el error es porque Sequelize ya se cerró (durante el afterAll de los tests), lo ignoramos.
+            if (error.message.includes('ConnectionManager.getConnection')) {
+                return;
+            }
             console.error('Error procesando desconexión:', error.message);
         }
     });

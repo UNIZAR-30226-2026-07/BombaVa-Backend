@@ -8,27 +8,9 @@ import { io as Client } from 'socket.io-client';
 import { sequelize } from '../../../config/index.js';
 import { createCompleteMatch, socketProtect } from '../../../shared/index.js';
 import { authService } from '../../auth/index.js';
-import { registerGameHandlers } from './index.js';
+import { registerGameHandlers, clearGameTimers } from './index.js';
 import { registerEngineHandlers } from '../../engine/index.js';
 
-afterAll(async () => {
-    // Desconectar cli
-    if (hostClient) hostClient.disconnect();
-    if (guestClient) guestClient.disconnect();
-    
-    // Limpiar los timers de 2 minutos que se quedaron colgando
-    clearGameTimers();
-
-    // Cerrar el servidor de sockets
-    if (io) io.close();
-    
-    // esperar
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // cerrar la bd
-    await new Promise(res => server.close(res));
-    await sequelize.close();
-});
 
 describe('Game Sockets: Disconnect & Reconnect Responsibility', () => {
     let io, server, hostClient, guestClient, setup;
@@ -79,11 +61,14 @@ describe('Game Sockets: Disconnect & Reconnect Responsibility', () => {
         ]);
     });
 
-    afterAll(async () => {
+   afterAll(async () => {
         if (hostClient) hostClient.disconnect();
-        if (guestClient) guestClient.disconnect();
+        if (guestClient) guestClient.disconnect();   
+        // evitar Open Handles
+        clearGameTimers();
         if (io) io.close();
-        await new Promise(res => server.close(res));
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (server) await new Promise(res => server.close(res));
         await sequelize.close();
     });
 
