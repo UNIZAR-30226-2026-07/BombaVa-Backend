@@ -4,7 +4,7 @@
 import MatchDao from '../../game/dao/MatchDao.js';
 import EngineDao from '../dao/EngineDao.js';
 import { combatService, engineService, Projectile } from '../index.js';
-import { matchService } from '../../game/index.js';
+import { matchService, statusService } from '../../game/index.js';
 import ProjectileDao from '../dao/ProjectileDao.js';
 
 export const registerMovementHandlers = (io, socket) => {
@@ -34,6 +34,14 @@ export const registerMovementHandlers = (io, socket) => {
             if (jugador.fuelReserve < costes.TRASLACION) {
                 throw new Error('Recursos insuficientes');
             }
+            
+            if (partida.status !== 'PLAYING') {
+                throw new Error('La partida no está activa');
+            }
+            if (barco.isSunk) {
+                throw new Error('El barco está hundido y no puede realizar acciones');
+            }
+
             const nuevaPos = engineService.calcularTraslacion({ x: barco.x, y: barco.y }, dirTraducida);
 
             //Calcular tamaño del barco y las casillas que ocupan
@@ -62,6 +70,17 @@ export const registerMovementHandlers = (io, socket) => {
                     proyectilColisionado: proyectilColisionado.id,
                     newHp
                 });
+
+                // Verificacamos muerte
+                if (isSunk) {
+                    const derrotado = await statusService.verificarDerrotaJugador(matchId, userId);
+                    if (derrotado) {
+                        const ganador = partida.MatchPlayers.find(p => p.userId !== userId);
+                        await statusService.registrarVictoria(matchId, ganador.userId);
+                        io.to(matchId).emit('match:finished', { winnerId: ganador.userId, reason: 'elimination' });
+                    }
+                }
+
             }
             // Calculamos los nuevos recursos
             const nuevoFuel = jugador.fuelReserve - costes.TRASLACION;
@@ -115,6 +134,13 @@ export const registerMovementHandlers = (io, socket) => {
             if (degrees !== 90 && degrees !== -90) {
                 throw new Error('Rotación inválida. Solo 90 o -90 grados.');
             }
+
+            if (partida.status !== 'PLAYING') {
+                throw new Error('La partida no está activa');
+            }
+            if (barco.isSunk) {
+                throw new Error('El barco está hundido y no puede realizar acciones');
+            }
             
             const nuevaOrientacion = engineService.calcularRotacion(barco.orientation, degrees);
 
@@ -146,6 +172,16 @@ export const registerMovementHandlers = (io, socket) => {
                     proyectilColisionado: proyectilColisionado.id,
                     newHp
                 });
+
+                // Verificacamos muerte
+                if (isSunk) {
+                    const derrotado = await statusService.verificarDerrotaJugador(matchId, userId);
+                    if (derrotado) {
+                        const ganador = partida.MatchPlayers.find(p => p.userId !== userId);
+                        await statusService.registrarVictoria(matchId, ganador.userId);
+                        io.to(matchId).emit('match:finished', { winnerId: ganador.userId, reason: 'elimination' });
+                    }
+                }
             }
 
             // Calculamos los nuevos recursos
