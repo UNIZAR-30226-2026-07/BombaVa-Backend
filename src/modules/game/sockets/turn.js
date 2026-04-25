@@ -138,6 +138,17 @@ export const registerTurnHandlers = (io, socket) => {
                                 newHp
                             });
 
+                            // Verificacamos fin de partida si un proyectil hunde un barco
+                            if (isSunk) {
+                                const derrotado = await statusService.verificarDerrotaJugador(matchId, barco.playerId);
+                                if (derrotado) {
+                                    // Gana el que no sea el dueño del barco destruido
+                                    const ganador = partida.MatchPlayers.find(p => p.userId !== barco.playerId);
+                                    await statusService.registrarVictoria(matchId, ganador.userId);
+                                    io.to(matchId).emit('match:finished', { winnerId: ganador.userId, reason: 'elimination' });
+                                }
+                            }
+
                             await matchService.notificarVisionSala(io, matchId);
                             break; 
                         }

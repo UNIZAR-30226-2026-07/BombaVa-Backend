@@ -29,6 +29,14 @@ export const handleMineDrop = async (io, socket, data) => {
             throw new Error('Munición insuficiente para mina');
         }
 
+        if (partida.status !== 'PLAYING') {
+            throw new Error('La partida no está activa');
+        }
+        
+        if (barco.isSunk) {
+            throw new Error('El barco está hundido y no puede realizar acciones');
+        }
+
         //Calcular celdas ocupadas del barco
         const tamanoBase = await EngineDao.getShipSize(barco.id);
         const tamanoEfectivo = engineService.calculartamanoEfectivo(tamanoBase.width, tamanoBase.height, barco.orientation);
