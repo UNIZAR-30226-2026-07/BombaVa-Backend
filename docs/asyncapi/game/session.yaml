@@ -151,4 +151,52 @@ messages:
                     apCost: { type: integer }
                     range: { type: integer, nullable: true }
                     damage: { type: integer }
+          
+  MatchPauseAccept:
+    name: 'match:pause_accept'
+    contentType: application/json
+    summary: El jugador acepta la solicitud de pausa del oponente.
+    payload:
+      type: object
+      required: [matchId]
+      properties:
+        matchId:
+          type: string
+          format: uuid
+
+  MatchPauseReject:
+    name: 'match:pause_reject'
+    contentType: application/json
+    summary: El jugador rechaza la solicitud de pausa del oponente.
+    payload:
+      type: object
+      required: [matchId]
+      properties:
+        matchId:
+          type: string
+          format: uuid
+
+  MatchPauseRejected:
+    name: 'match:pause_rejected'
+    contentType: application/json
+    summary: Notifica al solicitante que el oponente ha rechazado la pausa.
+    payload:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: "El oponente ha rechazado la solicitud de pausa."
+
+  MatchPaused:
+    name: 'match:paused'
+    contentType: application/json
+    summary: Notifica a la sala que la partida ha entrado en estado de pausa (WAITING).
+    payload:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: "La partida ha sido pausada por mutuo acuerdo."
             

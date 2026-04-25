@@ -72,6 +72,14 @@ channels:
         $ref: './engine/combat.yaml#/messages/ProjectileHitShip'
       ProjectileUpdate:
         $ref: './engine/combat.yaml#/messages/ProjectileUpdate'
+      matchPauseAccept:
+        $ref: './game/session.yaml#/messages/MatchPauseAccept'
+      matchPauseReject:
+        $ref: './game/session.yaml#/messages/MatchPauseReject'
+      matchPauseRejected:
+        $ref: './game/session.yaml#/messages/MatchPauseRejected'
+      matchPaused:
+        $ref: './game/session.yaml#/messages/MatchPaused'
 
 operations:
 #LOBBY
@@ -156,6 +164,38 @@ operations:
     summary: Notificar al oponente que se ha solicitado una pausa.
     messages:
       - $ref: '#/channels/main/messages/matchPauseRequested'
+      
+  "match:pause_accept":
+    action: receive
+    channel: 
+      $ref: '#/channels/main'
+    summary: Aceptar la pausa de la partida actual.
+    messages:
+      - $ref: '#/channels/main/messages/matchPauseAccept'
+
+  "match:pause_reject":
+    action: receive
+    channel: 
+      $ref: '#/channels/main'
+    summary: Rechazar la pausa de la partida actual.
+    messages:
+      - $ref: '#/channels/main/messages/matchPauseReject'
+
+  "match:pause_rejected":
+    action: send
+    channel: 
+      $ref: '#/channels/main'
+    summary: Notificar al oponente que se ha rechazado su pausa.
+    messages:
+      - $ref: '#/channels/main/messages/matchPauseRejected'
+
+  "match:paused":
+    action: send
+    channel: 
+      $ref: '#/channels/main'
+    summary: Notificar a ambos que la partida se ha pausado exitosamente.
+    messages:
+      - $ref: '#/channels/main/messages/matchPaused'
 
   "game:error":
     action: send

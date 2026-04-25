@@ -1691,6 +1691,86 @@
             "x-parser-schema-id": "<anonymous-schema-235>"
           },
           "x-parser-unique-object-id": "ProjectileUpdate"
+        },
+        "matchPauseAccept": {
+          "name": "match:pause_accept",
+          "contentType": "application/json",
+          "summary": "El jugador acepta la solicitud de pausa del oponente.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchId"
+            ],
+            "properties": {
+              "matchId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-242>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-241>"
+          },
+          "x-parser-unique-object-id": "matchPauseAccept"
+        },
+        "matchPauseReject": {
+          "name": "match:pause_reject",
+          "contentType": "application/json",
+          "summary": "El jugador rechaza la solicitud de pausa del oponente.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchId"
+            ],
+            "properties": {
+              "matchId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-244>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-243>"
+          },
+          "x-parser-unique-object-id": "matchPauseReject"
+        },
+        "matchPauseRejected": {
+          "name": "match:pause_rejected",
+          "contentType": "application/json",
+          "summary": "Notifica al solicitante que el oponente ha rechazado la pausa.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "message"
+            ],
+            "properties": {
+              "message": {
+                "type": "string",
+                "example": "El oponente ha rechazado la solicitud de pausa.",
+                "x-parser-schema-id": "<anonymous-schema-246>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-245>"
+          },
+          "x-parser-unique-object-id": "matchPauseRejected"
+        },
+        "matchPaused": {
+          "name": "match:paused",
+          "contentType": "application/json",
+          "summary": "Notifica a la sala que la partida ha entrado en estado de pausa (WAITING).",
+          "payload": {
+            "type": "object",
+            "required": [
+              "message"
+            ],
+            "properties": {
+              "message": {
+                "type": "string",
+                "example": "La partida ha sido pausada por mutuo acuerdo.",
+                "x-parser-schema-id": "<anonymous-schema-248>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-247>"
+          },
+          "x-parser-unique-object-id": "matchPaused"
         }
       },
       "x-parser-unique-object-id": "main"
@@ -1786,6 +1866,42 @@
         "$ref:$.channels.main.messages.matchPauseRequested"
       ],
       "x-parser-unique-object-id": "match:pause_requested"
+    },
+    "match:pause_accept": {
+      "action": "receive",
+      "channel": "$ref:$.channels.main",
+      "summary": "Aceptar la pausa de la partida actual.",
+      "messages": [
+        "$ref:$.channels.main.messages.matchPauseAccept"
+      ],
+      "x-parser-unique-object-id": "match:pause_accept"
+    },
+    "match:pause_reject": {
+      "action": "receive",
+      "channel": "$ref:$.channels.main",
+      "summary": "Rechazar la pausa de la partida actual.",
+      "messages": [
+        "$ref:$.channels.main.messages.matchPauseReject"
+      ],
+      "x-parser-unique-object-id": "match:pause_reject"
+    },
+    "match:pause_rejected": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Notificar al oponente que se ha rechazado su pausa.",
+      "messages": [
+        "$ref:$.channels.main.messages.matchPauseRejected"
+      ],
+      "x-parser-unique-object-id": "match:pause_rejected"
+    },
+    "match:paused": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Notificar a ambos que la partida se ha pausado exitosamente.",
+      "messages": [
+        "$ref:$.channels.main.messages.matchPaused"
+      ],
+      "x-parser-unique-object-id": "match:paused"
     },
     "game:error": {
       "action": "send",
