@@ -3,6 +3,7 @@
  * Gestiona las salas de espera y orquesta el inicio de partidas llamando al MatchService.
  */
 import * as matchService from '../../modules/game/services/matchService.js';
+import { MatchDao } from '../../modules/game/dao/index.js';
 
 const lobbiesActivos = new Map();
 
@@ -32,7 +33,20 @@ export const intentarUnirseALobby = (codigo, userId, socketId) => {
  * Finaliza el lobby y arranca la partida en la DB vía MatchService
  */
 export const ejecutarInicioPartida = async (codigo, lobby) => {
-    const partida = await matchService.iniciarPartidaOrquestada(lobby);
+    const [user1, user2] = lobby;
+    
+    // Comprobar si existe una partida pausada entre estos dos jugadores
+    const partidaPausada = await MatchDao.findPausedMatchBetweenUsers(user1.id, user2.id);
+    
+    let partida;
+    if (partidaPausada) {
+        // Reanudamos la partida existente
+        partida = await MatchDao.updateStatus(partidaPausada.id, 'PLAYING');
+    } else {
+        // Arrancamos una nueva
+        partida = await matchService.iniciarPartidaOrquestada(lobby);
+    }
+
     lobbiesActivos.delete(codigo);
     return partida;
 };

@@ -30,6 +30,14 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
             throw new Error('Munición insuficiente para torpedo');
         }
 
+        if (partida.status !== 'PLAYING') {
+            throw new Error('La partida no está activa');
+        }
+        
+        if (barco.isSunk) {
+            throw new Error('El barco está hundido y no puede realizar acciones');
+        }
+
         const tamanoBase = await EngineDao.getShipSize(barco.id);
         const tamanoReal = engineService.calculartamanoEfectivo(tamanoBase.width, tamanoBase.height, barco.orientation);
         const frente = combatService.obtenerFrente(barco.x, barco.y, barco.orientation, tamanoReal.effectiveWidth, tamanoReal.effectiveHeight);
