@@ -46,7 +46,7 @@ ShipTemplate:
     height: { type: integer, example: 1 }
     baseMaxHp: { type: integer, example: 20 }
     supplyCost: { type: integer, example: 10 }
-    baseStats: { type: object }
+    visionRange: { type: integer, example: 2 }
 
 UserShipWeapon:
   type: object

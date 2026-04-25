@@ -37,57 +37,78 @@ export const registerTurnHandlers = (io, socket) => {
             // Resolucion de proyectiles
             const proyectiles = await ProjectileDao.findAllProjectiles(matchId);
             const barcosVivos = await EngineDao.findAllAliveShipsWithSizes(matchId);
-
+            const jugadores = await MatchDao.findPlayersByMatch(matchId);
+            const misBarcos = barcosVivos.filter(p => p.playerId === userId);
+            const barcosEnemigos = barcosVivos.filter(p => p.playerId !== userId);
+            const socketsEnSala = await io.in(matchId).fetchSockets();
             for (const proy of proyectiles) {
                 //Descontar primero la vida del proyectil
                 proy.lifeDistance -= 1;
                 
                 if (proy.lifeDistance < 0) {
                     await ProjectileDao.removeProjectile(proy.id);
-                    //!!!!!!!!!
-                    // Nota prar luego: actualizar esto para asegurar que solo se envie a quienes tenga la vista del proyectil
-                    //!!!!!!!!!
-                    io.to(matchId).emit('projectile:update', {
-                        projectile: proy.id,
-                        status: 'ENDOFLIFE'
-                    });
+                    for (const s of socketsEnSala){
+                        const targetUserId = s.data.user.id;
+                        const jugadorPartida = jugadores.find(p => p.userId === targetUserId);
+                        if (jugadorPartida){
+                            const proyVisible = await matchService.filtrarProyectilesVisibles(barcosVivos.filter(p => p.playerId === jugadorPartida.id), proyectiles, jugadorPartida.id);
+                            if (proyVisible.includes(proy)){
+                                io.to(jugador.id).emit('projectile:update', {
+                                projectile: proy.id,
+                                status: 'ENDOFLIFE'
+                                });
+                            }
+                        }
+                    }
                     continue;
                 }
                 
                 if (proy.vectorX !== 0 || proy.vectorY !== 0) {
-                    
                     proy.x += proy.vectorX;
                     proy.y += proy.vectorY;
 
                     if (!engineService.validarLimitesMapa([{ x: proy.x, y: proy.y }])) {
                         await ProjectileDao.removeProjectile(proy.id);
-                        //!!!!!!!!!
-                        // Nota prar luego: actualizar esto para asegurar que solo se envie a quienes tenga la vista del proyectil
-                        //!!!!!!!!!
-                        io.to(matchId).emit('projectile:update', {
-                            projectile: proy.id,
-                            status: 'ENDOFLIFE'
-                        });
+                        for (const s of socketsEnSala){
+                            const targetUserId = s.data.user.id;
+                            const jugadorPartida = jugadores.find(p => p.userId === targetUserId);
+                            if (jugadorPartida){
+                                const proyVisible = await matchService.filtrarProyectilesVisibles(barcosVivos.filter(p => p.playerId === jugadorPartida.id), proyectiles, jugadorPartida.id);
+                                if (proyVisible.includes(proy)){
+                                    io.to(jugador.id).emit('projectile:update', {
+                                    projectile: proy.id,
+                                    status: 'ENDOFLIFE'
+                                    });
+                                }
+                            }
+                        }
                         continue;
                     }
 
-                    
+
                     await ProjectileDao.updateProjectile(proy.id, {
                         x: proy.x,
                         y: proy.y,
                         lifeDistance: proy.lifeDistance
                     });
 
-                    //!!!!!!!!!
-                    // Nota prar luego: actualizar esto para asegurar que solo se envie a quienes tenga la vista del proyectil
-                    //!!!!!!!!!
-                    io.to(matchId).emit('projectile:update', {
-                        projectile: proy.id,
-                        status: 'ALIVE',
-                        x: proy.x,
-                        y: proy.y,
-                        lifeDistance: proy.lifeDistance
-                    });
+                    for (const s of socketsEnSala){
+                            const targetUserId = s.data.user.id;
+                            const jugadorPartida = jugadores.find(p => p.userId === targetUserId);
+                            if (jugadorPartida){
+                                const posTraducida = matchService.traducirPosicionTablero({x: proy.x, y: proy.y}, jugadorPartida.side);
+                                const proyVisible = await matchService.filtrarProyectilesVisibles(barcosVivos.filter(p => p.playerId === jugadorPartida.id), proyectiles, jugadorPartida.id);
+                                if (proyVisible.includes(proy)){
+                                    io.to(jugador.id).emit('projectile:update', {
+                                        projectile: proy.id,
+                                        status: 'ALIVE',
+                                        x: posTraducida.x,
+                                        y: posTraducida.y,
+                                        lifeDistance: proy.lifeDistance
+                                    });
+                                }
+                            }
+                        }
                     
                     //Buscar por todos los barcos desplegados para ver si colisiona con el proyectil
                     for (const barco of barcosVivos) {

@@ -65,8 +65,8 @@ export const handleMineDrop = async (io, socket, data) => {
             matchId,
             ownerId: userId,
             type: 'MINE',
-            x: target.x,
-            y: target.y,
+            x: targetTraducido.x,
+            y: targetTraducido.y,
             lifeDistance: mina.lifeDistance,
             damage: mina.damage
         });
@@ -74,20 +74,24 @@ export const handleMineDrop = async (io, socket, data) => {
         const nuevaMunicion = jugador.ammoCurrent - mina.apCost;
         await MatchDao.updateResources(jugador.id, jugador.fuelReserve, nuevaMunicion);
         await EngineDao.updateLastAttackTurn(barco.id, partida.turnNumber);
+        const listadoJuagdores = await MatchDao.findPlayersByMatch(matchId);
 
-        io.to(matchId).emit('projectile:launched', {
-            id: proyectil.id,
-            lifeDistance: proyectil.lifeDistance,
-            matchId: proyectil.matchId,
-            ownerId: proyectil.ownerId,
-            type: proyectil.type,
-            vectorX: 0,
-            vectorY: 0,
-            x: targetTraducido.x,
-            y: targetTraducido.y, 
-            ammoCurrent: nuevaMunicion
-        });
-
+        for (const jugadorPartida of listadoJuagdores){
+            const posTraducida = matchService.traducirPosicionTablero({x: target.x, y: target.x}, jugadorPartida.side);
+           
+            io.emit('projectile:launched', {
+                id: proyectil.id,
+                lifeDistance: proyectil.lifeDistance,
+                matchId: proyectil.matchId,
+                ownerId: proyectil.ownerId,
+                type: proyectil.type,
+                vectorX: 0,
+                vectorY: 0,
+                x: posTraducida.x,
+                y: posTraducida.y, 
+                ammoCurrent: nuevaMunicion
+            });
+        }
         await matchService.notificarVisionSala(io, matchId);
         
     } catch (error) {

@@ -267,6 +267,11 @@
                       "type": "boolean",
                       "x-parser-schema-id": "<anonymous-schema-34>"
                     },
+                    "visionRange": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "x-parser-schema-id": "<anonymous-schema-35>"
+                    },
                     "weapons": {
                       "type": "array",
                       "items": {
@@ -279,29 +284,29 @@
                               "TORPEDO",
                               "MINE"
                             ],
-                            "x-parser-schema-id": "<anonymous-schema-37>"
+                            "x-parser-schema-id": "<anonymous-schema-38>"
                           },
                           "name": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-38>"
+                            "x-parser-schema-id": "<anonymous-schema-39>"
                           },
                           "apCost": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-39>"
+                            "x-parser-schema-id": "<anonymous-schema-40>"
                           },
                           "range": {
                             "type": "integer",
                             "nullable": true,
-                            "x-parser-schema-id": "<anonymous-schema-40>"
+                            "x-parser-schema-id": "<anonymous-schema-41>"
                           },
                           "damage": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-41>"
+                            "x-parser-schema-id": "<anonymous-schema-42>"
                           }
                         },
-                        "x-parser-schema-id": "<anonymous-schema-36>"
+                        "x-parser-schema-id": "<anonymous-schema-37>"
                       },
-                      "x-parser-schema-id": "<anonymous-schema-35>"
+                      "x-parser-schema-id": "<anonymous-schema-36>"
                     }
                   },
                   "x-parser-schema-id": "<anonymous-schema-24>"
@@ -326,17 +331,17 @@
                     "id": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-44>"
+                      "x-parser-schema-id": "<anonymous-schema-45>"
                     },
                     "x": {
                       "type": "integer",
                       "minimum": 0,
-                      "x-parser-schema-id": "<anonymous-schema-45>"
+                      "x-parser-schema-id": "<anonymous-schema-46>"
                     },
                     "y": {
                       "type": "integer",
                       "minimum": 0,
-                      "x-parser-schema-id": "<anonymous-schema-46>"
+                      "x-parser-schema-id": "<anonymous-schema-47>"
                     },
                     "orientation": {
                       "type": "string",
@@ -346,12 +351,12 @@
                         "E",
                         "W"
                       ],
-                      "x-parser-schema-id": "<anonymous-schema-47>"
+                      "x-parser-schema-id": "<anonymous-schema-48>"
                     },
                     "currentHp": {
                       "type": "integer",
                       "minimum": 0,
-                      "x-parser-schema-id": "<anonymous-schema-48>"
+                      "x-parser-schema-id": "<anonymous-schema-49>"
                     },
                     "hitCells": {
                       "type": "array",
@@ -360,20 +365,25 @@
                         "properties": {
                           "x": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-51>"
+                            "x-parser-schema-id": "<anonymous-schema-52>"
                           },
                           "y": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-52>"
+                            "x-parser-schema-id": "<anonymous-schema-53>"
                           }
                         },
-                        "x-parser-schema-id": "<anonymous-schema-50>"
+                        "x-parser-schema-id": "<anonymous-schema-51>"
                       },
-                      "x-parser-schema-id": "<anonymous-schema-49>"
+                      "x-parser-schema-id": "<anonymous-schema-50>"
                     },
                     "isSunk": {
                       "type": "boolean",
-                      "x-parser-schema-id": "<anonymous-schema-53>"
+                      "x-parser-schema-id": "<anonymous-schema-54>"
+                    },
+                    "visionRange": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "x-parser-schema-id": "<anonymous-schema-55>"
                     },
                     "weapons": {
                       "type": "array",
@@ -387,34 +397,34 @@
                               "TORPEDO",
                               "MINE"
                             ],
-                            "x-parser-schema-id": "<anonymous-schema-56>"
+                            "x-parser-schema-id": "<anonymous-schema-58>"
                           },
                           "name": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-57>"
+                            "x-parser-schema-id": "<anonymous-schema-59>"
                           },
                           "apCost": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-58>"
+                            "x-parser-schema-id": "<anonymous-schema-60>"
                           },
                           "range": {
                             "type": "integer",
                             "nullable": true,
-                            "x-parser-schema-id": "<anonymous-schema-59>"
+                            "x-parser-schema-id": "<anonymous-schema-61>"
                           },
                           "damage": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-60>"
+                            "x-parser-schema-id": "<anonymous-schema-62>"
                           }
                         },
-                        "x-parser-schema-id": "<anonymous-schema-55>"
+                        "x-parser-schema-id": "<anonymous-schema-57>"
                       },
-                      "x-parser-schema-id": "<anonymous-schema-54>"
+                      "x-parser-schema-id": "<anonymous-schema-56>"
                     }
                   },
-                  "x-parser-schema-id": "<anonymous-schema-43>"
+                  "x-parser-schema-id": "<anonymous-schema-44>"
                 },
-                "x-parser-schema-id": "<anonymous-schema-42>"
+                "x-parser-schema-id": "<anonymous-schema-43>"
               },
               "proyEnemigos": {
                 "type": "array",
@@ -435,22 +445,22 @@
                     "id": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-63>"
+                      "x-parser-schema-id": "<anonymous-schema-65>"
                     },
                     "lifeDistance": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-64>"
+                      "x-parser-schema-id": "<anonymous-schema-66>"
                     },
                     "matchId": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-65>"
+                      "x-parser-schema-id": "<anonymous-schema-67>"
                     },
                     "ownerId": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-66>"
+                      "x-parser-schema-id": "<anonymous-schema-68>"
                     },
                     "type": {
                       "string": null,
@@ -458,31 +468,31 @@
                         "MINE",
                         "TORPEDO"
                       ],
-                      "x-parser-schema-id": "<anonymous-schema-67>"
+                      "x-parser-schema-id": "<anonymous-schema-69>"
                     },
                     "vectorX": {
                       "type": "integer",
-                      "x-parser-schema-id": "<anonymous-schema-68>"
+                      "x-parser-schema-id": "<anonymous-schema-70>"
                     },
                     "vectorY": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-69>"
+                      "x-parser-schema-id": "<anonymous-schema-71>"
                     },
                     "x": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-70>"
+                      "x-parser-schema-id": "<anonymous-schema-72>"
                     },
                     "y": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-71>"
+                      "x-parser-schema-id": "<anonymous-schema-73>"
                     }
                   },
-                  "x-parser-schema-id": "<anonymous-schema-62>"
+                  "x-parser-schema-id": "<anonymous-schema-64>"
                 },
-                "x-parser-schema-id": "<anonymous-schema-61>"
+                "x-parser-schema-id": "<anonymous-schema-63>"
               },
               "proyPropios": {
                 "type": "array",
@@ -503,22 +513,22 @@
                     "id": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-74>"
+                      "x-parser-schema-id": "<anonymous-schema-76>"
                     },
                     "lifeDistance": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-75>"
+                      "x-parser-schema-id": "<anonymous-schema-77>"
                     },
                     "matchId": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-76>"
+                      "x-parser-schema-id": "<anonymous-schema-78>"
                     },
                     "ownerId": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-77>"
+                      "x-parser-schema-id": "<anonymous-schema-79>"
                     },
                     "type": {
                       "string": null,
@@ -526,31 +536,31 @@
                         "MINE",
                         "TORPEDO"
                       ],
-                      "x-parser-schema-id": "<anonymous-schema-78>"
+                      "x-parser-schema-id": "<anonymous-schema-80>"
                     },
                     "vectorX": {
                       "type": "integer",
-                      "x-parser-schema-id": "<anonymous-schema-79>"
+                      "x-parser-schema-id": "<anonymous-schema-81>"
                     },
                     "vectorY": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-80>"
+                      "x-parser-schema-id": "<anonymous-schema-82>"
                     },
                     "x": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-81>"
+                      "x-parser-schema-id": "<anonymous-schema-83>"
                     },
                     "y": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-82>"
+                      "x-parser-schema-id": "<anonymous-schema-84>"
                     }
                   },
-                  "x-parser-schema-id": "<anonymous-schema-73>"
+                  "x-parser-schema-id": "<anonymous-schema-75>"
                 },
-                "x-parser-schema-id": "<anonymous-schema-72>"
+                "x-parser-schema-id": "<anonymous-schema-74>"
               }
             },
             "x-parser-schema-id": "<anonymous-schema-10>"
@@ -567,10 +577,10 @@
               "message": {
                 "type": "string",
                 "example": "Lobby no encontrado",
-                "x-parser-schema-id": "<anonymous-schema-84>"
+                "x-parser-schema-id": "<anonymous-schema-86>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-83>"
+            "x-parser-schema-id": "<anonymous-schema-85>"
           },
           "x-parser-unique-object-id": "lobbyError"
         },
@@ -587,10 +597,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-86>"
+                "x-parser-schema-id": "<anonymous-schema-88>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-85>"
+            "x-parser-schema-id": "<anonymous-schema-87>"
           },
           "x-parser-unique-object-id": "gameJoin"
         },
@@ -607,10 +617,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-88>"
+                "x-parser-schema-id": "<anonymous-schema-90>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-87>"
+            "x-parser-schema-id": "<anonymous-schema-89>"
           },
           "x-parser-unique-object-id": "gameJoined"
         },
@@ -627,10 +637,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-90>"
+                "x-parser-schema-id": "<anonymous-schema-92>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-89>"
+            "x-parser-schema-id": "<anonymous-schema-91>"
           },
           "x-parser-unique-object-id": "matchPauseRequest"
         },
@@ -648,10 +658,10 @@
                 "type": "string",
                 "description": "Nombre del usuario que solicita la pausa.",
                 "example": "oscar_tester",
-                "x-parser-schema-id": "<anonymous-schema-92>"
+                "x-parser-schema-id": "<anonymous-schema-94>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-91>"
+            "x-parser-schema-id": "<anonymous-schema-93>"
           },
           "x-parser-unique-object-id": "matchPauseRequested"
         },
@@ -668,10 +678,10 @@
               "message": {
                 "type": "string",
                 "example": "No es tu turno",
-                "x-parser-schema-id": "<anonymous-schema-94>"
+                "x-parser-schema-id": "<anonymous-schema-96>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-93>"
+            "x-parser-schema-id": "<anonymous-schema-95>"
           },
           "x-parser-unique-object-id": "gameError"
         },
@@ -688,10 +698,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-96>"
+                "x-parser-schema-id": "<anonymous-schema-98>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-95>"
+            "x-parser-schema-id": "<anonymous-schema-97>"
           },
           "x-parser-unique-object-id": "matchTurnEnd"
         },
@@ -711,13 +721,13 @@
                 "type": "string",
                 "format": "uuid",
                 "description": "ID del usuario que ahora tiene el turno.",
-                "x-parser-schema-id": "<anonymous-schema-98>"
+                "x-parser-schema-id": "<anonymous-schema-100>"
               },
               "turnNumber": {
                 "type": "integer",
                 "description": "Contador total de turnos de la partida.",
                 "example": 2,
-                "x-parser-schema-id": "<anonymous-schema-99>"
+                "x-parser-schema-id": "<anonymous-schema-101>"
               },
               "resources": {
                 "type": "object",
@@ -727,19 +737,19 @@
                     "type": "integer",
                     "description": "Puntos de movimiento (MP) acumulados.",
                     "example": 20,
-                    "x-parser-schema-id": "<anonymous-schema-101>"
+                    "x-parser-schema-id": "<anonymous-schema-103>"
                   },
                   "ammo": {
                     "type": "integer",
                     "description": "Puntos de acción (AP) reseteados.",
                     "example": 5,
-                    "x-parser-schema-id": "<anonymous-schema-102>"
+                    "x-parser-schema-id": "<anonymous-schema-104>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-100>"
+                "x-parser-schema-id": "<anonymous-schema-102>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-97>"
+            "x-parser-schema-id": "<anonymous-schema-99>"
           },
           "x-parser-unique-object-id": "matchTurnChanged"
         },
@@ -756,10 +766,10 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-104>"
+                "x-parser-schema-id": "<anonymous-schema-106>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-103>"
+            "x-parser-schema-id": "<anonymous-schema-105>"
           },
           "x-parser-unique-object-id": "matchSurrender"
         },
@@ -778,7 +788,7 @@
                 "type": "string",
                 "format": "uuid",
                 "description": "ID del jugador que ha ganado la partida.",
-                "x-parser-schema-id": "<anonymous-schema-106>"
+                "x-parser-schema-id": "<anonymous-schema-108>"
               },
               "reason": {
                 "type": "string",
@@ -787,10 +797,10 @@
                   "elimination"
                 ],
                 "example": "surrender",
-                "x-parser-schema-id": "<anonymous-schema-107>"
+                "x-parser-schema-id": "<anonymous-schema-109>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-105>"
+            "x-parser-schema-id": "<anonymous-schema-107>"
           },
           "x-parser-unique-object-id": "matchFinished"
         },
@@ -809,13 +819,13 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-109>"
+                "x-parser-schema-id": "<anonymous-schema-111>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
                 "description": "ID de la instancia del barco a mover.",
-                "x-parser-schema-id": "<anonymous-schema-110>"
+                "x-parser-schema-id": "<anonymous-schema-112>"
               },
               "direction": {
                 "type": "string",
@@ -826,10 +836,10 @@
                   "W"
                 ],
                 "description": "Dirección del movimiento.",
-                "x-parser-schema-id": "<anonymous-schema-111>"
+                "x-parser-schema-id": "<anonymous-schema-113>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-108>"
+            "x-parser-schema-id": "<anonymous-schema-110>"
           },
           "x-parser-unique-object-id": "shipMove"
         },
@@ -849,7 +859,7 @@
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-113>"
+                "x-parser-schema-id": "<anonymous-schema-115>"
               },
               "position": {
                 "type": "object",
@@ -857,30 +867,30 @@
                   "x": {
                     "type": "integer",
                     "example": 5,
-                    "x-parser-schema-id": "<anonymous-schema-115>"
+                    "x-parser-schema-id": "<anonymous-schema-117>"
                   },
                   "y": {
                     "type": "integer",
                     "example": 6,
-                    "x-parser-schema-id": "<anonymous-schema-116>"
+                    "x-parser-schema-id": "<anonymous-schema-118>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-114>"
+                "x-parser-schema-id": "<anonymous-schema-116>"
               },
               "fuelReserve": {
                 "type": "integer",
                 "description": "Nueva reserva de combustible (MP) del jugador tras el gasto.",
                 "example": 9,
-                "x-parser-schema-id": "<anonymous-schema-117>"
+                "x-parser-schema-id": "<anonymous-schema-119>"
               },
               "userId": {
                 "type": "string",
                 "format": "uuid",
                 "description": "ID del usuario que realizó el movimiento.",
-                "x-parser-schema-id": "<anonymous-schema-118>"
+                "x-parser-schema-id": "<anonymous-schema-120>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-112>"
+            "x-parser-schema-id": "<anonymous-schema-114>"
           },
           "x-parser-unique-object-id": "shipMoved"
         },
@@ -899,12 +909,12 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-120>"
+                "x-parser-schema-id": "<anonymous-schema-122>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-121>"
+                "x-parser-schema-id": "<anonymous-schema-123>"
               },
               "target": {
                 "type": "object",
@@ -912,18 +922,18 @@
                   "x": {
                     "type": "integer",
                     "example": 10,
-                    "x-parser-schema-id": "<anonymous-schema-123>"
+                    "x-parser-schema-id": "<anonymous-schema-125>"
                   },
                   "y": {
                     "type": "integer",
                     "example": 5,
-                    "x-parser-schema-id": "<anonymous-schema-124>"
+                    "x-parser-schema-id": "<anonymous-schema-126>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-122>"
+                "x-parser-schema-id": "<anonymous-schema-124>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-119>"
+            "x-parser-schema-id": "<anonymous-schema-121>"
           },
           "x-parser-unique-object-id": "shipAttackCannon"
         },
@@ -943,40 +953,40 @@
               "attackerId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-126>"
+                "x-parser-schema-id": "<anonymous-schema-128>"
               },
               "hit": {
                 "type": "boolean",
                 "description": "Indica si el disparo impactó en un barco.",
-                "x-parser-schema-id": "<anonymous-schema-127>"
+                "x-parser-schema-id": "<anonymous-schema-129>"
               },
               "target": {
                 "type": "object",
                 "properties": {
                   "x": {
                     "type": "integer",
-                    "x-parser-schema-id": "<anonymous-schema-129>"
+                    "x-parser-schema-id": "<anonymous-schema-131>"
                   },
                   "y": {
                     "type": "integer",
-                    "x-parser-schema-id": "<anonymous-schema-130>"
+                    "x-parser-schema-id": "<anonymous-schema-132>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-128>"
+                "x-parser-schema-id": "<anonymous-schema-130>"
               },
               "targetHp": {
                 "type": "integer",
                 "nullable": true,
                 "description": "Nuevo HP del objetivo si hubo impacto.",
-                "x-parser-schema-id": "<anonymous-schema-131>"
+                "x-parser-schema-id": "<anonymous-schema-133>"
               },
               "ammoCurrent": {
                 "type": "integer",
                 "example": 3,
-                "x-parser-schema-id": "<anonymous-schema-132>"
+                "x-parser-schema-id": "<anonymous-schema-134>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-125>"
+            "x-parser-schema-id": "<anonymous-schema-127>"
           },
           "x-parser-unique-object-id": "shipAttacked"
         },
@@ -994,15 +1004,15 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-134>"
+                "x-parser-schema-id": "<anonymous-schema-136>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-135>"
+                "x-parser-schema-id": "<anonymous-schema-137>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-133>"
+            "x-parser-schema-id": "<anonymous-schema-135>"
           },
           "x-parser-unique-object-id": "shipAttackTorpedo"
         },
@@ -1028,22 +1038,22 @@
               "id": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-137>"
+                "x-parser-schema-id": "<anonymous-schema-139>"
               },
               "lifeDistance": {
                 "type": "integer",
                 "minimun": 0,
-                "x-parser-schema-id": "<anonymous-schema-138>"
+                "x-parser-schema-id": "<anonymous-schema-140>"
               },
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-139>"
+                "x-parser-schema-id": "<anonymous-schema-141>"
               },
               "ownerId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-140>"
+                "x-parser-schema-id": "<anonymous-schema-142>"
               },
               "type": {
                 "string": null,
@@ -1051,34 +1061,34 @@
                   "MINE",
                   "TORPEDO"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-141>"
+                "x-parser-schema-id": "<anonymous-schema-143>"
               },
               "vectorX": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-142>"
+                "x-parser-schema-id": "<anonymous-schema-144>"
               },
               "vectorY": {
                 "type": "integer",
                 "minimun": 0,
-                "x-parser-schema-id": "<anonymous-schema-143>"
+                "x-parser-schema-id": "<anonymous-schema-145>"
               },
               "x": {
                 "type": "integer",
                 "minimun": 0,
-                "x-parser-schema-id": "<anonymous-schema-144>"
+                "x-parser-schema-id": "<anonymous-schema-146>"
               },
               "y": {
                 "type": "integer",
                 "minimun": 0,
-                "x-parser-schema-id": "<anonymous-schema-145>"
+                "x-parser-schema-id": "<anonymous-schema-147>"
               },
               "ammoCurrent": {
                 "type": "integer",
                 "example": 2,
-                "x-parser-schema-id": "<anonymous-schema-146>"
+                "x-parser-schema-id": "<anonymous-schema-148>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-136>"
+            "x-parser-schema-id": "<anonymous-schema-138>"
           },
           "x-parser-unique-object-id": "projectileLaunched"
         },
@@ -1097,29 +1107,29 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-148>"
+                "x-parser-schema-id": "<anonymous-schema-150>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-149>"
+                "x-parser-schema-id": "<anonymous-schema-151>"
               },
               "target": {
                 "type": "object",
                 "properties": {
                   "x": {
                     "type": "integer",
-                    "x-parser-schema-id": "<anonymous-schema-151>"
+                    "x-parser-schema-id": "<anonymous-schema-153>"
                   },
                   "y": {
                     "type": "integer",
-                    "x-parser-schema-id": "<anonymous-schema-152>"
+                    "x-parser-schema-id": "<anonymous-schema-154>"
                   }
                 },
-                "x-parser-schema-id": "<anonymous-schema-150>"
+                "x-parser-schema-id": "<anonymous-schema-152>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-147>"
+            "x-parser-schema-id": "<anonymous-schema-149>"
           },
           "x-parser-unique-object-id": "shipAttackMine"
         },
@@ -1138,13 +1148,13 @@
               "matchId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-154>"
+                "x-parser-schema-id": "<anonymous-schema-156>"
               },
               "shipId": {
                 "type": "string",
                 "format": "uuid",
                 "description": "ID de la instancia del barco a rotar.",
-                "x-parser-schema-id": "<anonymous-schema-155>"
+                "x-parser-schema-id": "<anonymous-schema-157>"
               },
               "degrees": {
                 "type": "integer",
@@ -1153,10 +1163,10 @@
                   -90
                 ],
                 "description": "Grados de rotación (90 a la derecha, -90 a la izquierda).",
-                "x-parser-schema-id": "<anonymous-schema-156>"
+                "x-parser-schema-id": "<anonymous-schema-158>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-153>"
+            "x-parser-schema-id": "<anonymous-schema-155>"
           },
           "x-parser-unique-object-id": "shipRotate"
         },
@@ -1176,7 +1186,7 @@
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-158>"
+                "x-parser-schema-id": "<anonymous-schema-160>"
               },
               "orientation": {
                 "type": "string",
@@ -1186,20 +1196,20 @@
                   "E",
                   "W"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-159>"
+                "x-parser-schema-id": "<anonymous-schema-161>"
               },
               "fuelReserve": {
                 "type": "integer",
                 "description": "Nueva reserva de combustible tras gastar MP.",
-                "x-parser-schema-id": "<anonymous-schema-160>"
+                "x-parser-schema-id": "<anonymous-schema-162>"
               },
               "userId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-161>"
+                "x-parser-schema-id": "<anonymous-schema-163>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-157>"
+            "x-parser-schema-id": "<anonymous-schema-159>"
           },
           "x-parser-unique-object-id": "shipRotated"
         },
@@ -1213,7 +1223,8 @@
               "myFleet",
               "proyEnemigos",
               "proyPropios",
-              "visibleEnemyFleet"
+              "visibleEnemyFleet",
+              "visionRange"
             ],
             "properties": {
               "myFleet": {
@@ -1235,17 +1246,17 @@
                     "id": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-165>"
+                      "x-parser-schema-id": "<anonymous-schema-167>"
                     },
                     "x": {
                       "type": "integer",
                       "minimum": 0,
-                      "x-parser-schema-id": "<anonymous-schema-166>"
+                      "x-parser-schema-id": "<anonymous-schema-168>"
                     },
                     "y": {
                       "type": "integer",
                       "minimum": 0,
-                      "x-parser-schema-id": "<anonymous-schema-167>"
+                      "x-parser-schema-id": "<anonymous-schema-169>"
                     },
                     "orientation": {
                       "type": "string",
@@ -1255,12 +1266,12 @@
                         "E",
                         "W"
                       ],
-                      "x-parser-schema-id": "<anonymous-schema-168>"
+                      "x-parser-schema-id": "<anonymous-schema-170>"
                     },
                     "currentHp": {
                       "type": "integer",
                       "minimum": 0,
-                      "x-parser-schema-id": "<anonymous-schema-169>"
+                      "x-parser-schema-id": "<anonymous-schema-171>"
                     },
                     "hitCells": {
                       "type": "array",
@@ -1269,30 +1280,35 @@
                         "properties": {
                           "x": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-172>"
+                            "x-parser-schema-id": "<anonymous-schema-174>"
                           },
                           "y": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-173>"
+                            "x-parser-schema-id": "<anonymous-schema-175>"
                           }
                         },
-                        "x-parser-schema-id": "<anonymous-schema-171>"
+                        "x-parser-schema-id": "<anonymous-schema-173>"
                       },
-                      "x-parser-schema-id": "<anonymous-schema-170>"
+                      "x-parser-schema-id": "<anonymous-schema-172>"
+                    },
+                    "visionRange": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "x-parser-schema-id": "<anonymous-schema-176>"
                     },
                     "effectiveWidth": {
                       "type": "integer",
                       "minimum": 1,
-                      "x-parser-schema-id": "<anonymous-schema-174>"
+                      "x-parser-schema-id": "<anonymous-schema-177>"
                     },
                     "effectiveHeight": {
                       "type": "integer",
                       "minimum": 1,
-                      "x-parser-schema-id": "<anonymous-schema-175>"
+                      "x-parser-schema-id": "<anonymous-schema-178>"
                     },
                     "isSunk": {
                       "type": "boolean",
-                      "x-parser-schema-id": "<anonymous-schema-176>"
+                      "x-parser-schema-id": "<anonymous-schema-179>"
                     },
                     "weapons": {
                       "type": "array",
@@ -1306,34 +1322,34 @@
                               "TORPEDO",
                               "MINE"
                             ],
-                            "x-parser-schema-id": "<anonymous-schema-179>"
+                            "x-parser-schema-id": "<anonymous-schema-182>"
                           },
                           "name": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-180>"
+                            "x-parser-schema-id": "<anonymous-schema-183>"
                           },
                           "apCost": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-181>"
+                            "x-parser-schema-id": "<anonymous-schema-184>"
                           },
                           "range": {
                             "type": "integer",
                             "nullable": true,
-                            "x-parser-schema-id": "<anonymous-schema-182>"
+                            "x-parser-schema-id": "<anonymous-schema-185>"
                           },
                           "damage": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-183>"
+                            "x-parser-schema-id": "<anonymous-schema-186>"
                           }
                         },
-                        "x-parser-schema-id": "<anonymous-schema-178>"
+                        "x-parser-schema-id": "<anonymous-schema-181>"
                       },
-                      "x-parser-schema-id": "<anonymous-schema-177>"
+                      "x-parser-schema-id": "<anonymous-schema-180>"
                     }
                   },
-                  "x-parser-schema-id": "<anonymous-schema-164>"
+                  "x-parser-schema-id": "<anonymous-schema-166>"
                 },
-                "x-parser-schema-id": "<anonymous-schema-163>"
+                "x-parser-schema-id": "<anonymous-schema-165>"
               },
               "proyEnemigos": {
                 "type": "array",
@@ -1354,22 +1370,22 @@
                     "id": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-186>"
+                      "x-parser-schema-id": "<anonymous-schema-189>"
                     },
                     "lifeDistance": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-187>"
+                      "x-parser-schema-id": "<anonymous-schema-190>"
                     },
                     "matchId": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-188>"
+                      "x-parser-schema-id": "<anonymous-schema-191>"
                     },
                     "ownerId": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-189>"
+                      "x-parser-schema-id": "<anonymous-schema-192>"
                     },
                     "type": {
                       "string": null,
@@ -1377,31 +1393,31 @@
                         "MINE",
                         "TORPEDO"
                       ],
-                      "x-parser-schema-id": "<anonymous-schema-190>"
+                      "x-parser-schema-id": "<anonymous-schema-193>"
                     },
                     "vectorX": {
                       "type": "integer",
-                      "x-parser-schema-id": "<anonymous-schema-191>"
+                      "x-parser-schema-id": "<anonymous-schema-194>"
                     },
                     "vectorY": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-192>"
+                      "x-parser-schema-id": "<anonymous-schema-195>"
                     },
                     "x": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-193>"
+                      "x-parser-schema-id": "<anonymous-schema-196>"
                     },
                     "y": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-194>"
+                      "x-parser-schema-id": "<anonymous-schema-197>"
                     }
                   },
-                  "x-parser-schema-id": "<anonymous-schema-185>"
+                  "x-parser-schema-id": "<anonymous-schema-188>"
                 },
-                "x-parser-schema-id": "<anonymous-schema-184>"
+                "x-parser-schema-id": "<anonymous-schema-187>"
               },
               "proyPropios": {
                 "type": "array",
@@ -1422,22 +1438,22 @@
                     "id": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-197>"
+                      "x-parser-schema-id": "<anonymous-schema-200>"
                     },
                     "lifeDistance": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-198>"
+                      "x-parser-schema-id": "<anonymous-schema-201>"
                     },
                     "matchId": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-199>"
+                      "x-parser-schema-id": "<anonymous-schema-202>"
                     },
                     "ownerId": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-200>"
+                      "x-parser-schema-id": "<anonymous-schema-203>"
                     },
                     "type": {
                       "string": null,
@@ -1445,31 +1461,31 @@
                         "MINE",
                         "TORPEDO"
                       ],
-                      "x-parser-schema-id": "<anonymous-schema-201>"
+                      "x-parser-schema-id": "<anonymous-schema-204>"
                     },
                     "vectorX": {
                       "type": "integer",
-                      "x-parser-schema-id": "<anonymous-schema-202>"
+                      "x-parser-schema-id": "<anonymous-schema-205>"
                     },
                     "vectorY": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-203>"
+                      "x-parser-schema-id": "<anonymous-schema-206>"
                     },
                     "x": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-204>"
+                      "x-parser-schema-id": "<anonymous-schema-207>"
                     },
                     "y": {
                       "type": "integer",
                       "minimun": 0,
-                      "x-parser-schema-id": "<anonymous-schema-205>"
+                      "x-parser-schema-id": "<anonymous-schema-208>"
                     }
                   },
-                  "x-parser-schema-id": "<anonymous-schema-196>"
+                  "x-parser-schema-id": "<anonymous-schema-199>"
                 },
-                "x-parser-schema-id": "<anonymous-schema-195>"
+                "x-parser-schema-id": "<anonymous-schema-198>"
               },
               "visibleEnemyFleet": {
                 "type": "array",
@@ -1490,17 +1506,17 @@
                     "id": {
                       "type": "string",
                       "format": "uuid",
-                      "x-parser-schema-id": "<anonymous-schema-208>"
+                      "x-parser-schema-id": "<anonymous-schema-211>"
                     },
                     "x": {
                       "type": "integer",
                       "minimum": 0,
-                      "x-parser-schema-id": "<anonymous-schema-209>"
+                      "x-parser-schema-id": "<anonymous-schema-212>"
                     },
                     "y": {
                       "type": "integer",
                       "minimum": 0,
-                      "x-parser-schema-id": "<anonymous-schema-210>"
+                      "x-parser-schema-id": "<anonymous-schema-213>"
                     },
                     "orientation": {
                       "type": "string",
@@ -1510,12 +1526,12 @@
                         "E",
                         "W"
                       ],
-                      "x-parser-schema-id": "<anonymous-schema-211>"
+                      "x-parser-schema-id": "<anonymous-schema-214>"
                     },
                     "currentHp": {
                       "type": "integer",
                       "minimum": 0,
-                      "x-parser-schema-id": "<anonymous-schema-212>"
+                      "x-parser-schema-id": "<anonymous-schema-215>"
                     },
                     "hitCells": {
                       "type": "array",
@@ -1524,30 +1540,35 @@
                         "properties": {
                           "x": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-215>"
+                            "x-parser-schema-id": "<anonymous-schema-218>"
                           },
                           "y": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-216>"
+                            "x-parser-schema-id": "<anonymous-schema-219>"
                           }
                         },
-                        "x-parser-schema-id": "<anonymous-schema-214>"
+                        "x-parser-schema-id": "<anonymous-schema-217>"
                       },
-                      "x-parser-schema-id": "<anonymous-schema-213>"
+                      "x-parser-schema-id": "<anonymous-schema-216>"
+                    },
+                    "visionRange": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "x-parser-schema-id": "<anonymous-schema-220>"
                     },
                     "effectiveWidth": {
                       "type": "integer",
                       "minimum": 1,
-                      "x-parser-schema-id": "<anonymous-schema-217>"
+                      "x-parser-schema-id": "<anonymous-schema-221>"
                     },
                     "effectiveHeight": {
                       "type": "integer",
                       "minimum": 1,
-                      "x-parser-schema-id": "<anonymous-schema-218>"
+                      "x-parser-schema-id": "<anonymous-schema-222>"
                     },
                     "isSunk": {
                       "type": "boolean",
-                      "x-parser-schema-id": "<anonymous-schema-219>"
+                      "x-parser-schema-id": "<anonymous-schema-223>"
                     },
                     "weapons": {
                       "type": "array",
@@ -1561,37 +1582,37 @@
                               "TORPEDO",
                               "MINE"
                             ],
-                            "x-parser-schema-id": "<anonymous-schema-222>"
+                            "x-parser-schema-id": "<anonymous-schema-226>"
                           },
                           "name": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-223>"
+                            "x-parser-schema-id": "<anonymous-schema-227>"
                           },
                           "apCost": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-224>"
+                            "x-parser-schema-id": "<anonymous-schema-228>"
                           },
                           "range": {
                             "type": "integer",
                             "nullable": true,
-                            "x-parser-schema-id": "<anonymous-schema-225>"
+                            "x-parser-schema-id": "<anonymous-schema-229>"
                           },
                           "damage": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-226>"
+                            "x-parser-schema-id": "<anonymous-schema-230>"
                           }
                         },
-                        "x-parser-schema-id": "<anonymous-schema-221>"
+                        "x-parser-schema-id": "<anonymous-schema-225>"
                       },
-                      "x-parser-schema-id": "<anonymous-schema-220>"
+                      "x-parser-schema-id": "<anonymous-schema-224>"
                     }
                   },
-                  "x-parser-schema-id": "<anonymous-schema-207>"
+                  "x-parser-schema-id": "<anonymous-schema-210>"
                 },
-                "x-parser-schema-id": "<anonymous-schema-206>"
+                "x-parser-schema-id": "<anonymous-schema-209>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-162>"
+            "x-parser-schema-id": "<anonymous-schema-164>"
           },
           "x-parser-unique-object-id": "matchVisionUpdate"
         },
@@ -1610,19 +1631,19 @@
               "shipId": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-228>"
+                "x-parser-schema-id": "<anonymous-schema-232>"
               },
               "proyectilColisionado": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-229>"
+                "x-parser-schema-id": "<anonymous-schema-233>"
               },
               "newHp": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-230>"
+                "x-parser-schema-id": "<anonymous-schema-234>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-227>"
+            "x-parser-schema-id": "<anonymous-schema-231>"
           },
           "x-parser-unique-object-id": "ProjectileHitShip"
         },
@@ -1640,7 +1661,7 @@
               "projectile": {
                 "type": "string",
                 "format": "uuid",
-                "x-parser-schema-id": "<anonymous-schema-232>"
+                "x-parser-schema-id": "<anonymous-schema-236>"
               },
               "status": {
                 "type": "string",
@@ -1649,25 +1670,25 @@
                   "ALIVE"
                 ],
                 "description": "ENDOFLIFE significa que el proyectil va a dejar de existir en el siguiente turno. ALIVE significa que sigue vivo",
-                "x-parser-schema-id": "<anonymous-schema-233>"
+                "x-parser-schema-id": "<anonymous-schema-237>"
               },
               "x": {
                 "type": "integer",
                 "minimun": 0,
-                "x-parser-schema-id": "<anonymous-schema-234>"
+                "x-parser-schema-id": "<anonymous-schema-238>"
               },
               "y": {
                 "type": "integer",
                 "minimun": 0,
-                "x-parser-schema-id": "<anonymous-schema-235>"
+                "x-parser-schema-id": "<anonymous-schema-239>"
               },
               "lifeDistance": {
                 "type": "integer",
                 "minimun": 0,
-                "x-parser-schema-id": "<anonymous-schema-236>"
+                "x-parser-schema-id": "<anonymous-schema-240>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-231>"
+            "x-parser-schema-id": "<anonymous-schema-235>"
           },
           "x-parser-unique-object-id": "ProjectileUpdate"
         }

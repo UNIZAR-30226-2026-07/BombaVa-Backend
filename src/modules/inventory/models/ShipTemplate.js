@@ -51,9 +51,13 @@ const ShipTemplate = sequelize.define('ShipTemplate', {
             min: 0
         }
     },
-    baseStats: {
-        type: DataTypes.JSONB,
-        defaultValue: {}
+    visionRange: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
+        validate: {
+            min: 0
+        }
     }
 }, {
     tableName: 'ship_templates',

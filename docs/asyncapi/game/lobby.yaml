@@ -145,6 +145,7 @@ messages:
                       type: integer
               isSunk:
                 type: boolean
+              visionRange: { type: integer, minimum: 1 }
               weapons:
                 type: array
                 items:
@@ -188,6 +189,7 @@ messages:
                       type: integer
               isSunk:
                 type: boolean
+              visionRange: { type: integer, minimum: 1 }
               weapons:
                 type: array
                 items:
