@@ -1771,6 +1771,87 @@
             "x-parser-schema-id": "<anonymous-schema-247>"
           },
           "x-parser-unique-object-id": "matchPaused"
+        },
+        "matchPlayerDisconnected": {
+          "name": "match:player_disconnected",
+          "contentType": "application/json",
+          "summary": "Notifica que el oponente ha perdido la conexión.",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string",
+                "example": "El oponente ha perdido la conexión. Esperando reconexión (2 min)...",
+                "x-parser-schema-id": "<anonymous-schema-250>"
+              },
+              "userId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "ID del usuario que se ha desconectado.",
+                "x-parser-schema-id": "<anonymous-schema-251>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-249>"
+          },
+          "x-parser-unique-object-id": "matchPlayerDisconnected"
+        },
+        "matchPlayerReconnected": {
+          "name": "match:player_reconnected",
+          "contentType": "application/json",
+          "summary": "Notifica que el oponente se ha reconectado con éxito.",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string",
+                "example": "El oponente se ha reconectado. La partida continúa.",
+                "x-parser-schema-id": "<anonymous-schema-253>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-252>"
+          },
+          "x-parser-unique-object-id": "matchPlayerReconnected"
+        },
+        "gameCheckActive": {
+          "name": "game:check_active",
+          "contentType": "application/json",
+          "summary": "El cliente pregunta si tiene alguna partida en curso para reconectarse.",
+          "payload": {
+            "type": "object",
+            "description": "No requiere parámetros, usa el token del socket.",
+            "x-parser-schema-id": "<anonymous-schema-254>"
+          },
+          "x-parser-unique-object-id": "gameCheckActive"
+        },
+        "gameActiveFound": {
+          "name": "game:active_found",
+          "contentType": "application/json",
+          "summary": "El servidor informa que se ha encontrado una partida activa.",
+          "payload": {
+            "type": "object",
+            "required": [
+              "matchId"
+            ],
+            "properties": {
+              "matchId": {
+                "type": "string",
+                "format": "uuid",
+                "x-parser-schema-id": "<anonymous-schema-256>"
+              }
+            },
+            "x-parser-schema-id": "<anonymous-schema-255>"
+          },
+          "x-parser-unique-object-id": "gameActiveFound"
+        },
+        "gameNoActive": {
+          "name": "game:no_active",
+          "contentType": "application/json",
+          "summary": "El servidor informa que el usuario no tiene ninguna partida activa en este momento.",
+          "payload": {
+            "type": "object",
+            "x-parser-schema-id": "<anonymous-schema-257>"
+          },
+          "x-parser-unique-object-id": "gameNoActive"
         }
       },
       "x-parser-unique-object-id": "main"
@@ -1920,6 +2001,51 @@
         "$ref:$.channels.main.messages.matchVisionUpdate"
       ],
       "x-parser-unique-object-id": "match:vision_update"
+    },
+    "game:check_active": {
+      "action": "receive",
+      "channel": "$ref:$.channels.main",
+      "summary": "Solicitar comprobación de partida activa al conectar.",
+      "messages": [
+        "$ref:$.channels.main.messages.gameCheckActive"
+      ],
+      "x-parser-unique-object-id": "game:check_active"
+    },
+    "game:active_found": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Informar de partida encontrada para reconexión.",
+      "messages": [
+        "$ref:$.channels.main.messages.gameActiveFound"
+      ],
+      "x-parser-unique-object-id": "game:active_found"
+    },
+    "game:no_active": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Informar que no hay partidas activas.",
+      "messages": [
+        "$ref:$.channels.main.messages.gameNoActive"
+      ],
+      "x-parser-unique-object-id": "game:no_active"
+    },
+    "match:player_disconnected": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Avisar al oponente de una desconexión accidental.",
+      "messages": [
+        "$ref:$.channels.main.messages.matchPlayerDisconnected"
+      ],
+      "x-parser-unique-object-id": "match:player_disconnected"
+    },
+    "match:player_reconnected": {
+      "action": "send",
+      "channel": "$ref:$.channels.main",
+      "summary": "Avisar al oponente de una reconexión exitosa.",
+      "messages": [
+        "$ref:$.channels.main.messages.matchPlayerReconnected"
+      ],
+      "x-parser-unique-object-id": "match:player_reconnected"
     },
     "match:turn_end": {
       "action": "receive",

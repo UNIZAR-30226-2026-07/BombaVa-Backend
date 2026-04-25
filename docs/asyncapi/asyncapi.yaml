@@ -80,6 +80,16 @@ channels:
         $ref: './game/session.yaml#/messages/MatchPauseRejected'
       matchPaused:
         $ref: './game/session.yaml#/messages/MatchPaused'
+      matchPlayerDisconnected:
+        $ref: './game/session.yaml#/messages/MatchPlayerDisconnected'
+      matchPlayerReconnected:
+        $ref: './game/session.yaml#/messages/MatchPlayerReconnected'
+      gameCheckActive:
+        $ref: './game/session.yaml#/messages/GameCheckActive'
+      gameActiveFound:
+        $ref: './game/session.yaml#/messages/GameActiveFound'
+      gameNoActive:
+        $ref: './game/session.yaml#/messages/GameNoActive'
 
 operations:
 #LOBBY
@@ -213,6 +223,46 @@ operations:
     messages:
       - $ref: '#/channels/main/messages/matchVisionUpdate'
 
+  "game:check_active":
+    action: receive
+    channel:
+      $ref: '#/channels/main'
+    summary: Solicitar comprobación de partida activa al conectar.
+    messages:
+      - $ref: '#/channels/main/messages/gameCheckActive'
+
+  "game:active_found":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: Informar de partida encontrada para reconexión.
+    messages:
+      - $ref: '#/channels/main/messages/gameActiveFound'
+
+  "game:no_active":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: Informar que no hay partidas activas.
+    messages:
+      - $ref: '#/channels/main/messages/gameNoActive'
+
+  "match:player_disconnected":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: Avisar al oponente de una desconexión accidental.
+    messages:
+      - $ref: '#/channels/main/messages/matchPlayerDisconnected'
+
+  "match:player_reconnected":
+    action: send
+    channel:
+      $ref: '#/channels/main'
+    summary: Avisar al oponente de una reconexión exitosa.
+    messages:
+      - $ref: '#/channels/main/messages/matchPlayerReconnected'
+
 #TURNS
   "match:turn_end":
     action: receive
@@ -331,6 +381,8 @@ operations:
     summary: Notifica de un impacto de un projectil contra un barco.
     messages:
       - $ref: '#/channels/main/messages/ProjectileHitShip'
+
+
 
 
 

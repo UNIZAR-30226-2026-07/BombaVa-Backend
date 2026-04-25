@@ -200,3 +200,55 @@ messages:
           type: string
           example: "La partida ha sido pausada por mutuo acuerdo."
             
+  MatchPlayerDisconnected:
+    name: 'match:player_disconnected'
+    contentType: application/json
+    summary: Notifica que el oponente ha perdido la conexión.
+    payload:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "El oponente ha perdido la conexión. Esperando reconexión (2 min)..."
+        userId:
+          type: string
+          format: uuid
+          description: ID del usuario que se ha desconectado.
+
+  MatchPlayerReconnected:
+    name: 'match:player_reconnected'
+    contentType: application/json
+    summary: Notifica que el oponente se ha reconectado con éxito.
+    payload:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "El oponente se ha reconectado. La partida continúa."
+
+  GameCheckActive:
+    name: 'game:check_active'
+    contentType: application/json
+    summary: El cliente pregunta si tiene alguna partida en curso para reconectarse.
+    payload:
+      type: object
+      description: No requiere parámetros, usa el token del socket.
+
+  GameActiveFound:
+    name: 'game:active_found'
+    contentType: application/json
+    summary: El servidor informa que se ha encontrado una partida activa.
+    payload:
+      type: object
+      required: [matchId]
+      properties:
+        matchId:
+          type: string
+          format: uuid
+
+  GameNoActive:
+    name: 'game:no_active'
+    contentType: application/json
+    summary: El servidor informa que el usuario no tiene ninguna partida activa en este momento.
+    payload:
+      type: object
