@@ -174,6 +174,19 @@ class MatchDao {
         }
         return null;
     }
+
+    /**
+     * Busca la partida activa (PLAYING) actual de un usuario.
+     * Útil para reconexiones.
+     * @param {string} userId 
+     * @returns {Promise<Object|null>}
+     */
+    async findActiveMatchByUser(userId) {
+        return await Match.findOne({
+            where: { status: 'PLAYING' },
+            include: [{ model: MatchPlayer, where: { userId } }]
+        });
+    }
 }
 
 export default new MatchDao();
