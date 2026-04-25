@@ -16,6 +16,15 @@ const pausasPendientes = new Map();
 // Key: matchId, Value: Timeout
 const disconnectTimers = new Map(); 
 
+// Función para limpiar timers (solo para tests)
+export const clearGameTimers = () => {
+    for (const timer of disconnectTimers.values()) {
+        clearTimeout(timer);
+    }
+    disconnectTimers.clear();
+    pausasPendientes.clear();
+};
+
 export const registerGameHandlers = (io, socket) => {
 
     /**
