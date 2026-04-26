@@ -203,32 +203,24 @@ export const generarSnapshotVision = async (matchId, userId) => {
 export const obtenerEstadoCompletoPartida = async (matchId, userId) => {
     const match = await MatchDao.findById(matchId);
     const jugador = await MatchDao.findMatchPlayer(matchId, userId);
+    const vision = await generarSnapshotVision(matchId, userId); // Esto ya devuelve objetos limpios
 
-    // Usamos el nuevo sistema de visión para obtener las flotas
-    const vision = await generarSnapshotVision(matchId, userId);
-    const proyectiles = await ProjectileDao.findAllProjectiles(matchId);
-    const proyPropios = proyectiles.filter(b => b.playerId === userId);
-    const proyEnemigos = proyectiles.filter(b => b.playerId !== userId);
-
-    const partidaLimpio = ({
-        matchId: match.id,
-        status: match.status,
-        currentTurnPlayer: match.currentTurnPlayerId,
-        yourId: userId,
-        turnNumber: match.turnNumber,
-        mapTerrain: match.mapTerrain
-    });
-
-    const payload = {
-        matchInfo: partidaLimpio,
+    return {
+        matchInfo: {
+            matchId: match.id,
+            status: match.status,
+            currentTurnPlayer: match.currentTurnPlayerId,
+            yourId: userId,
+            turnNumber: match.turnNumber,
+            mapTerrain: match.mapTerrain
+        },
         ammo: jugador.ammoCurrent,
         fuel: jugador.fuelReserve,
         playerFleet: vision.myFleet,
         enemyFleet: vision.visibleEnemyFleet,
-        proyPropios: proyPropios,
-        proyEnemigos: proyEnemigos
+        proyPropios: vision.proyPropios,
+        proyEnemigos: vision.proyEnemigos
     };
-    return payload;
 };
 
 /**

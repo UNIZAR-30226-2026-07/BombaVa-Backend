@@ -7,6 +7,8 @@ import { combatService } from '../../engine/index.js';
 import ProjectileDao from '../../engine/dao/ProjectileDao.js';
 import EngineDao from '../../engine/dao/EngineDao.js';
 import { matchService, statusService } from '../index.js';
+import { BOT_UUID } from '../../../shared/models/bootstrap.js';
+import { playTurn } from '../../engine/services/aiService.js';
 
 /**
  * Finaliza el turno del jugador actual.
@@ -165,6 +167,15 @@ export const handleTurnEnd = async (io, socket, data) => {
             turnNumber: nextTurnNumber,
             resources: nuevosRecursos
         });
+
+        // Si el siguiente turno es del Bot, activamos la IA sin bloquear el hilo
+        if (nextPlayerId === BOT_UUID) {
+            // Se lanza de forma asíncrona, el humano recibe la respuesta inmediatamente
+            setImmediate(() => {
+                playTurn(matchId, io).catch(err => console.error("Error IA:", err));
+            });
+        }
+
     } catch (error) {
         socket.emit('game:error', { message: error.message });
     }

@@ -34,7 +34,9 @@ export const registerLobbyHandlers = (io, socket) => {
                 partida = await lobbyService.ejecutarInicioPartida('BOT_MATCH', mockLobby);
             }
 
-            io.to(socket.id).emit('match:ready', {
+            socket.join(partida.id);
+
+            socket.emit('match:ready', {
                 matchId: partida.id,
                 status: partida.status,
                 turnNumber: partida.turnNumber
@@ -42,11 +44,13 @@ export const registerLobbyHandlers = (io, socket) => {
 
             // Solo enviamos startInfo al humano, ya que el bot no tiene socket
             const infoJugador = await lobbyService.obtenerInfoJugador(partida.id, userId);
-            io.to(socket.id).emit('match:startInfo', infoJugador);
+            socket.emit('match:startInfo', infoJugador);
 
             // Si al iniciar, resulta que es el turno del Bot, le damos el paso
             if (partida.currentTurnPlayerId === BOT_UUID) {
-                // TODO Llamar al aiService para que el bot empiece a pensar
+                import('../../engine/services/aiService.js').then(({ playTurn }) => {
+                    playTurn(partida.id, io).catch(err => console.error("Error en IA (Inicio):", err));
+                });
             }
 
         } catch (error) {
