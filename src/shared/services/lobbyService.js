@@ -47,7 +47,10 @@ export const ejecutarInicioPartida = async (codigo, lobby) => {
         partida = await matchService.iniciarPartidaOrquestada(lobby);
     }
 
-    lobbiesActivos.delete(codigo);
+    // Si es una partida de BOT, el código no está en lobbiesActivos, así que lo ignoramos sin romper nada
+    if (lobbiesActivos.has(codigo)) {
+        lobbiesActivos.delete(codigo);
+    }
     return partida;
 };
 
