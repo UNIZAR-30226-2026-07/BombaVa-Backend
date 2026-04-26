@@ -13,7 +13,6 @@ describe('AuthController API Integration (Refactored)', () => {
     beforeAll(async () => {
         await sequelize.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
         await sequelize.sync({ force: true });
-        initDefaults();
         setup = await createFullUserContext('auth_tester', 'auth@test.va');
     });
 
