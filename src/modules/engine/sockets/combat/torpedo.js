@@ -82,23 +82,29 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
         await EngineDao.updateLastAttackTurn(barco.id, partida.turnNumber);
 
         const listadoJuagdores = await MatchDao.findPlayersByMatch(matchId);
+        const socketsEnSala = await io.in(matchId).fetchSockets();
         
-        for (const jugadorPartida of listadoJuagdores){
-            const posTraducida = matchService.traducirPosicionTablero({x: spawnX, y: spawnY}, jugadorPartida.side);
-            const vectTraducida = matchService.traducirVectorProyectil(vector, jugadorPartida.side);
-           
-            io.emit('projectile:launched', {
-                id: proyectil.id,
-                lifeDistance: proyectil.lifeDistance,
-                matchId: proyectil.matchId,
-                ownerId: proyectil.ownerId,
-                type: proyectil.type,
-                vectorX: vectTraducida.vx,
-                vectorY: vectTraducida.vy,
-                x: posTraducida.x,
-                y: posTraducida.y, 
-                ammoCurrent: nuevaMunicion
-            });
+        for (const s of socketsEnSala){
+            const targetUserId = s.data.user.id;
+            const jugadorPartida = listadoJuagdores.find(p => p.userId === targetUserId);
+            
+            if (jugadorPartida) {
+                const posTraducida = matchService.traducirPosicionTablero({x: spawnX, y: spawnY}, jugadorPartida.side);
+                const vectTraducida = matchService.traducirVectorProyectil(vector, jugadorPartida.side);
+               
+                s.emit('projectile:launched', {
+                    id: proyectil.id,
+                    lifeDistance: proyectil.lifeDistance,
+                    matchId: proyectil.matchId,
+                    ownerId: proyectil.ownerId,
+                    type: proyectil.type,
+                    vectorX: vectTraducida.vx,
+                    vectorY: vectTraducida.vy,
+                    x: posTraducida.x,
+                    y: posTraducida.y, 
+                    ammoCurrent: nuevaMunicion
+                });
+            }
         }
 
         await matchService.notificarVisionSala(io, matchId);

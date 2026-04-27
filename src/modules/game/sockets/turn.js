@@ -51,9 +51,9 @@ export const registerTurnHandlers = (io, socket) => {
                         const targetUserId = s.data.user.id;
                         const jugadorPartida = jugadores.find(p => p.userId === targetUserId);
                         if (jugadorPartida){
-                            const proyVisible = await matchService.filtrarProyectilesVisibles(barcosVivos.filter(p => p.playerId === jugadorPartida.id), proyectiles, jugadorPartida.id);
+                            const proyVisible = await matchService.filtrarProyectilesVisibles(barcosVivos.filter(p => p.playerId === jugadorPartida.userId), proyectiles, jugadorPartida.userId);
                             if (proyVisible.includes(proy)){
-                                io.to(jugador.id).emit('projectile:update', {
+                                s.emit('projectile:update', {
                                 projectile: proy.id,
                                 status: 'ENDOFLIFE'
                                 });
@@ -73,9 +73,9 @@ export const registerTurnHandlers = (io, socket) => {
                             const targetUserId = s.data.user.id;
                             const jugadorPartida = jugadores.find(p => p.userId === targetUserId);
                             if (jugadorPartida){
-                                const proyVisible = await matchService.filtrarProyectilesVisibles(barcosVivos.filter(p => p.playerId === jugadorPartida.id), proyectiles, jugadorPartida.id);
+                                const proyVisible = await matchService.filtrarProyectilesVisibles(barcosVivos.filter(p => p.playerId === jugadorPartida.userId), proyectiles, jugadorPartida.userId);
                                 if (proyVisible.includes(proy)){
-                                    io.to(jugador.id).emit('projectile:update', {
+                                    s.emit('projectile:update', {
                                     projectile: proy.id,
                                     status: 'ENDOFLIFE'
                                     });
@@ -97,9 +97,9 @@ export const registerTurnHandlers = (io, socket) => {
                             const jugadorPartida = jugadores.find(p => p.userId === targetUserId);
                             if (jugadorPartida){
                                 const posTraducida = matchService.traducirPosicionTablero({x: proy.x, y: proy.y}, jugadorPartida.side);
-                                const proyVisible = await matchService.filtrarProyectilesVisibles(barcosVivos.filter(p => p.playerId === jugadorPartida.id), proyectiles, jugadorPartida.id);
+                                const proyVisible = await matchService.filtrarProyectilesVisibles(barcosVivos.filter(p => p.playerId === jugadorPartida.userId), proyectiles, jugadorPartida.userId);
                                 if (proyVisible.includes(proy)){
-                                    io.to(jugador.id).emit('projectile:update', {
+                                    s.emit('projectile:update', {
                                         projectile: proy.id,
                                         status: 'ALIVE',
                                         x: posTraducida.x,
