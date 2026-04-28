@@ -97,8 +97,8 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
             const jugadorPartida = listadoJuagdores.find(p => p.userId === targetUserId);
             
             if (jugadorPartida) {
-                const posTraducida = matchService.traducirPosicionTablero({x: spawnX, y: spawnY}, jugadorPartida.side);
-                const vectTraducida = matchService.traducirVectorProyectil(vector, jugadorPartida.side);
+                const posTraducida = matchService.traducirPosicionTablero({ x: proyectil.x, y: proyectil.y}, jugadorPartida.side);
+                const vectTraducida = matchService.traducirVectorProyectil({ vx: proyectil.vectorX, vy: proyectil.vectorY }, jugadorPartida.side);
                
                 s.emit('projectile:launched', {
                     id: proyectil.id,

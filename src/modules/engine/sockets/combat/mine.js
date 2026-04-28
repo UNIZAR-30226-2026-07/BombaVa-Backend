@@ -89,7 +89,7 @@ export const handleMineDrop = async (io, socket, data) => {
             const targetUserId = s.data.user.id;
             const jugadorPartida = listadoJuagdores.find(p => p.userId === targetUserId);
             if (jugadorPartida) {
-                const posTraducida = matchService.traducirPosicionTablero({x: target.x, y: target.y}, jugadorPartida.side);
+                const posTraducida = matchService.traducirPosicionTablero({x: proyectil.x, y: proyectil.y}, jugadorPartida.side);
                 s.emit('projectile:launched', {
                     id: proyectil.id,
                     lifeDistance: proyectil.lifeDistance,
