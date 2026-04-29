@@ -49,6 +49,11 @@ export const registerGameHandlers = (io, socket) => {
      * Entrar o Reconectarse a la sala
      */
     socket.on('game:join', async (matchId) => {
+
+        const matchId = typeof data === 'string' ? data : data.matchId;
+
+        if (!matchId) return;
+
         socket.join(matchId);
         socket.emit('game:joined', { matchId });
 
