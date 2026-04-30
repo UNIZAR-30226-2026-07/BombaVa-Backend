@@ -42,6 +42,7 @@ export const handleTurnEnd = async (io, socket, data) => {
         const barcosEnemigos = barcosVivos.filter(p => p.playerId !== userId);
         const socketsEnSala = await io.in(matchId).fetchSockets();
         for (const proy of proyectiles) {
+            if (proy.isDestroyed) continue;
             //Descontar primero la vida del proyectil
             proy.lifeDistance -= 1;
 
@@ -85,6 +86,34 @@ export const handleTurnEnd = async (io, socket, data) => {
                     continue;
                 }
 
+                const colisionProy = proyectiles.find(p => p.id !== proy.id && !p.isDestroyed && p.x === proy.x && p.y === proy.y);
+
+                //Colision de proyectiles (Atravesar o acabar en misma casilla)
+                if (colisionProy) {
+                    proy.isDestroyed = true;
+                    colisionProy.isDestroyed = true;
+
+                    await ProjectileDao.removeProjectile(proy.id);
+                    await ProjectileDao.removeProjectile(colisionProy.id);
+
+                    for (const s of socketsEnSala) {
+                        const targetUserId = s.data.user.id;
+                        const jugadorPartida = jugadores.find(p => p.userId === targetUserId);
+                        if (jugadorPartida) {
+                            const proyVisible = await matchService.filtrarProyectilesVisibles(barcosVivos.filter(p => p.playerId === jugadorPartida.userId), proyectiles, jugadorPartida.userId);
+
+                            // Emitimos ENDOFLIFE para el proyectil actual (si es visible)
+                            if (proyVisible.some(p => p.id === proy.id)) {
+                                s.emit('projectile:update', { projectile: proy.id, status: 'ENDOFLIFE' });
+                            }
+                            // Emitimos ENDOFLIFE para el proyectil con el que hemos chocado (si es visible)
+                            if (proyVisible.some(p => p.id === colisionProy.id)) {
+                                s.emit('projectile:update', { projectile: colisionProy.id, status: 'ENDOFLIFE' });
+                            }
+                        }
+                    }
+                    continue; // Pasamos al siguiente proyectil del bucle sin hacer daño a barcos ni guardar BD
+                }
 
                 await ProjectileDao.updateProjectile(proy.id, {
                     x: proy.x,
