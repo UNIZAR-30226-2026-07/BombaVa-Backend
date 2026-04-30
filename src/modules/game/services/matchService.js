@@ -25,7 +25,7 @@ export const traducirPosicionTablero = (pos, bando) => {
  * @returns {{ vx: number, vy: number }} El vector traducido
  */
 export const traducirVectorProyectil = (vector, bando) => {
-    if (bando === 'NORTH') return { vector };
+    if (bando === 'NORTH') return {  vx: vector.vx, vy: vector.vy };
     else return { vx: -vector.vx, vy: -vector.vy };
 };
 
