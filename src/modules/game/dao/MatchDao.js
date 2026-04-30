@@ -147,6 +147,46 @@ class MatchDao {
         );
         return updatedMatch;
     }
+
+    /**
+     * Busca una partida pausada (WAITING) entre dos usuarios específicos.
+     * @param {string} user1Id 
+     * @param {string} user2Id 
+     * @returns {Promise<Object|null>}
+     */
+    async findPausedMatchBetweenUsers(user1Id, user2Id) {
+        const matches = await Match.findAll({
+            where: { status: 'WAITING' },
+            include: [{
+                model: MatchPlayer,
+                where: { userId: [user1Id, user2Id] }
+            }]
+        });
+
+        // Asegurarse de que están AMBOS jugadores
+        for (const m of matches) {
+            if (m.MatchPlayers && m.MatchPlayers.length === 2) {
+                const ids = m.MatchPlayers.map(p => p.userId);
+                if (ids.includes(user1Id) && ids.includes(user2Id)) {
+                    return m;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Busca la partida activa (PLAYING) actual de un usuario.
+     * Útil para reconexiones.
+     * @param {string} userId 
+     * @returns {Promise<Object|null>}
+     */
+    async findActiveMatchByUser(userId) {
+        return await Match.findOne({
+            where: { status: 'PLAYING' },
+            include: [{ model: MatchPlayer, where: { userId } }]
+        });
+    }
 }
 
 export default new MatchDao();

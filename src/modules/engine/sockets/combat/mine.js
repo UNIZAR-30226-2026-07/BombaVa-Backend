@@ -29,6 +29,14 @@ export const handleMineDrop = async (io, socket, data) => {
             throw new Error('Munición insuficiente para mina');
         }
 
+        if (partida.status !== 'PLAYING') {
+            throw new Error('La partida no está activa');
+        }
+        
+        if (barco.isSunk) {
+            throw new Error('El barco está hundido y no puede realizar acciones');
+        }
+
         //Calcular celdas ocupadas del barco
         const tamanoBase = await EngineDao.getShipSize(barco.id);
         const tamanoEfectivo = engineService.calculartamanoEfectivo(tamanoBase.width, tamanoBase.height, barco.orientation);
@@ -75,22 +83,26 @@ export const handleMineDrop = async (io, socket, data) => {
         await MatchDao.updateResources(jugador.id, jugador.fuelReserve, nuevaMunicion);
         await EngineDao.updateLastAttackTurn(barco.id, partida.turnNumber);
         const listadoJuagdores = await MatchDao.findPlayersByMatch(matchId);
+        const socketsEnSala = await io.in(matchId).fetchSockets();
 
-        for (const jugadorPartida of listadoJuagdores){
-            const posTraducida = matchService.traducirPosicionTablero({x: target.x, y: target.x}, jugadorPartida.side);
-           
-            io.emit('projectile:launched', {
-                id: proyectil.id,
-                lifeDistance: proyectil.lifeDistance,
-                matchId: proyectil.matchId,
-                ownerId: proyectil.ownerId,
-                type: proyectil.type,
-                vectorX: 0,
-                vectorY: 0,
-                x: posTraducida.x,
-                y: posTraducida.y, 
-                ammoCurrent: nuevaMunicion
-            });
+        for (const s of socketsEnSala){
+            const targetUserId = s.data.user.id;
+            const jugadorPartida = listadoJuagdores.find(p => p.userId === targetUserId);
+            if (jugadorPartida) {
+                const posTraducida = matchService.traducirPosicionTablero({x: proyectil.x, y: proyectil.y}, jugadorPartida.side);
+                s.emit('projectile:launched', {
+                    id: proyectil.id,
+                    lifeDistance: proyectil.lifeDistance,
+                    matchId: proyectil.matchId,
+                    ownerId: proyectil.ownerId,
+                    type: proyectil.type,
+                    vectorX: 0,
+                    vectorY: 0,
+                    x: posTraducida.x,
+                    y: posTraducida.y, 
+                    ammoCurrent: nuevaMunicion
+                });
+            }
         }
         await matchService.notificarVisionSala(io, matchId);
         

@@ -30,6 +30,14 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
             throw new Error('Munición insuficiente para torpedo');
         }
 
+        if (partida.status !== 'PLAYING') {
+            throw new Error('La partida no está activa');
+        }
+        
+        if (barco.isSunk) {
+            throw new Error('El barco está hundido y no puede realizar acciones');
+        }
+
         const tamanoBase = await EngineDao.getShipSize(barco.id);
         const tamanoReal = engineService.calculartamanoEfectivo(tamanoBase.width, tamanoBase.height, barco.orientation);
         const frente = combatService.obtenerFrente(barco.x, barco.y, barco.orientation, tamanoReal.effectiveWidth, tamanoReal.effectiveHeight);
@@ -82,23 +90,29 @@ export const handleTorpedoLaunch = async (io, socket, data) => {
         await EngineDao.updateLastAttackTurn(barco.id, partida.turnNumber);
 
         const listadoJuagdores = await MatchDao.findPlayersByMatch(matchId);
+        const socketsEnSala = await io.in(matchId).fetchSockets();
         
-        for (const jugadorPartida of listadoJuagdores){
-            const posTraducida = matchService.traducirPosicionTablero({x: spawnX, y: spawnY}, jugadorPartida.side);
-            const vectTraducida = matchService.traducirVectorProyectil(vector, jugadorPartida.side);
-           
-            io.emit('projectile:launched', {
-                id: proyectil.id,
-                lifeDistance: proyectil.lifeDistance,
-                matchId: proyectil.matchId,
-                ownerId: proyectil.ownerId,
-                type: proyectil.type,
-                vectorX: vectTraducida.vx,
-                vectorY: vectTraducida.vy,
-                x: posTraducida.x,
-                y: posTraducida.y, 
-                ammoCurrent: nuevaMunicion
-            });
+        for (const s of socketsEnSala){
+            const targetUserId = s.data.user.id;
+            const jugadorPartida = listadoJuagdores.find(p => p.userId === targetUserId);
+            
+            if (jugadorPartida) {
+                const posTraducida = matchService.traducirPosicionTablero({ x: proyectil.x, y: proyectil.y}, jugadorPartida.side);
+                const vectTraducida = matchService.traducirVectorProyectil({ vx: proyectil.vectorX, vy: proyectil.vectorY }, jugadorPartida.side);
+               
+                s.emit('projectile:launched', {
+                    id: proyectil.id,
+                    lifeDistance: proyectil.lifeDistance,
+                    matchId: proyectil.matchId,
+                    ownerId: proyectil.ownerId,
+                    type: proyectil.type,
+                    vectorX: vectTraducida.vx,
+                    vectorY: vectTraducida.vy,
+                    x: posTraducida.x,
+                    y: posTraducida.y, 
+                    ammoCurrent: nuevaMunicion
+                });
+            }
         }
 
         await matchService.notificarVisionSala(io, matchId);

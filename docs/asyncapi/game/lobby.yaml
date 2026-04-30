@@ -230,3 +230,11 @@ messages:
               vectorY: {type: integer, minimun: 0}
               x: {type: integer, minimun: 0}
               y: {type: integer, minimun: 0}
+
+  GamePlayBot:
+    name: 'game:play_bot'
+    contentType: application/json
+    summary: Inicia una partida instantánea de un jugador contra la Inteligencia Artificial (Bot).
+    payload:
+      type: object
+      description: No requiere parámetros, se identifica al usuario por el token del socket.

@@ -4,7 +4,7 @@
 import EngineDao from '../../dao/EngineDao.js';
 import MatchDao from '../../../game/dao/MatchDao.js';
 import * as combatService from '../../services/combatService.js';
-import { matchService } from '../../../game/index.js';
+import { matchService, statusService } from '../../../game/index.js';
 import { engineService } from '../../services/index.js';
 
 export const handleCannonAttack = async (io, socket, data) => {
@@ -18,6 +18,12 @@ export const handleCannonAttack = async (io, socket, data) => {
         const targetTraducido =  matchService.traducirPosicionTablero(target, jugador.side);
         if (!partida || !barco || !jugador) {
             throw new Error('No se han encontrado las entidades necesarias');
+        }
+        if (partida.status !== 'PLAYING') {
+            throw new Error('La partida no está activa');
+        }
+        if (barco.isSunk) {
+            throw new Error('El barco está hundido y no puede realizar acciones');
         }
         const cannon = barco.CombatWeapons?.find(w => w.type === 'CANNON');
         if (!cannon) {
@@ -60,6 +66,15 @@ export const handleCannonAttack = async (io, socket, data) => {
             
             await EngineDao.registerHit(objetivo.id, newHp, objetivo.hitCells || [], isSunk);
             targetHp = newHp;
+
+            // Verificar si todos esta hundidos para acabar la partida
+            if (isSunk) {
+                const derrotado = await statusService.verificarDerrotaJugador(matchId, objetivo.playerId);
+                if (derrotado) {
+                    await statusService.registrarVictoria(matchId, userId); // Gana el atacante
+                    io.to(matchId).emit('match:finished', { winnerId: userId, reason: 'elimination' });
+                }
+            }
         }
 
         const nuevaMunicion = jugador.ammoCurrent - cannon.apCost;

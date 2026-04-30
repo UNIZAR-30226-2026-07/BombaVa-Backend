@@ -71,7 +71,7 @@ export const createFullInventoryContext = async (user) => {
  * Orquestador: Crea usuario + inventario completo.
  */
 export const createFullUserContext = async (username, email) => {
-    initDefaults();
+    await initDefaults();
     const user = await createUser(username, email);
     const inventory = await createFullInventoryContext(user);
     return { user, ...inventory };
