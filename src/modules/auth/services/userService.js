@@ -3,11 +3,27 @@
  * Gestiona los datos del perfil y el cálculo de ranking ELO.
  */
 import User from '../models/User.js';
+import MatchDao from '../../game/dao/MatchDao.js';
 
 export const obtenerPerfilPrivado = async (userId) => {
-    return await User.findByPk(userId, {
+    const usuario = await User.findByPk(userId, {
         attributes: ['id', 'username', 'email', 'elo_rating', 'created_at']
     });
+
+    if (!usuario) return null;
+
+    // Obtenemos las nuevas estadísticas
+    const wins = await MatchDao.countWins(userId);
+    const totalGames = await MatchDao.countTotalPlayed(userId);
+    const winRate = totalGames > 0 ? parseFloat(((wins / totalGames) * 100).toFixed(2)) : 0;
+    
+    // Devolvemos un objeto plano con todos los datos
+    return {
+        ...usuario.get({ plain: true }),
+        wins,
+        totalGames,
+        winRate
+    };
 };
 
 export const obtenerClasificacionGlobal = async (limite = 50) => {

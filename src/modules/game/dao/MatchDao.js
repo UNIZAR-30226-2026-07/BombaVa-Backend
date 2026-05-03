@@ -187,6 +187,46 @@ class MatchDao {
             include: [{ model: MatchPlayer, where: { userId } }]
         });
     }
+
+    /**
+     * Finaliza una partida, actualizando su estado y guardando el ganador.
+     * @param {UUID} id - ID de la partida.
+     * @param {UUID} winnerId - ID del usuario ganador.
+     */
+    async endMatch(id, winnerId) {
+        return await Match.update(
+            { status: 'FINISHED', winnerId: winnerId },
+            { where: { id } }
+        );
+    }
+
+    /**
+     * Cuenta el número de partidas ganadas por un usuario.
+     * @param {UUID} userId - ID del usuario.
+     * @returns {Promise<number>}
+     */
+    async countWins(userId) {
+        return await Match.count({
+            where: { winnerId: userId }
+        });
+    }
+
+    /**
+     * Cuenta el total de partidas finalizadas en las que ha participado un usuario.
+     * @param {UUID} userId - ID del usuario.
+     * @returns {Promise<number>}
+     */
+    async countTotalPlayed(userId) {
+        return await MatchPlayer.count({
+            where: { userId: userId },
+            include: [{
+                model: Match,
+                where: { status: 'FINISHED' },
+                attributes: [] // No necesitamos datos del match, solo la condición
+            }]
+        });
+    }
+
 }
 
 export default new MatchDao();

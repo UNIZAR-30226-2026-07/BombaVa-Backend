@@ -36,6 +36,19 @@ User:
     created_at:
       type: string
       format: date-time
+    wins:
+      type: integer
+      description: Número total de partidas ganadas por el usuario.
+      example: 10
+    totalGames:
+      type: integer
+      description: Número total de partidas finalizadas que ha jugado el usuario.
+      example: 20
+    winRate:
+      type: number
+      format: float
+      description: Porcentaje de victorias del usuario (de 0 a 100).
+      example: 50.00
 
 ShipTemplate:
   type: object
