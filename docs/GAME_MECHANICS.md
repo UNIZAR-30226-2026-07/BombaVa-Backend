@@ -380,7 +380,7 @@ En la versión V1, el juego presenta tres tipos de unidades. Cada barco se defin
 | **Acorazado** | 1x5 | 50 | **2 casillas** | Artillería. Muy potente pero "ciego"; depende de otras naves para apuntar. |
 
 Además las casillas individuales de cada barco representan componentes críticos. Cuando una casilla específica es impactada, se activa una penalización de estado (debuff) que se almacena en el campo jsonb hit\_cells de la SHIP\_INSTANCE.
-
+**NOTA: Tanto debuffs como hitcells NO se implementaran ya que añade demasiada complejidad para el jugador y dificulta el disfrute de la experiencia**
 **Configuración por tamaño:**
 
 * **1x1 (Ligero):** La única casilla contiene todos los sistemas (**Núcleo**). Si recibe daño, pierde HP proporcional. Si el HP cae por debajo del 30%, su visión se reduce a la mitad.  

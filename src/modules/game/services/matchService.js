@@ -98,8 +98,13 @@ export const iniciarPartidaOrquestada = async (usuarios) => {
  * @param {Object} recursosActuales 
  */
 export const calcularRegeneracionTurno = (recursosActuales) => {
+    const nuevoFuel = Math.min(
+        recursosActuales.fuel + GAME_RULES.RESOURCES.GAIN_FUEL_PER_TURN,
+        GAME_RULES.RESOURCES.MAX_FUEL
+    );
+
     return {
-        fuel: GAME_RULES.RESOURCES.RESET_FUEL,
+        fuel: nuevoFuel,
         ammo: GAME_RULES.RESOURCES.RESET_AMMO
     };
 };
