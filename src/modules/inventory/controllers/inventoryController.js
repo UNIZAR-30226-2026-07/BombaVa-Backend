@@ -28,7 +28,7 @@ export const equipWeapon = async (req, res, next) => {
         const { shipId } = req.params;
         const { weaponSlug } = req.body;
 
-        const ship = await InventoryDao.findByIdAndUser(shipId, req.user.id);
+        const ship = await InventoryDao.findByIdWithWeapons(shipId, req.user.id);
         if (!ship) {
             return res.status(404).json({ message: 'Barco no encontrado' });
         }
@@ -36,6 +36,20 @@ export const equipWeapon = async (req, res, next) => {
         if (!weapon) {
             return res.status(404).json({ message: 'Arma no encontrada' });
         }
+
+        const alreadyEquipped = ship.WeaponTemplates.some(w => w.slug === weaponSlug);
+        if (alreadyEquipped) {
+            return res.status(400).json({ message: 'Este barco ya tiene equipada esta arma' });
+        }
+
+        const slotsDisponibles = ship.ShipTemplate.weaponSlots;
+        const armasEquipadas = ship.WeaponTemplates.length;
+        if (armasEquipadas >= slotsDisponibles) {
+            return res.status(400).json({ 
+                message: `Límite de armas alcanzado. Este barco solo admite ${slotsDisponibles} arma(s).` 
+            });
+        }
+
         await InventoryDao.addWeaponToShip(ship, weaponSlug);
         const updatedShip = await InventoryDao.findByIdWithWeapons(shipId, req.user.id);
 

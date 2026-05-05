@@ -58,6 +58,15 @@ const ShipTemplate = sequelize.define('ShipTemplate', {
         validate: {
             min: 0
         }
+    },
+    weaponSlots: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
+        validate: {
+            min: 1,
+            max: 3
+        }
     }
 }, {
     tableName: 'ship_templates',

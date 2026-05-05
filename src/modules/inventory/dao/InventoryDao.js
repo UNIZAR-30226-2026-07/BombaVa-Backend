@@ -163,7 +163,7 @@ class InventoryDao {
     async findByIdWithWeapons(shipId, userId) {
         return await UserShip.findOne({
             where: { id: shipId, userId },
-            include: [WeaponTemplate]
+            include: [WeaponTemplate,  ShipTemplate]
         });
     }
 

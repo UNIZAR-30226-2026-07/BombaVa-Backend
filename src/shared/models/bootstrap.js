@@ -14,7 +14,8 @@ const templatesData = [
         width: 1, height: 1,
         baseMaxHp: 20,
         supplyCost: 10,
-        visionRange: 4
+        visionRange: 4,
+        weaponSlots: 1
     },
     {
         slug: 'fragata',
@@ -22,7 +23,8 @@ const templatesData = [
         width: 1, height: 3,
         baseMaxHp: 30,
         supplyCost: 15,
-        visionRange: 3
+        visionRange: 3,
+        weaponSlots: 2
     },
     {
         slug: 'acorazado',
@@ -30,7 +32,8 @@ const templatesData = [
         width: 1, height: 5,
         baseMaxHp: 50,
         supplyCost: 40,
-        visionRange: 2
+        visionRange: 2,
+        weaponSlots: 3
     }
 ];
 
@@ -89,11 +92,13 @@ const initAIBot = async () => {
     const [fragata] = await UserShip.findOrCreate({ where: { userId: botUser.id, templateSlug: 'fragata' }});
     const [acorazado] = await UserShip.findOrCreate({ where: { userId: botUser.id, templateSlug: 'acorazado' }});
 
-    // Equiparles todas las armas (para que la IA pueda elegir en combate)
-    const allWeapons = await WeaponTemplate.findAll();
-    await lancha.setWeaponTemplates(allWeapons);
-    await fragata.setWeaponTemplates(allWeapons);
-    await acorazado.setWeaponTemplates(allWeapons);
+    const cannon = await WeaponTemplate.findByPk('cannon-base');
+    const torpedo = await WeaponTemplate.findByPk('torpedo-v1');
+    const mine = await WeaponTemplate.findByPk('mine-v1');
+
+    await lancha.setWeaponTemplates([cannon]);
+    await fragata.setWeaponTemplates([cannon, torpedo]);
+    await acorazado.setWeaponTemplates([cannon, torpedo, mine]);
 
     // onfigurar su formación
     // El bot asume que juega en el Norte, apuntando al Sur.

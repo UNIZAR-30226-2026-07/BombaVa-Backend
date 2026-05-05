@@ -47,7 +47,7 @@ describe('InventoryController Unit Tests (Mocks)', () => {
         it('Debe devolver 404 si el barco no existe en el DAO', async () => {
             req.params.shipId = 's99';
             req.body.weaponSlug = 'cannon-base';
-            InventoryDao.findByIdAndUser.mockResolvedValue(null);
+            InventoryDao.findByIdWithWeapons.mockResolvedValue(null);
 
             await equipWeapon(req, res, next);
 
@@ -60,8 +60,8 @@ describe('InventoryController Unit Tests (Mocks)', () => {
         it('Debe devolver 404 si el arma no existe', async () => {
             req.params.shipId = 's1';
             req.body.weaponSlug = 'arma-falsa';
-            
-            InventoryDao.findByIdAndUser.mockResolvedValue({ id: 's1' });
+
+            InventoryDao.findByIdWithWeapons.mockResolvedValue({ id: 's1', WeaponTemplates: [] });
             WeaponTemplateDao.findBySlug.mockResolvedValue(null);
 
             await equipWeapon(req, res, next);
@@ -72,22 +72,51 @@ describe('InventoryController Unit Tests (Mocks)', () => {
             }));
         });
 
+        it('Debe devolver 400 si se supera el límite de slots', async () => {
+            req.params.shipId = 's1';
+            req.body.weaponSlug = 'torpedo-v1';
+
+            // lancha (1 slot) que ya tiene cañón
+            const ship = {
+                id: 's1',
+                WeaponTemplates: [{ slug: 'cannon-base' }],
+                ShipTemplate: { weaponSlots: 1 }
+            };
+
+            InventoryDao.findByIdWithWeapons.mockResolvedValue(ship);
+            WeaponTemplateDao.findBySlug.mockResolvedValue({ slug: 'torpedo-v1' });
+
+            await equipWeapon(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                message: expect.stringContaining('Límite de armas alcanzado')
+            }));
+        });
+
         it('Debe devolver 200 y el barco con armas si todo es correcto', async () => {
-            const ship = { id: 's1' };
-            const shipWithWeapons = { id: 's1', WeaponTemplates: [{ slug: 'cannon-base' }] };
-            
+            //  fragata (2 slots) sin armas
+            const ship = {
+                id: 's1',
+                WeaponTemplates: [],
+                ShipTemplate: { weaponSlots: 2 }
+            };
+            const shipUpdated = { ...ship, WeaponTemplates: [{ slug: 'cannon-base' }] };
+
             req.params.shipId = 's1';
             req.body.weaponSlug = 'cannon-base';
 
-            InventoryDao.findByIdAndUser.mockResolvedValue(ship);
+            InventoryDao.findByIdWithWeapons
+                .mockResolvedValueOnce(ship)        // Primera llamada
+                .mockResolvedValueOnce(shipUpdated); // Segunda llamada tras añadir
+
             WeaponTemplateDao.findBySlug.mockResolvedValue({ slug: 'cannon-base' });
             InventoryDao.addWeaponToShip.mockResolvedValue();
-            InventoryDao.findByIdWithWeapons.mockResolvedValue(shipWithWeapons);
 
             await equipWeapon(req, res, next);
 
             expect(InventoryDao.addWeaponToShip).toHaveBeenCalledWith(ship, 'cannon-base');
-            expect(res.json).toHaveBeenCalledWith(shipWithWeapons);
+            expect(res.json).toHaveBeenCalledWith(shipUpdated);
         });
     });
 
@@ -106,7 +135,7 @@ describe('InventoryController Unit Tests (Mocks)', () => {
 
         it('Debe devolver 404 si el arma no existe en el catálogo', async () => {
             req.params = { shipId: 's1', weaponSlug: 'arma-falsa' };
-            
+
             InventoryDao.findByIdAndUser.mockResolvedValue({ id: 's1' });
             WeaponTemplateDao.findBySlug.mockResolvedValue(null);
 
@@ -121,7 +150,7 @@ describe('InventoryController Unit Tests (Mocks)', () => {
         it('Debe devolver 200 y el barco actualizado tras remover el arma con éxito', async () => {
             const ship = { id: 's1' };
             const shipWithoutWeapon = { id: 's1', WeaponTemplates: [] };
-            
+
             req.params = { shipId: 's1', weaponSlug: 'cannon-base' };
 
             InventoryDao.findByIdAndUser.mockResolvedValue(ship);
