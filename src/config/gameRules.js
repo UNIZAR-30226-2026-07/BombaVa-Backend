@@ -9,6 +9,7 @@ export const GAME_RULES = {
     },
     RESOURCES: {
         MAX_FUEL: 20,
+        GAIN_FUEL_PER_TURN: 10,
         RESET_FUEL: 20,
         RESET_AMMO: 10,
         COST_MOVE: 1,

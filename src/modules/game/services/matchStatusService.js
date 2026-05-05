@@ -34,7 +34,7 @@ export const finalizarPartida = async (matchId) => {
  */
 export const registrarVictoria = async (matchId, winnerId) => {
     const partida = await MatchDao.findById(matchId);
-    if (!partida) return;
+    if (!partida || partida.status === 'FINISHED') return;
 
     const jugadores = await MatchDao.findPlayersByMatch(matchId);
     // Buscamos al oponente en el listado
@@ -44,5 +44,6 @@ export const registrarVictoria = async (matchId, winnerId) => {
         await userService.procesarResultadoElo(winnerId, oponente.userId);
     }
 
-    await finalizarPartida(matchId);
+    // Actualizamos el estado y guardamos el ganador
+    await MatchDao.endMatch(matchId, winnerId);
 };

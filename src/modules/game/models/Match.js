@@ -17,6 +17,15 @@ const Match = sequelize.define('Match', {
         allowNull: true,
         field: 'current_turn_player_id'
     },
+    winnerId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        field: 'winner_id',
+        references: {
+            model: 'users',
+            key: 'id'
+        }
+    },
     turnNumber: {
         type: DataTypes.INTEGER,
         defaultValue: 1,

@@ -103,8 +103,8 @@ const initAIBot = async () => {
             isActive: true,
             shipIds: [
                 { userShipId: lancha.id, position: { x: 7, y: 3 }, orientation: 'N' }, 
-                { userShipId: fragata.id, position: { x: 3, y: 1 }, orientation: 'N' },
-                { userShipId: acorazado.id, position: { x: 11, y: 1 }, orientation: 'N' } 
+                { userShipId: fragata.id, position: { x: 3, y: 2 }, orientation: 'N' },
+                { userShipId: acorazado.id, position: { x: 11, y: 2 }, orientation: 'N' } 
             ]
         }
     });
