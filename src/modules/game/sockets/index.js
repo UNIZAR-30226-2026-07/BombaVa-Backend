@@ -158,6 +158,19 @@ export const registerGameHandlers = (io, socket) => {
         const partida = await MatchDao.findById(matchId);
 
         if (partida && partida.status === 'PLAYING') {
+            const oponente = partida.MatchPlayers.find(p => p.userId !== userId);
+
+            // Si el oponente es el BOT, rechazamos de inmediato
+            if (oponente && oponente.userId === BOT_UUID) {
+                console.log(`[BOT_MATCH] Pausa rechazada automáticamente por la IA en partida ${matchId}`);
+                
+                socket.emit('match:pause_rejected', {
+                    message: 'La Comandante_IA no acepta treguas. ¡La batalla debe continuar hasta el final!'
+                });
+                return; // Salimos de la función, no se tramita la pausa
+            }
+
+
             // Guardamos quién inició la petición
             pausasPendientes.set(matchId, userId);
             socket.to(matchId).emit('match:pause_requested', {
