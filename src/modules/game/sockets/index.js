@@ -89,29 +89,38 @@ export const registerGameHandlers = (io, socket) => {
             const userId = socket.data.user?.id;
             if (!userId) return;
 
-            const activeMatch = await MatchDao.findActiveMatchByUser(userId);
+        const activeMatch = await MatchDao.findActiveMatchByUser(userId);
+        
+        if (activeMatch) {
+            const matchId = activeMatch.id;
 
-            if (activeMatch) {
-                const matchId = activeMatch.id;
-                // BUSCAMOS SI HAY UN BOT EN LA PARTIDA
-                const tieneBot = activeMatch.MatchPlayers.some(p => p.userId === BOT_UUID);
+            const socketsEnSala = await io.in(matchId).fetchSockets();
+            
+            // Buscamos si existe algún socket cuyo usuario sea el mismo que se acaba de desconectar
+            const todaviaEstaConectado = socketsEnSala.some(s => s.data.user.id === userId);
 
-                if (tieneBot) {
-                    // Si hay un bot, no esperamos. Liquidamos la partida ya.
-                    console.log(`[BOT_MATCH] Usuario desconectado. Cerrando partida ${matchId} inmediatamente.`);
-                    await statusService.registrarVictoria(matchId, BOT_UUID); // Gana el Bot por abandono
-                    io.to(matchId).emit('match:finished', {
-                        winnerId: BOT_UUID,
-                        reason: 'abandonment'
-                    });
-                    return; // Salimos, no hace falta poner el timer de 2 min
-                }
+            if (todaviaEstaConectado) {
+                // Es un socket zombie. El usuario ya ha vuelto con otra conexión.
+                // No enviamos mensajes de error ni activamos el timer de pausa.
+                console.log(`[ZOMBIE_CLEANUP] Ignorando desconexión de socket antiguo para usuario ${userId}. Sigue activo.`);
+                return; 
+            }
 
+            // Si llegamos aquí, es que el usuario NO tiene más conexiones: se ha ido de verdad.
+            const tieneBot = activeMatch.MatchPlayers.some(p => p.userId === BOT_UUID);
 
-                io.to(matchId).emit('match:player_disconnected', {
-                    message: 'El oponente ha perdido la conexión. Esperando reconexión (2 min)...',
-                    userId: userId
-                });
+            if (tieneBot) {
+                // Lógica de cerrar partida contra IA inmediatamente
+                await statusService.registrarVictoria(matchId, BOT_UUID);
+                io.to(matchId).emit('match:finished', { winnerId: BOT_UUID, reason: 'abandonment' });
+                return;
+            }
+
+            // Lógica normal para partidas humano vs humano
+            io.to(matchId).emit('match:player_disconnected', {
+                message: 'El oponente ha perdido la conexión. Esperando reconexión (2 min)...',
+                userId: userId
+            });
 
                 if (!disconnectTimers.has(matchId)) {
                     const timer = setTimeout(async () => {
