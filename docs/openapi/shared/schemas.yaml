@@ -60,6 +60,7 @@ ShipTemplate:
     baseMaxHp: { type: integer, example: 20 }
     supplyCost: { type: integer, example: 10 }
     visionRange: { type: integer, example: 2 }
+    weaponSlots: { type: integer, example: 1 }
 
 UserShipWeapon:
   type: object

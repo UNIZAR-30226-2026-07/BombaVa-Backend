@@ -9,12 +9,13 @@ import { registerLobbyHandlers } from './lobby.js';
 import { registerTurnHandlers } from './turn.js';
 import { MatchDao } from '../dao/index.js';
 import { matchService, statusService } from '../services/index.js';
+import { BOT_UUID } from '../../../shared/models/bootstrap.js';
 
 
 // Key: matchId, Value: userId del solicitante
 const pausasPendientes = new Map();
 // Key: matchId, Value: Timeout
-const disconnectTimers = new Map(); 
+const disconnectTimers = new Map();
 
 // Función para limpiar timers (solo para tests)
 export const clearGameTimers = () => {
@@ -34,7 +35,7 @@ export const registerGameHandlers = (io, socket) => {
         try {
             const userId = socket.data.user.id;
             const activeMatch = await MatchDao.findActiveMatchByUser(userId);
-            
+
             if (activeMatch) {
                 socket.emit('game:active_found', { matchId: activeMatch.id });
             } else {
@@ -61,7 +62,7 @@ export const registerGameHandlers = (io, socket) => {
         if (disconnectTimers.has(matchId)) {
             clearTimeout(disconnectTimers.get(matchId));
             disconnectTimers.delete(matchId);
-            
+
             // Avisamos al oponente
             socket.to(matchId).emit('match:player_reconnected', {
                 message: 'El oponente se ha reconectado. La partida continúa.'
@@ -80,19 +81,33 @@ export const registerGameHandlers = (io, socket) => {
         }
     });
 
-/**
-     * RF-505: Gestión de caídas de red y abandono
-     */
+    /**
+         * RF-505: Gestión de caídas de red y abandono
+         */
     socket.on('disconnect', async () => {
         try {
             const userId = socket.data.user?.id;
             if (!userId) return;
 
             const activeMatch = await MatchDao.findActiveMatchByUser(userId);
-            
+
             if (activeMatch) {
                 const matchId = activeMatch.id;
-                
+                // BUSCAMOS SI HAY UN BOT EN LA PARTIDA
+                const tieneBot = activeMatch.MatchPlayers.some(p => p.userId === BOT_UUID);
+
+                if (tieneBot) {
+                    // Si hay un bot, no esperamos. Liquidamos la partida ya.
+                    console.log(`[BOT_MATCH] Usuario desconectado. Cerrando partida ${matchId} inmediatamente.`);
+                    await statusService.registrarVictoria(matchId, BOT_UUID); // Gana el Bot por abandono
+                    io.to(matchId).emit('match:finished', {
+                        winnerId: BOT_UUID,
+                        reason: 'abandonment'
+                    });
+                    return; // Salimos, no hace falta poner el timer de 2 min
+                }
+
+
                 io.to(matchId).emit('match:player_disconnected', {
                     message: 'El oponente ha perdido la conexión. Esperando reconexión (2 min)...',
                     userId: userId
@@ -116,10 +131,10 @@ export const registerGameHandlers = (io, socket) => {
                         } catch (e) {
                             // Silenciar errores internos del timer si la BBDD ya cerró
                         }
-                    }, 2 * 60 * 1000); 
+                    }, 2 * 60 * 1000);
 
                     // Evita que Jest se quede colgado esperando los 2 minutos
-                    timer.unref(); 
+                    timer.unref();
 
                     disconnectTimers.set(matchId, timer);
                 }
@@ -141,8 +156,21 @@ export const registerGameHandlers = (io, socket) => {
         const userId = socket.data.user.id;
 
         const partida = await MatchDao.findById(matchId);
-        
+
         if (partida && partida.status === 'PLAYING') {
+            const oponente = partida.MatchPlayers.find(p => p.userId !== userId);
+
+            // Si el oponente es el BOT, rechazamos de inmediato
+            if (oponente && oponente.userId === BOT_UUID) {
+                console.log(`[BOT_MATCH] Pausa rechazada automáticamente por la IA en partida ${matchId}`);
+                
+                socket.emit('match:pause_rejected', {
+                    message: 'La Comandante_IA no acepta treguas. ¡La batalla debe continuar hasta el final!'
+                });
+                return; // Salimos de la función, no se tramita la pausa
+            }
+
+
             // Guardamos quién inició la petición
             pausasPendientes.set(matchId, userId);
             socket.to(matchId).emit('match:pause_requested', {
@@ -159,7 +187,7 @@ export const registerGameHandlers = (io, socket) => {
         const userId = socket.data.user.id;
 
         const solicitanteId = pausasPendientes.get(matchId);
-        
+
         if (!solicitanteId) {
             return socket.emit('game:error', { message: 'No hay ninguna solicitud de pausa pendiente.' });
         }
@@ -171,10 +199,10 @@ export const registerGameHandlers = (io, socket) => {
         const partida = await MatchDao.findById(matchId);
         if (partida && partida.status === 'PLAYING') {
             await MatchDao.updateStatus(matchId, 'WAITING');
-            pausasPendientes.delete(matchId); 
-            
-            io.to(matchId).emit('match:paused', { 
-                message: 'La partida ha sido pausada por mutuo acuerdo.' 
+            pausasPendientes.delete(matchId);
+
+            io.to(matchId).emit('match:paused', {
+                message: 'La partida ha sido pausada por mutuo acuerdo.'
             });
         }
     });
@@ -193,7 +221,7 @@ export const registerGameHandlers = (io, socket) => {
         }
 
         pausasPendientes.delete(matchId);
-        
+
         socket.to(matchId).emit('match:pause_rejected', {
             message: 'El oponente ha rechazado la solicitud de pausa.'
         });

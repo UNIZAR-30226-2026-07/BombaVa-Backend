@@ -76,11 +76,11 @@ describe('Vision y niebla de guerra', () => {
         hostClient.emit('ship:move', {
             matchId: setup.match.id,
             shipId: setup.shipH.id,
-            direction: 'S'
+            direction: 'N'
         });
 
         const [hostVision, guestVision] = await Promise.all([hostPromise, guestPromise]);
-        expect(hostVision.myFleet[0].y).toBe(4);
+        expect(hostVision.myFleet[0].y).toBe(6);
         expect(hostVision.myFleet[0].orientation).toBe('N');
         // El Host ve al enemigo en coordenadas absolutas ({5,7} mirando al 'S')
         expect(hostVision.visibleEnemyFleet[0].y).toBe(7);
@@ -90,7 +90,7 @@ describe('Vision y niebla de guerra', () => {
         expect(guestVision.myFleet[0].y).toBe(7);
         expect(guestVision.myFleet[0].orientation).toBe('N');
         // El Guest ve el barco enemigo en perspectiva local.
-        expect(guestVision.visibleEnemyFleet[0].y).toBe(10);
+        expect(guestVision.visibleEnemyFleet[0].y).toBe(8);
         expect(guestVision.visibleEnemyFleet[0].orientation).toBe('S');
     });
 });

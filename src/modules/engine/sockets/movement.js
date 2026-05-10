@@ -21,6 +21,10 @@ export const handleShipMove = async (io, socket, data) => {
         const jugador = await MatchDao.findMatchPlayer(matchId, userId);
         const dirTraducida = matchService.traducirOrientacion(direction, jugador.side);
 
+        if (dirTraducida !== barco.orientation) {
+            throw new Error('Movimiento inválido: Los barcos solo pueden avanzar hacia adelante.');
+        }
+
         if (!barco || !jugador || !partida) {
             throw new Error('Entidades no encontradas');
         }

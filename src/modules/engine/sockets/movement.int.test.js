@@ -48,7 +48,7 @@ describe('Movimniento', () => {
         const movePromise = new Promise((resolve, reject) => {
             client.once('ship:moved', (payload) => {
                 try {
-                    expect(payload.position.y).toBe(4);
+                    expect(payload.position.y).toBe(6);
                     resolve();
                 } catch (e) {
                     reject(e);
@@ -63,7 +63,7 @@ describe('Movimniento', () => {
             client.emit('ship:move', {
                 matchId: setup.match.id,
                 shipId: setup.instance.id,
-                direction: 'S'
+                direction: 'N'
             });
         });
 
